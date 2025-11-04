@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authors - Social Work Courses Online - Continuing Education</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c5f7c;
+            --secondary-color: #4a90af;
+            --accent-color: #f8b739;
+            --dark-bg: #1a3a4d;
+            --light-bg: #f8f9fa;
+             
+            --text-dark: #333;
+            --text-light: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-color) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, rgba(44, 95, 124, 0.95), rgba(74, 144, 175, 0.95));
+            color: white;
+            padding: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 50px 50px;
+            opacity: 0.3;
+        }
+
+        .page-header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Authors Section */
+        .authors-section {
+            padding: 4rem 0;
+            background: var(--light-bg);
+        }
+
+        .author-card {
+            background: white;
+            border-radius: 10px;
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .author-card:hover {
+            box-shadow: 0 6px 25px rgba(0,0,0,0.12);
+            transform: translateY(-3px);
+        }
+
+        .author-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .author-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            background: var(--light-bg);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .author-name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .author-credentials {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .author-bio {
+            font-size: 1rem;
+            color: var(--text-dark);
+            line-height: 1.7;
+            margin-bottom: 1rem;
+        }
+
+        .author-bio p {
+            margin-bottom: 1rem;
+        }
+
+        .author-bio p:last-child {
+            margin-bottom: 0;
+        }
+
+        .author-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 0.5rem;
+        }
+
+        .author-link:hover {
+            color: var(--primary-color);
+            gap: 0.75rem;
+        }
+
+        .author-link i {
+            font-size: 1.1rem;
+        }
+
+        .book-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .book-link:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+        .prospective-author-cta {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem;
+            border-radius: 15px;
+            text-align: center;
+            margin-top: 3rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .prospective-author-cta h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .prospective-author-cta p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(248, 183, 57, 0.3);
+        }
+
+        .cta-button:hover {
+            background: #e5a520;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(248, 183, 57, 0.4);
+            color: var(--dark-bg);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .scroll-top.show {
+            display: flex;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+
+            .author-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .author-name {
+                font-size: 1.4rem;
+            }
+
+            .author-card {
+                padding: 1.5rem;
+            }
+
+            .prospective-author-cta h3 {
+                font-size: 1.5rem;
+            }
+        }
+
+         /* Accreditation Section */
+        .accreditation-section {
+            background: var(--dark-bg);
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .accreditation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .accreditation-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        .accreditation-card i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+         /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+   /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .scroll-top.show {
+            display: flex;
+        }
+
+         .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <i class="bi bi-mortarboard-fill"></i>
+                SocialWorkCoursesOnline
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#courses">Courses</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="authors.html">Authors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#accreditation">Accreditation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">Contact</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header">
+        <div class="container">
+            <div class="page-header-content">
+                <h1>Our Authors</h1>
+                <p class="lead">Meet the distinguished experts who create our continuing education courses</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Authors Section -->
+    <section class="authors-section">
+        <div class="container">
+            <!-- Edward Abramson -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Edward Abramson</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Edward Abramson, Ph.D., is a Professor Emeritus of Psychology at California State University, and former Director of the Eating Disorders Center at Chico Community Hospital. He is the author of six books including <a href="https://www.amazon.com/Weight-Diet-Body-Image-Therapist/dp/1683730283" class="book-link" target="_blank">Weight, Diet and Body Image: What Every Therapist Needs to Know</a>.</p>
+                    <p>Dr. Abramson is an Instructor at University of California Berkeley Extension. He gives workshops and presentations on emotional eating, overcoming exercise avoidance, and the psychology of weight control. He is a Fellow of The Obesity Society and has served on the Board of Directors of The California Psychological Association. He was a Visiting Professor of Psychiatry and Psychology at the United Medical and Dental Schools, University of London, UK.</p>
+                    <a href="http://www.dredabramson.com" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Russell A. Barkley -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Russell A. Barkley</h2>
+                        <div class="author-credentials">Ph.D., ABPP</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Russell A. Barkley, Ph.D., recently retired from his position as a Clinical Professor of Psychiatry at Virginia Commonwealth University School of Medicine. He is also a retired Professor of Psychiatry and Neurology from the University of Massachusetts Medical Center and Professor of Psychiatry and Health Sciences at the Medical University of South Carolina. He is board certified in Clinical Psychology (ABPP), Clinical Child and Adolescent Psychology, and Clinical Neuropsychology (ABCN, ABPP).</p>
+                    <p>Dr. Barkley is a clinical scientist, educator, and practitioner who has published 27 books, rating scales, and clinical manuals numbering more than 43 editions, and creator of 7 award winning professional videos. He has also published more than 300 scientific articles and book chapters related to the nature, assessment, and treatment of ADHD and related disorders. He is the founder and Editor of the clinical newsletter, The ADHD Report, which ran for 30 years, from 1993 through 2022.</p>
+                    <p>His books include: <a href="https://www.guilford.com/books/Attention-Deficit-Hyperactivity-Disorder/Russell-Barkley/9781462538874" class="book-link" target="_blank">Attention Deficit Hyperactivity Disorder: A handbook for Diagnosis and Treatment (4th ed., 2015)</a>; <a href="http://www.guilford.com/p/barkley24" class="book-link" target="_blank">Executive Functions: What They Are, How They Work, and Why They Evolved (2012)</a>; and <a href="http://www.guilford.com/cgi-bin/cartscript.cgi?page=pr/barkley18.htm&dir=trade/psychology&cart_id=672456.5339" class="book-link" target="_blank">Taking Charge of Adult ADHD (2nd ed., 2021)</a>.</p>
+                    <p>Dr. Barkley has received awards from the American Psychological Association, American Academy of Pediatrics, American Board of Professional Psychology, and many other organizations for his career accomplishments and contributions to research in ADHD.</p>
+                    <a href="http://www.russellbarkley.org/" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Laura S. Brown -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Laura S. Brown</h2>
+                        <div class="author-credentials">Ph.D., ABPP</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Laura S. Brown, Ph.D., ABPP, practices forensic psychology and case consultation for therapists in Seattle, with a special focus on working with survivors of trauma, having retired from psychotherapy practice in 2018. She was the founder and director of the Fremont Community Therapy Project, a training clinic that, between 2006 and 2015, offered low-cost psychological services.</p>
+                    <p>Her books include <a href="http://www.drlaurabrown.com/written/" class="book-link" target="_blank">Cultural competence in trauma treatment: Beyond the flashback (2007)</a> and <a href="http://drlaurabrown.com/publications.php" class="book-link" target="_blank">Feminist therapy, 2nd Edition (2016)</a>, both published by the American Psychological Association. She has published over 160 journal articles and book chapters on trauma treatment, feminist therapy, cultural competence, LGBT issues, and related topics.</p>
+                    <p>Her work has been honored with numerous awards, including APA's Award for Distinguished Professional Contributions to Public Service, the Sarah Haley Award for Clinical Excellence, and the Award for Distinguished Lifetime Achievement from the Division of Trauma Psychology of the American Psychological Association.</p>
+                    <a href="http://www.drlaurabrown.com" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- David Cosio -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">David Cosio</h2>
+                        <div class="author-credentials">Ph.D., ABPP</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>David Cosio, Ph.D., ABPP, is a psychologist in the Pain Clinic and the CARF Accredited, interdisciplinary pain program at the Jesse Brown VA Medical Center in Chicago. He received his PhD from Ohio University, with a specialization in Health Psychology and completed a behavioral medicine internship at the University of Massachusetts Amherst Mental Health Services.</p>
+                    <p>Dr. Cosio is the author of the books, <a href="https://www.amazon.com/Pain-Relief-Managing-Traditional-Practices/dp/1462122159" class="book-link" target="_blank">Pain Relief: Managing Chronic Pain Through Traditional, Holistic, & Eastern Practices (2018)</a>, published by Cedar Fort, and The Psychology of Pain Relief (2025), published by Ethics International Press.</p>
+                    <p>He has published several articles on health psychology, specifically in the area of patient pain education. He achieved specialist certification in clinical health psychology by the American Board of Professional Psychology in 2017.</p>
+                </div>
+            </div>
+
+            <!-- Steven E. Curtis -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Steven E. Curtis</h2>
+                        <div class="author-credentials">Ph.D., NCSP, MSCP</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Steven E. Curtis, Ph.D., NCSP, MSCP, is a Nationally Certified School Psychologist, Licensed Clinical Psychologist in Washington and New Mexico States, and Certified Prescribing Psychologist in New Mexico. He is an Affiliate Faculty in the Psy.D. Program at Antioch University, Seattle, a Child Clinical Psychologist at Lifespan Psychological Services on Bainbridge Island, WA, and a Pediatric Prescribing Psychologist in Family Medicine at Memorial Medical Center in Las Cruces, NM.</p>
+                    <p>Dr. Curtis is past President of the Society for Prescribing Psychology (Division 55) of the American Psychological Association. At Antioch University, Seattle, he teaches Pediatric Psychology, Child Development, and Psychopharmacology courses. He recently published Prescriptive Authority for Psychologists: The Next Step (2023). Dr. Curtis received the Distinguished Service Award from the Washington State Psychological Association in 2021.</p>
+                </div>
+            </div>
+
+            <!-- William A. Eddy -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">William A. Eddy</h2>
+                        <div class="author-credentials">LCSW, JD</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>William A. ("Bill") Eddy, LCSW, JD, has been a Family Law attorney and Mediator since 1993. Prior to practicing law, he was a psychotherapist (a Licensed Clinical Social Worker) for twelve years, working with children and families in psychiatric hospitals and outpatient clinics. He has handled over 400 divorce cases as an attorney and has provided divorce mediation services to over 1500 couples.</p>
+                    <p>He is the Senior Family Mediator at the National Conflict Resolution Center in San Diego, CA. He is also on the part-time faculties of the Straus Institute for Dispute Resolution at Pepperdine University School of Law and the National Judicial College.</p>
+                    <p>Mr. Eddy is the President of High Conflict Institute, based in San Diego, CA where he provides seminars to mental health professionals, lawyers, judges, mediators, human resource professionals, and others on the subject of high-conflict personalities in legal disputes. He is the developer of the New Ways for Families℠ method and the CARS Method℠ of Conflict Resolution.</p>
+                    <p>Mr. Eddy is the author of ten books, including <a href="http://www.highconflictinstitute.com/bookstores" class="book-link" target="_blank">High Conflict People in Legal Disputes, 2nd Edition</a>, <a href="http://www.highconflictinstitute.com/bookstores" class="book-link" target="_blank">It's All Your Fault!</a>, and <a href="http://www.highconflictinstitute.com/bookstores" class="book-link" target="_blank">Don't Alienate the Kids!</a></p>
+                    <a href="http://www.HighConflictInstitute.com/" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Carol Falender -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Carol Falender</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Carol Falender, Ph.D., is a lecturer, supervisor, and teacher. Dr. Falender has conducted extensive training on supervision through the American Psychological Association (APA), California Psychological Association (CPA), and numerous other organizations nationally and internationally. She is Clinical Professor in the UCLA Department of Psychology and Chair of Continuing Education of the California Psychological Association.</p>
+                    <p>Dr. Falender is co-author of <a href="http://www.apa.org/pubs/books/4313032.aspx" class="book-link" target="_blank">Getting the Most Out of Clinical Training and Supervision: A Guide for Practicum Students and Interns (2012)</a>, <a href="https://www.amazon.com/Clinical-Supervision-Competency-Based-Carol-Falender/dp/1433833603" class="book-link" target="_blank">Clinical Supervision: A Competency-based Approach (2nd Ed.) (2021)</a>, and <a href="http://www.apa.org/pubs/books/4317154.aspx" class="book-link" target="_blank">Casebook for Clinical Supervision: A Competency-Based Approach (2008)</a>, all published by the American Psychological Association.</p>
+                    <a href="http://www.cfalender.com/" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Cynthia Glidden-Tracey -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Cynthia Glidden-Tracey</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Cynthia Glidden-Tracey, Ph.D., is a retired psychologist licensed in Florida and Arizona. She held faculty positions at the University of British Columbia-Vancouver, Arizona State University, and Southern Illinois University at Carbondale teaching substance use therapy. She provided therapy at the Prairie Center for Substance Abuse in Urbana, IL and established a private practice specializing in substance use therapy.</p>
+                    <p>Dr. Glidden-Tracey served for many years as an Associate Editor with the journal Addictions Research and Theory (ART). She co-chaired the Education and Training Committee of the APA Society of Addiction Psychology (SoAP, Division 50). She is also a member of the International Association for Music and Medicine (IAMM).</p>
+                    <p>Dr. Glidden-Tracey is author of <a href="https://www.routledge.com/products/9780805845518" class="book-link" target="_blank">Counseling and Therapy With Clients Who Abuse Alcohol or Other Drugs: An Integrative Approach (2005)</a>.</p>
+                </div>
+            </div>
+
+            <!-- Enrico Gnaulati -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Enrico Gnaulati</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Enrico Gnaulati Ph.D., is a clinical psychologist based in Pasadena, California, and Affiliate Professor of Psychology at Seattle University. He has published numerous journal and magazine articles and his work has been featured on major media outlets. As a blogger for Mad in America and PsychAlive, board member for the Psychotherapy Action Network (PsiAN), he is considered a nationally recognized reformer of mental health practice and policy.</p>
+                    <p>Dr. Gnaulati's books include <a href="https://www.amazon.com/Back-to-Normal-Enrico-Gnaulati-audiobook/dp/B00EVVDCKY" class="book-link" target="_blank">Back to Normal: Why Ordinary Childhood Behavior is Mistaken for ADHD, Bipolar Disorder, and Autism Spectrum Disorder (Beacon Press, 2013)</a>, <a href="https://www.amazon.com/Saving-Talk-Therapy-Insurers-Slanted/dp/0807055115" class="book-link" target="_blank">Saving Talk Therapy (Beacon Press, 2018)</a>, and his latest book <a href="https://www.amazon.com/Flourishing-Love-Secular-Intimate-Relationships/dp/1800132085" class="book-link" target="_blank">Flourishing Love: A Secular Guide to Lasting Intimate Relationships (Phoenix Publishing House, 2023)</a>.</p>
+                    <a href="https://www.gnaulati.com" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Tobi Goldfus -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Tobi Goldfus</h2>
+                        <div class="author-credentials">LCSW-C, BCD</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Tobi Goldfus, LCSW-C, BCD, is a therapist, author, and national/international teacher and speaker. Her graduate and post-graduate trainings have included family therapy, NLP, ego state and somatic experiencing, and extensive study of Ericksonian hypnotherapy.</p>
+                    <p>She is a member of the NASW (National Association of Social Workers), the American Board of Examiners of Clinical Social Workers (ABESW), the ASCH (American Society of Clinical Hypnosis), the ISH (International Society of Hypnosis), and The ESH (European Society of Hypnosis).</p>
+                    <p>Ms. Goldfus is the author of <a href="https://www.amazon.com/Real-Life-Cyberspace-Back-Again/dp/1934442542" class="book-link" target="_blank">From Real Life to Cyberspace and Back Again: Helping Our Young Clients Develop a Strong Inner Selfie (2017)</a> and a contributor to Ericksonian Therapy Now: The Master Class with Jeffrey K. Zeig, Ph.D. (2018).</p>
+                    <a href="https://www.tobigoldfus.com" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Laura Hill -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Laura Hill</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Laura Hill, Ph.D., is an Adjunct Associate Professor of Psychiatry and Behavioral Health at The Ohio State University, and Assistant Clinical Professor in the Department of Psychiatry, at The University of California, San Diego. She is a co-developer of the TBT-S Training Institute in 2022.</p>
+                    <p>Dr. Hill is one of the original founders of the Academy for Eating Disorders and was Director of The National Eating Disorder Organization, now known as the NEDA from 1990 to 1994. She was also the founder, President & Chief Executive Officer of The Center for Balanced Living from 2000 to 2017. She is the recipient of the Muskingum University Distinguished Service Award and the NEDA 2011 Lori Irving Award for Excellence in Eating Disorders Prevention and Awareness.</p>
+                    <p>Dr. Hill is the co-author of <a href="https://www.amazon.com/Temperament-Therapy-Support-Anorexia-Nervosa/dp/1009016806" class="book-link" target="_blank">Temperament Based Therapy with Support for Anorexia Nervosa: A Novel Treatment (2022)</a>.</p>
+                    <a href="https://tbtstraining.com/" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Patricia Keith-Spiegel -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Patricia Keith-Spiegel</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Patricia Keith-Spiegel, Ph.D., specializes in professional ethics, organizational integrity, decision-making, and resolution of ethical conflicts. Her work on social justice, dishonesty, moral hazards, and irresponsible behavior in organizations has resulted in three federally-funded grant projects.</p>
+                    <p>The best-selling textbook, <a href="https://global.oup.com/academic/product/ethics-in-psychology-and-the-mental-health-professions-9780199957699" class="book-link" target="_blank">Ethics in Psychology and the Mental Health Professions</a>, co-authored with Dr. Gerald Koocher, was published by Oxford University Press in 2016. Her newest book, <a href="http://www.routledgementalhealth.com/books/details/9780415833394" class="book-link" target="_blank">Red Flags in Psychotherapy: Stories of Ethics Complaints and Resolutions</a>, is written as narrative nonfiction.</p>
+                    <p>She served two terms as Chair of the Ethics Committee of the American Psychological Association. Dr. Keith-Spiegel regularly taught professional ethics and ethical leadership classes in her 35 years as a university professor and as the Director of the Center for Teaching Integrity at Ball State University, where she is the Voran Honored Distinguished Professor of Social and Behavioral Sciences (Emerita).</p>
+                </div>
+            </div>
+
+            <!-- Jason H. King -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Jason H. King</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Jason H. King, Ph.D., co-owned and clinically directed an outpatient mental health and substance abuse treatment clinic that collected data for the American Psychiatric Association's Routine Clinical Practice field trials that informed the DSM-5 revision process. Because of this role, page 1,000 of the DSM-5-TR lists him as a Collaborating Investigator.</p>
+                    <p>He served as a DSM-5 Revision Task Force committee member for the American Mental Health Counselors Association (AMHCA) and the American Counseling Association (ACA), and has given over 200 national and international trainings on the DSM-5 since its publication in May 2013.</p>
+                    <p>Dr. King is the DSM-5 content editor for the textbooks <a href="http://www.springerpub.com/dsm-5r-and-family-systems.html" class="book-link" target="_blank">DSM-5-TR® and Family Systems</a> and <a href="http://www.wiley.com/WileyCDA/WileyTitle/productCd-1118917928.html" class="book-link" target="_blank">Diagnosing Children and Adolescents: Guide for Mental Health Practitioners</a>. Dr. King received the 2012 AMHCA Mental Health Counselor of the Year Award.</p>
+                    <a href="http://www.includeuschool.com" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Gerald P. Koocher -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Gerald P. Koocher</h2>
+                        <div class="author-credentials">Ph.D., ABPP</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Gerald P. Koocher, Ph.D., ABPP, is Senior Associate in the Department of Psychiatry and Behavioral Sciences and faculty member at the Harvard Medical School Bioethics Center. His prior positions included Professor and Dean of the College of Science and Health at DePaul University, Professor and Dean at Simmons University, and Chief of Psychology at Boston's Children's Hospital.</p>
+                    <p>Dr. Koocher founded the journal Ethics & Behavior, and has published more than 350 articles and book chapters and authored or edited 17 books including <a href="https://global.oup.com/academic/product/ethics-in-psychology-and-the-mental-health-professions-9780199957699" class="book-link" target="_blank">Ethics in Psychology and the Mental Health Professions</a> and the <a href="https://global.oup.com/academic/product/psychologists-desk-reference-9780199845491" class="book-link" target="_blank">Psychologists' Desk Reference</a>.</p>
+                    <p>Elected as a Fellow of twelve divisions of the American Psychological Association (APA) and the American Association for the Advancement of Science, Koocher has earned five specialty diplomas from the American Boards of Professional Psychology. He served as President of the APA in 2006.</p>
+                    <a href="http://www.ethicsresearch.com/" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- Li Liang -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Li Liang</h2>
+                        <div class="author-credentials">MD</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Dr. Li Liang, MD, graduated from Heilongjiang University of Chinese Medicine in China in 1992. Dr. Liang is board-certified by the American Board of Psychiatry and Neurology and currently works as a licensed psychiatrist in California. She completed her residency in 2008 at the Creedmoor Psychiatric Center, which has education and training affiliations with Columbia University Medical Center/New York Presbyterian Hospital in New York.</p>
+                    <p>She then opened a private practice in San Diego called ClearInsight, Psychiatry, Inc. Dr. Liang has spent the past 15 years devoting herself to clinical practice and is committed to innovative healthcare practices that lead to positive clinical outcomes. Dr. Liang is a proponent of mind/body health and believes that this holistic approach contributes to building healthy minds and emotional well-being.</p>
+                </div>
+            </div>
+
+            <!-- William M. Liu -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">William M. Liu</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>William Ming Liu, Ph.D., is Professor of Counseling Psychology and Department Chair of Counseling, Higher Education, and Special Education at the University of Maryland at College Park. He is a fellow of Division 17 and 51 in APA. His research includes multicultural competencies, critical race theory and application, social class and classism, and men and masculinity.</p>
+                    <p>He received leadership awards from the Committee on Socioeconomic Status (APA), the Society for the Psychological Study of Culture, Ethnicity and Race, and the Society for the Psychological Study of Men and Masculinities. In 2022, he received the Janet E. Helms Award for Mentoring and Scholarship from the Winter Roundtable, Teachers College, Columbia University.</p>
+                    <p>Dr. Liu is an editor of <a href="http://www.sagepub.com/books/Book17611" class="book-link" target="_blank">Handbook of Multicultural Competencies in Counseling and Psychology (Sage, 2003)</a>, author of <a href="http://www.sagepub.com/books/Book233477" class="book-link" target="_blank">Social Class and Classism in the Helping Professions (Sage, 2011)</a>, and sole editor of <a href="http://www.oxfordhandbooks.com/view/10.1093/oxfordhb/9780195398250.001.0001/oxfordhb-9780195398250" class="book-link" target="_blank">The Oxford Handbook of Social Class in Counseling (Oxford University Press, 2013)</a>.</p>
+                </div>
+            </div>
+
+            <!-- William Matteson -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">William Matteson</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>William Matteson, Ph.D., is a Geriatric Psychologist, an accomplished speaker, and the author of three books: <a href="http://www.amazon.com/Stop-Memory-Loss-Fight-Forgetfulness/dp/0965556395" class="book-link" target="_blank">Stop Memory Loss: How to Fight Forgetfulness over Forty</a>, <a href="http://www.amazon.com/Caregivers-Bible-Behavioral-Emotional-Quandaries/dp/0965556301" class="book-link" target="_blank">Care Givers Bible</a>, and <a href="http://www.amazon.com/The-Abduction-Enigma-Kevin-Randle/dp/B000H2M9O6" class="book-link" target="_blank">The Abduction Enigma</a>.</p>
+                    <p>He has been a keynote speaker for over one hundred organizations, including the California Department of Aging Services, the California Association of Homes and Services for the Aging, and Congress of California Seniors. For the past 20 years, Dr. Matteson has worked in mental health hospitals and long term care facilities, diagnosing and treating mental problems of older adults.</p>
+                    <p>Because of his expertise in aging and memory he has been featured on many television programs including "Hard Copy," "Unsolved Mysteries," "The Maury Povitch Show," and numerous radio programs nationwide.</p>
+                </div>
+            </div>
+
+            <!-- Clifton Mitchell -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">Clifton Mitchell</h2>
+                        <div class="author-credentials">Ph.D.</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>Clifton Mitchell Ph.D., Licensed Psychologist, is a professor at East Tennessee State University in Johnson City, Tennessee where he received the Teacher of the Year award in 2002. He has over 20 years experience as a trainer and keynote speaker and is known for delivering practical, down-to earth information in a uniquely entertaining, humorous style.</p>
+                    <p>In his book, <a href="http://www.cliftonmitchell.com/Book.html" class="book-link" target="_blank">Effective Techniques for Dealing with Highly Resistant Clients</a>, he presents cutting-edge approaches available for managing therapeutic resistance. Dr. Mitchell has also lectured and keynoted at hundreds of organizations, teaching effective techniques for improving communications and for creating change through the precise use of language.</p>
+                    <p>Phone: 423-854-9211</p>
+                    <a href="http://www.CliftonMitchell.com/" class="author-link" target="_blank">
+                        <i class="bi bi-globe"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+
+            <!-- John C. Norcross -->
+            <div class="author-card">
+                <div class="author-header">
+                    <div class="author-icon">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <h2 class="author-name">John C. Norcross</h2>
+                        <div class="author-credentials">Ph.D., ABPP</div>
+                    </div>
+                </div>
+                <div class="author-bio">
+                    <p>John C. Norcross, Ph.D., ABPP, is Distinguished Professor of Psychology and Chair at the University of Scranton, Clinical Professor of Psychiatry at SUNY Upstate Medical University, and an internationally recognized authority on behavior change and psychotherapy. Author of more than 400 scholarly publications, Dr. Norcross has co-written or edited 23 books.</p>
+                    <p>His books include <a href="https://www.guilford.com/books/Leaving-It-at-the-Office/Norcross-VandenBos/9781462535927" class="book-link" target="_blank">Leaving It at the Office: A Guide to Psychotherapist Self-Care</a> (with VandenBos), Psychotherapy Relationships That Work, and Systems of Psychotherapy: A Transtheoretical Analysis (now in its 10th edition).</p>
+                    <p>Dr. Norcross has received many professional awards, including APA's Distinguished Career Contributions to Education & Training Award, Pennsylvania Professor of the Year from the Carnegie Foundation, and election to the National Academies of Practice. His work has been featured in hundreds of media interviews on shows such as the Today Show, CBS News Sunday Morning, and Good Morning America.</p>
+                </div>
+            </div>
+
+         </div>
+     </section>
+        <!-- Accreditation Section -->
+    <section id="accreditation" class="accreditation-section">
+        <div class="container">
+            <h2 class="text-center mb-4" style="color: white;">Our Accreditations</h2>
+            <div class="accreditation-grid">
+                <div class="accreditation-card">
+                    <i class="bi bi-award-fill"></i>
+                    <h5>ASWB Approved</h5>
+                    <p>ContinuingEdCourses.Net dba SocialWorkCoursesOnline.com, provider #1107, is approved as an ACE provider to offer social work continuing education by the Association of Social Work Boards (ASWB) Approved Continuing Education (ACE) program.</p>
+                    <small>Approval period: 3/9/2005-3/9/2027</small>
+                </div>
+                <div class="accreditation-card">
+                    <i class="bi bi-patch-check-fill"></i>
+                    <h5>NBCC Approved</h5>
+                    <p>Approved by NBCC as an Approved Continuing Education Provider, ACEP No. 6323. Programs that do not qualify for NBCC credit are clearly identified.</p>
+                </div>
+                <div class="accreditation-card">
+                    <i class="bi bi-shield-fill-check"></i>
+                    <h5>NYSED-SW Recognized</h5>
+                    <p>Recognized by the New York State Education Department's State Board for Social Work as an approved provider of continuing education for licensed social workers #SW-0561.</p>
+                </div>
+                <div class="accreditation-card">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <h5>NYSED-MHC Recognized</h5>
+                    <p>Recognized by the New York State Education Department's State Board for Mental Health Practitioners as an approved provider of continuing education for licensed mental health counselors #MHC-0229.</p>
+                </div>
+            </div>
+            <p class="text-center mt-4" style="color: rgba(255,255,255,0.8);">
+                <em>Although we may provide guidance, it is your responsibility to verify your continuing education requirements with your licensing board.</em>
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="section-title">Contact Us</h2>
+                    <p class="lead mt-4">Feel free to contact us if you have any questions.</p>
+                    <div class="mt-4">
+                        <p><i class="bi bi-telephone-fill text-primary"></i> <strong>Phone:</strong> 858-842-4100</p>
+                        <p><i class="bi bi-envelope-fill text-primary"></i> <strong>Email:</strong> <a href="mailto:Contact@SocialWorkCoursesOnline.com">Contact@SocialWorkCoursesOnline.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 SocialWorkCoursesOnline.com, Inc. All rights reserved.</p>
+            <p>Regulatory boards are the final authority on courses accepted for continuing education credit.</p>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">
+        <i class="bi bi-arrow-up"></i>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Smooth scrolling for navigation links
+            $('a[href^="#"]').on('click', function(e) {
+                e.preventDefault();
+                var target = $(this.getAttribute('href'));
+                if (target.length) {
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 70
+                    }, 1000);
+                }
+            });
+
+            // Show/hide scroll to top button
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 300) {
+                    $('#scrollTop').addClass('show');
+                } else {
+                    $('#scrollTop').removeClass('show');
+                }
+            });
+
+            // Scroll to top functionality
+            $('#scrollTop').on('click', function() {
+                $('html, body').animate({scrollTop: 0}, 800);
+            });
+
+            // Add animation to category cards on scroll
+            function checkScroll() {
+                $('.category-card').each(function() {
+                    var cardTop = $(this).offset().top;
+                    var cardBottom = cardTop + $(this).outerHeight();
+                    var windowTop = $(window).scrollTop();
+                    var windowBottom = windowTop + $(window).height();
+
+                    if (cardBottom > windowTop && cardTop < windowBottom) {
+                        $(this).css({
+                            'opacity': '1',
+                            'transform': 'translateY(0)'
+                        });
+                    }
+                });
+            }
+
+            // Initial card animation setup
+            $('.category-card').css({
+                'opacity': '0',
+                'transform': 'translateY(30px)',
+                'transition': 'all 0.6s ease-out'
+            });
+
+            checkScroll();
+            $(window).on('scroll', checkScroll);
+
+            // Navbar background change on scroll
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').css('box-shadow', '0 4px 20px rgba(0,0,0,0.15)');
+                } else {
+                    $('.navbar').css('box-shadow', '0 2px 10px rgba(0,0,0,0.1)');
+                }
+            });
+
+            // Course item hover effect
+            $('.course-item').hover(
+                function() {
+                    $(this).find('.course-title').css('color', 'var(--secondary-color)');
+                },
+                function() {
+                    $(this).find('.course-title').css('color', 'var(--primary-color)');
+                }
+            );
+        });
+    </script>
+</body>
+</html>

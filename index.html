@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Work Courses Online - Continuing Education</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #2c5f7c;
+            --secondary-color: #4a90af;
+            --accent-color: #f8b739;
+            --dark-bg: #1a3a4d;
+            --light-bg: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 1rem 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+            transition: all 0.3s;
+            margin: 0 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: var(--accent-color) !important;
+            transform: translateY(-2px);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(44, 95, 124, 0.95), rgba(74, 144, 175, 0.95)),
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%232c5f7c" width="1200" height="600"/></svg>');
+            color: white;
+            padding: 5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
+            background-size: 50px 50px;
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(248, 183, 57, 0.3);
+        }
+
+        .steps-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .step-card {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .step-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Testimonial Section */
+        .testimonial-section {
+            background: var(--light-bg);
+            padding: 3rem 0;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-left: 4px solid var(--accent-color);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-author {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        /* Course Section */
+        .courses-section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--accent-color);
+            border-radius: 2px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .category-card:hover {
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            transform: translateY(-5px);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .category-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .category-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .course-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .course-item:last-child {
+            border-bottom: none;
+        }
+
+        .course-item:hover {
+            background: #f8f9fa;
+            padding-left: 2rem;
+        }
+
+        .course-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            display: block;
+            transition: color 0.3s;
+        }
+
+        .course-title:hover {
+            color: var(--secondary-color);
+        }
+
+        .course-badge {
+            display: inline-block;
+            background: #e3f2fd;
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+
+        .course-badge.new {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .course-badge.updated {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .course-badge.expanded {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .course-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            margin-top: 0.5rem;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        .course-author {
+            color: var(--text-light);
+        }
+
+        .course-price {
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        /* Accreditation Section */
+        .accreditation-section {
+            background: var(--dark-bg);
+            color: white;
+            padding: 3rem 0;
+        }
+
+        .accreditation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .accreditation-card {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            text-align: center;
+        }
+
+        .accreditation-card i {
+            font-size: 3rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-color);
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .steps-container {
+                flex-direction: column;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .scroll-top.show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-mortarboard-fill"></i>
+                SocialWorkCoursesOnline
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#home">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#courses">Courses</a>
+                    </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="authors.html">Authors</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#accreditation">Accreditation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="contact.html">Contact</a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">Nationally Accredited Provider</div>
+                <h1>Continuing Education Courses Online</h1>
+                <p class="lead">The highest quality, most up-to-date continuing education courses for licensed social workers, professional counselors, and marriage and family therapists.</p>
+                
+                <div class="steps-container">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h4>Take the Course Online</h4>
+                        <p>No books to buy. No videos to suffer through!</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h4>Take the Test Online</h4>
+                        <p>Complete the assessment at your own pace</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h4>Print Your Certificate</h4>
+                        <p>Pay only after you pass the test</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="testimonial-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">"One of the best online courses I have ever taken. Very well done."</div>
+                        <div class="testimonial-author">- Mark Basinger, LCSW, Muncy, PA</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="testimonial-card">
+                        <div class="testimonial-text">"I like that I can review the material before I decide what course to take. I see that as very generous and user friendly, so thank you."</div>
+                        <div class="testimonial-author">- Dawne M. Grove, MC, LMHC, Everson, WA</div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <p class="lead"><strong>View our courses for free - no pre-registration required.</strong></p>
+                <p>(You pay only after you pass the test.)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Courses Section -->
+    <section id="courses" class="courses-section">
+        <div class="container">
+            <h2 class="section-title">Our Courses</h2>
+            <p class="lead mb-5">Click on a course to view it for free. You pay only after you pass the test.</p>
+
+            <!-- Ethics Category -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-shield-check category-icon"></i>
+                    <h3 class="category-title">Ethics</h3>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge new">New!</span>
+                    <a href="#" class="course-title">The Therapist as Ethicist: What to Do When Professional and Humanistic Ethics Collide</a>
+                    <div class="course-meta">
+                        <span class="course-author">Enrico Gnaulati, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge updated">Updated!</span>
+                    <a href="#" class="course-title">"What Should I Do?" - Ethical Risks, Making Decisions, and Taking Action</a>
+                    <div class="course-meta">
+                        <span class="course-author">Gerald P. Koocher, Ph.D., ABPP & Patricia Keith-Spiegel, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge updated">Updated!</span>
+                    <a href="#" class="course-title">The Ethics of Self-Care: Where the Personal is the Professional</a>
+                    <div class="course-meta">
+                        <span class="course-author">John C. Norcross, Ph.D., ABPP & Gary R. VandenBos, Ph.D., ABPP</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">It's More Than Just a Call: Ethical Issues in Providing Behavioral Telehealth</a>
+                    <div class="course-meta">
+                        <span class="course-author">Gerald P. Koocher, Ph.D., ABPP & Patricia Keith-Spiegel, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Boundary Crossings and the Ethics of Multiple Role Relationships</a>
+                    <div class="course-meta">
+                        <span class="course-author">Gerald P. Koocher, Ph.D., ABPP & Patricia Keith-Spiegel, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Confronting Risky Temptations in Professional Practice</a>
+                    <div class="course-meta">
+                        <span class="course-author">Gerald P. Koocher, Ph.D., ABPP & Patricia Keith-Spiegel, Ph.D.</span>
+                        <span>|</span>
+                        <span>2 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$29</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Necessary Secrets: Ethical Dilemmas Involving Confidentiality</a>
+                    <div class="course-meta">
+                        <span class="course-author">Gerald P. Koocher, Ph.D., ABPP & Patricia Keith-Spiegel, Ph.D.</span>
+                        <span>|</span>
+                        <span>4 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$59</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge updated">Updated!</span>
+                    <a href="#" class="course-title">Oppositional Defiant Disorder: The Four Factor Model for Assessment and Management</a>
+                    <div class="course-meta">
+                        <span class="course-author">Russell A. Barkley, Ph.D., ABPP</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Difficult Clients -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-exclamation-triangle category-icon"></i>
+                    <h3 class="category-title">Difficult Clients</h3>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge expanded">Expanded!</span>
+                    <a href="#" class="course-title">"It's All Your Fault!" - Working With High Conflict Personalities</a>
+                    <div class="course-meta">
+                        <span class="course-author">William A. Eddy, LCSW, JD</span>
+                        <span>|</span>
+                        <span>11 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$164</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">"You Can't Make Me!" - Effective Techniques for Managing Highly Resistant Clients</a>
+                    <div class="course-meta">
+                        <span class="course-author">Clifton Mitchell, Ph.D.</span>
+                        <span>|</span>
+                        <span>8 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$119</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Addiction -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-activity category-icon"></i>
+                    <h3 class="category-title">Addiction</h3>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge updated">Updated!</span>
+                    <a href="#" class="course-title">Might as Well Face It, There's Addiction Among Your Clients: Assessing for Substance Use</a>
+                    <div class="course-meta">
+                        <span class="course-author">Cynthia Glidden-Tracey, Ph.D.</span>
+                        <span>|</span>
+                        <span>6 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$89</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge expanded">Expanded!</span>
+                    <a href="#" class="course-title">Might as Well Face It, There's Addiction Among Your Clients: Treatment Planning</a>
+                    <div class="course-meta">
+                        <span class="course-author">Cynthia Glidden-Tracey, Ph.D.</span>
+                        <span>|</span>
+                        <span>7 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$104</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pain Management -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-bandaid category-icon"></i>
+                    <h3 class="category-title">Pain Management</h3>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge updated">Updated!</span>
+                    <a href="#" class="course-title">Pain Relief: Putting Pain Management in Your Client's Hands</a>
+                    <div class="course-meta">
+                        <span class="course-author">David Cosio, Ph.D., ABPP</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge updated">Updated!</span>
+                    <a href="#" class="course-title">Pain Relief: Psychology, Evaluation, and Evidence-Based Interventions</a>
+                    <div class="course-meta">
+                        <span class="course-author">David Cosio, Ph.D., ABPP</span>
+                        <span>|</span>
+                        <span>10 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$149</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Couple and Family Therapy -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-people category-icon"></i>
+                    <h3 class="category-title">Couple and Family Therapy</h3>
+                </div>
+                <div class="course-item">
+                    <span class="course-badge updated">Updated!</span>
+                    <a href="#" class="course-title">"Making Up Is Hard To Do" - Couples Therapy After Infidelity</a>
+                    <div class="course-meta">
+                        <span class="course-author">Steven D. Solomon, Ph.D. & Lorie J. Teagno, Ph.D.</span>
+                        <span>|</span>
+                        <span>5 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$74</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Couples Therapy: Striving for Excellence</a>
+                    <div class="course-meta">
+                        <span class="course-author">Enrico Gnaulati, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cultural Diversity -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-globe category-icon"></i>
+                    <h3 class="category-title">Cultural Diversity / Multicultural Competency</h3>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Cultural Competence and Sensitivity in the Trauma-Aware Clinician</a>
+                    <div class="course-meta">
+                        <span class="course-author">Laura S. Brown, Ph.D., ABPP</span>
+                        <span>|</span>
+                        <span>4 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$59</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Providing Multicultural Therapy: Developing Cultural Efficacy</a>
+                    <div class="course-meta">
+                        <span class="course-author">Carol Falender, Ph.D. & Tonya Wood, Ph.D.</span>
+                        <span>|</span>
+                        <span>4 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$59</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Multicultural Competency: How Are We Different? Let Us Count the Ways</a>
+                    <div class="course-meta">
+                        <span class="course-author">William M. Liu, Ph.D.</span>
+                        <span>|</span>
+                        <span>5 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$74</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trauma/PTSD -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-heart-fill category-icon"></i>
+                    <h3 class="category-title">Trauma/PTSD</h3>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Becoming a Trauma-Aware Clinician: Definitions and Assessment</a>
+                    <div class="course-meta">
+                        <span class="course-author">Laura S. Brown, Ph.D., ABPP</span>
+                        <span>|</span>
+                        <span>4 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$59</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">After the Trauma: Skills and Treatment</a>
+                    <div class="course-meta">
+                        <span class="course-author">Laura S. Brown, Ph.D., ABPP</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suicide Prevention -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-life-preserver category-icon"></i>
+                    <h3 class="category-title">Suicide Prevention</h3>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Suicide Assessment For Clinicians: A Strength-Based Model</a>
+                    <div class="course-meta">
+                        <span class="course-author">John Sommers-Flanagan, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Suicide Interventions and Treatment Planning for Clinicians: A Strengths-Based Model</a>
+                    <div class="course-meta">
+                        <span class="course-author">John Sommers-Flanagan, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transference and Countertransference -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-arrow-left-right category-icon"></i>
+                    <h3 class="category-title">Transference and Countertransference</h3>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Double-Edged Swords: Understanding Transference and Countertransference in Non-analytic Therapy</a>
+                    <div class="course-meta">
+                        <span class="course-author">Judith A. Schaeffer, Ph.D.</span>
+                        <span>|</span>
+                        <span>4 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$59</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Double Edged Swords: Improving Therapy Through Interpretation</a>
+                    <div class="course-meta">
+                        <span class="course-author">Judith A. Schaeffer, Ph.D.</span>
+                        <span>|</span>
+                        <span>5 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$74</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Love in Therapy: Using Transference and Countertransference Benevolently</a>
+                    <div class="course-meta">
+                        <span class="course-author">Judith A. Schaeffer, Ph.D.</span>
+                        <span>|</span>
+                        <span>5 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$74</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eating Disorders and Obesity -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-clipboard-pulse category-icon"></i>
+                    <h3 class="category-title">Eating Disorders and Obesity</h3>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Why Weight? - Helping Your Clients with Obesity and Weight Control</a>
+                    <div class="course-meta">
+                        <span class="course-author">Edward Abramson, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Overcoming Anorexia with Temperament-Based Therapy: A Novel Approach</a>
+                    <div class="course-meta">
+                        <span class="course-author">Laura Hill, Ph.D. & Stephanie Knatz Peck, Ph.D.</span>
+                        <span>|</span>
+                        <span>3 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$44</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Psychopharmacology -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-file-medical category-icon"></i>
+                    <h3 class="category-title">Psychopharmacology</h3>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Introduction to Psychopharmacology: A Practical Clinician's Guide</a>
+                    <div class="course-meta">
+                        <span class="course-author">John Preston, Psy.D., ABPP & Li Liang, MD</span>
+                        <span>|</span>
+                        <span>4 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$59</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Bipolar Spectrum Disorders: Diagnosis and Pharmacologic Treatment</a>
+                    <div class="course-meta">
+                        <span class="course-author">John Preston, Psy.D., ABPP & Li Liang, MD</span>
+                        <span>|</span>
+                        <span>2 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$29</span>
+                    </div>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Psychopharmacology for Child and Adolescent Mood Disorders: Problems and Promise</a>
+                    <div class="course-meta">
+                        <span class="course-author">John Preston, Psy.D., ABPP & Steven E. Curtis, Ph.D.</span>
+                        <span>|</span>
+                        <span>2 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$29</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mental Health and Medical Issues -->
+            <div class="category-card">
+                <div class="category-header">
+                    <i class="bi bi-heart-pulse-fill category-icon"></i>
+                    <h3 class="category-title">Mental Health and Medical Issues</h3>
+                </div>
+                <div class="course-item">
+                    <a href="#" class="course-title">Missing The Diagnosis: The Hidden Medical Causes of Mental Disorders</a>
+                    <div class="course-meta">
+                        <span class="course-author">William Matteson, Ph.D.</span>
+                        <span>|</span>
+                        <span>7 CE Hours</span>
+                        <span>|</span>
+                        <span class="course-price">$104</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="category-card">
+                        <div class="category-header">
+                            <i class="bi bi-book category-icon"></i>
+                            <h3 class="category-title">DSM-5</h3>
+                        </div>
+                        <div class="course-item">
+                            <a href="#" class="course-title">Using the DSM-5: Try It, You'll Like It</a>
+                            <div class="course-meta">
+                                <span class="course-author">Jason H. King, Ph.D.</span>
+                                <span>|</span>
+                                <span>9 CE Hours</span>
+                                <span>|</span>
+                                <span class="course-price">$134</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card">
+                        <div class="category-header">
+                            <i class="bi bi-person-badge category-icon"></i>
+                            <h3 class="category-title">Supervision</h3>
+                        </div>
+                        <div class="course-item">
+                            <a href="#" class="course-title">"You Said What?" - Becoming a Better Supervisor</a>
+                            <div class="course-meta">
+                                <span class="course-author">Carol Falender, Ph.D.</span>
+                                <span>|</span>
+                                <span>6 CE Hours</span>
+                                <span>|</span>
+                                <span class="course-price">$99</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card">
+                        <div class="category-header">
+                            <i class="bi bi-hospital category-icon"></i>
+                            <h3 class="category-title">Aging & Long Term Care</h3>
+                        </div>
+                        <div class="course-item">
+                            <a href="#" class="course-title">Aging, Mental Health and Long-term Care</a>
+                            <div class="course-meta">
+                                <span class="course-author">William Matteson, Ph.D.</span>
+                                <span>|</span>
+                                <span>5 CE Hours</span>
+                                <span>|</span>
+                                <span class="course-price">$74</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Accreditation Section -->
+    <section id="accreditation" class="accreditation-section">
+        <div class="container">
+            <h2 class="text-center mb-4" style="color: white;">Our Accreditations</h2>
+            <div class="accreditation-grid">
+                <div class="accreditation-card">
+                    <i class="bi bi-award-fill"></i>
+                    <h5>ASWB Approved</h5>
+                    <p>ContinuingEdCourses.Net dba SocialWorkCoursesOnline.com, provider #1107, is approved as an ACE provider to offer social work continuing education by the Association of Social Work Boards (ASWB) Approved Continuing Education (ACE) program.</p>
+                    <small>Approval period: 3/9/2005-3/9/2027</small>
+                </div>
+                <div class="accreditation-card">
+                    <i class="bi bi-patch-check-fill"></i>
+                    <h5>NBCC Approved</h5>
+                    <p>Approved by NBCC as an Approved Continuing Education Provider, ACEP No. 6323. Programs that do not qualify for NBCC credit are clearly identified.</p>
+                </div>
+                <div class="accreditation-card">
+                    <i class="bi bi-shield-fill-check"></i>
+                    <h5>NYSED-SW Recognized</h5>
+                    <p>Recognized by the New York State Education Department's State Board for Social Work as an approved provider of continuing education for licensed social workers #SW-0561.</p>
+                </div>
+                <div class="accreditation-card">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <h5>NYSED-MHC Recognized</h5>
+                    <p>Recognized by the New York State Education Department's State Board for Mental Health Practitioners as an approved provider of continuing education for licensed mental health counselors #MHC-0229.</p>
+                </div>
+            </div>
+            <p class="text-center mt-4" style="color: rgba(255,255,255,0.8);">
+                <em>Although we may provide guidance, it is your responsibility to verify your continuing education requirements with your licensing board.</em>
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8 text-center">
+                    <h2 class="section-title">Contact Us</h2>
+                    <p class="lead mt-4">Feel free to contact us if you have any questions.</p>
+                    <div class="mt-4">
+                        <p><i class="bi bi-telephone-fill text-primary"></i> <strong>Phone:</strong> 858-842-4100</p>
+                        <p><i class="bi bi-envelope-fill text-primary"></i> <strong>Email:</strong> <a href="mailto:Contact@SocialWorkCoursesOnline.com">Contact@SocialWorkCoursesOnline.com</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 SocialWorkCoursesOnline.com, Inc. All rights reserved.</p>
+            <p>Regulatory boards are the final authority on courses accepted for continuing education credit.</p>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <div class="scroll-top" id="scrollTop">
+        <i class="bi bi-arrow-up"></i>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Smooth scrolling for navigation links
+            $('a[href^="#"]').on('click', function(e) {
+                e.preventDefault();
+                var target = $(this.getAttribute('href'));
+                if (target.length) {
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top - 70
+                    }, 1000);
+                }
+            });
+
+            // Show/hide scroll to top button
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 300) {
+                    $('#scrollTop').addClass('show');
+                } else {
+                    $('#scrollTop').removeClass('show');
+                }
+            });
+
+            // Scroll to top functionality
+            $('#scrollTop').on('click', function() {
+                $('html, body').animate({scrollTop: 0}, 800);
+            });
+
+            // Add animation to category cards on scroll
+            function checkScroll() {
+                $('.category-card').each(function() {
+                    var cardTop = $(this).offset().top;
+                    var cardBottom = cardTop + $(this).outerHeight();
+                    var windowTop = $(window).scrollTop();
+                    var windowBottom = windowTop + $(window).height();
+
+                    if (cardBottom > windowTop && cardTop < windowBottom) {
+                        $(this).css({
+                            'opacity': '1',
+                            'transform': 'translateY(0)'
+                        });
+                    }
+                });
+            }
+
+            // Initial card animation setup
+            $('.category-card').css({
+                'opacity': '0',
+                'transform': 'translateY(30px)',
+                'transition': 'all 0.6s ease-out'
+            });
+
+            checkScroll();
+            $(window).on('scroll', checkScroll);
+
+            // Navbar background change on scroll
+            $(window).scroll(function() {
+                if ($(this).scrollTop() > 50) {
+                    $('.navbar').css('box-shadow', '0 4px 20px rgba(0,0,0,0.15)');
+                } else {
+                    $('.navbar').css('box-shadow', '0 2px 10px rgba(0,0,0,0.1)');
+                }
+            });
+
+            // Course item hover effect
+            $('.course-item').hover(
+                function() {
+                    $(this).find('.course-title').css('color', 'var(--secondary-color)');
+                },
+                function() {
+                    $(this).find('.course-title').css('color', 'var(--primary-color)');
+                }
+            );
+        });
+    </script>
+</body>
+</html>
