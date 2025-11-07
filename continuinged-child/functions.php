@@ -33,7 +33,7 @@ function astra_child_enqueue_assets() {
     // Enqueue child frontend JS
     wp_enqueue_script( 'continuinged-child-frontend-js', get_stylesheet_directory_uri() . '/assets/js/frontend.js', array( 'jquery' ), '1.0.0', true );
 }
-add_action( 'wp_enqueue_scripts', 'astra_child_enqueue_assets' );
+add_action( 'wp_enqueue_scripts', 'astra_child_enqueue_assets',99 );
 
 // Enqueue admin styles and scripts
 function astra_child_enqueue_admin_assets() {
@@ -46,11 +46,11 @@ function astra_child_enqueue_admin_assets() {
 add_action( 'admin_enqueue_scripts', 'astra_child_enqueue_admin_assets' );
 
 // Include custom PHP files from inc/
-require_once get_stylesheet_directory() . '/inc/frontend/custom-ui.php';
+
 require_once get_stylesheet_directory() . '/inc/frontend/shortcodes.php';
 require_once get_stylesheet_directory() . '/inc/admin/settings.php';
-require_once get_stylesheet_directory() . '/inc/admin/hooks.php';
 require_once get_stylesheet_directory() . '/inc/llms/custom-llms.php';
+require_once get_stylesheet_directory() . '/inc/utilities.php';
 
 function astra_child_setup() {
     register_nav_menus(

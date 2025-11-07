@@ -38,7 +38,7 @@ body {
 
 .nav-link {
     color: rgba(255,255,255,0.9) !important;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s;
     margin: 0 0.5rem;
 }
@@ -456,10 +456,15 @@ body {
 .author-bio {
     font-size: 1rem;
     color: var(--text-dark);
-    line-height: 1.7;
+    line-height: 2;
     margin-bottom: 1rem;
 }
-
+.author-bio a
+{
+    color: var(--secondary-color);
+    text-decoration: none;
+    transition: color 0.3s;
+}
 .author-bio p {
     margin-bottom: 1rem;
 }
@@ -975,3 +980,8 @@ textarea.form-control {
         font-size: 1.8rem;
     }
 }
+
+/* override css of Astra theme to make it fit with custom layout */
+
+
+/* end of override */

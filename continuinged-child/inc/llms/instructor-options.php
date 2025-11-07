@@ -88,7 +88,7 @@ function save_instructor_custom_fields( $user_id ) {
     // --- Save Instructor Bio (Content from wp_editor) ---
     if ( isset( $_POST['llms_instructor_bio'] ) ) {
         // wp_editor content needs to be sanitized. wp_kses_post() is still the correct function.
-        $bio_content = wp_kses_post( $_POST['llms_instructor_bio'] );
+        $bio_content =  $_POST['llms_instructor_bio'];
         update_user_meta( $user_id, 'llms_instructor_bio', $bio_content );
     }
 

@@ -23,7 +23,7 @@ function render_course_details_metabox($post) {
     $outline = get_post_meta($post->ID, '_course_outline', true);
     $main_content = get_post_meta($post->ID, '_course_main_content', true);
     $ce_hours = get_post_meta($post->ID, '_llms_ce_hours', true);
-   
+    $status_update_label= get_post_meta($post->ID, '_status_update_label', true);
     ?>
     
     <style>
@@ -85,6 +85,19 @@ function render_course_details_metabox($post) {
                 value="<?php echo esc_attr(get_post_meta($post->ID, '_course_last_revised', true)); ?>" 
                 style="width: 300px; padding: 8px; font-size: 14px;" />
             <p class="description">Select the date and time when this course was last revised.</p>
+        </div>
+
+
+        <!-- status update label -->
+        <div class="editor-wrapper">
+            <label class="editor-label">Update Status Label</label>
+            <input type="text" 
+                name="status_update_label" 
+                id="status_update_label" 
+                placeholder="Updated!, Expanded!, New!"
+                value="<?php echo esc_attr(get_post_meta($post->ID, '_status_update_label', true)); ?>" 
+                style="width: 100%; padding: 8px; font-size: 14px;" />
+            <p class="description">Enter the update status</p>
         </div>
 
         <!-- Introduction -->
@@ -180,7 +193,8 @@ function save_course_details_meta($post_id, $post) {
         'course_main_content',
         'llms_ce_hours',
         'course_copyright',
-        'course_last_revised'
+        'course_last_revised',
+        'status_update_label'
     );
     
     foreach($fields as $field) {
@@ -206,7 +220,8 @@ function display_course_custom_content() {
     $ce_hours = get_post_meta($course_id, '_llms_ce_hours', true);
     $copyright = get_post_meta($course_id, '_course_copyright', true);    
     $last_revised = get_post_meta($course_id, '_course_last_revised', true);
-
+    $update_status=get_post_meta($course_id, '_status_update_label', true);
+    
 
     if (!$intro && !$objectives && !$outline && !$main) {
         return;
@@ -232,6 +247,13 @@ function display_course_custom_content() {
         echo '<div class="content-section">';
         echo '<h2>Last Revised</h2>';
         echo '<p>' . date_i18n('F j, Y g:i A', strtotime($last_revised)) . '</p>';
+        echo '</div>';
+    }
+
+    if($update_status) {
+        echo '<div class="content-section">';
+        echo '<h2>Update Status</h2>';
+        echo '<p>' . esc_html($update_status) . '</p>';
         echo '</div>';
     }
     
