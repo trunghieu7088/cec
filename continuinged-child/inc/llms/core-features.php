@@ -131,6 +131,7 @@ class MyLifterLMS_Courses {
             '_course_last_revised',
             '_course_copyright',
             '_status_update_label',
+            '_course_main_content',
         );
 
         foreach ( $meta_keys as $key ) {

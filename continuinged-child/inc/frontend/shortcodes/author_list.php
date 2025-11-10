@@ -37,12 +37,12 @@ function render_instructors_section() {
                            <?php echo $instructor['bio']; ?>
                         <?php endif; ?>                       
                         <?php if (!empty($instructor['website'])): ?>
-                            <a href="<?php echo esc_url($instructor['website']); ?>" 
+                           <p> <a href="<?php echo esc_url($instructor['website']); ?>" 
                                class="author-link" 
                                target="_blank" 
                                rel="noopener noreferrer">
                                 <i class="bi bi-globe"></i> Visit Website
-                            </a>
+                            </a> </p>
                         <?php endif; ?>
                     </div>
                 </div>

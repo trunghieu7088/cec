@@ -43,25 +43,11 @@ function llms_custom_course_list_shortcode($atts) {
             
             if (!empty($categories) && !is_wp_error($categories)) {
                 foreach ($categories as $category) {
-                    // Query courses for this category
-                    $args = array(
-                        'post_type' => 'course',
-                        'post_status' => 'publish',
-                        'posts_per_page' => $atts['limit'],
-                        'tax_query' => array(
-                            array(
-                                'taxonomy' => 'course_cat',
-                                'field' => 'term_id',
-                                'terms' => $category->term_id,
-                            ),
-                        ),
-                    );
-                    
-                  
+                    $category_icon=get_term_meta( $category->term_id, 'icon', true );                                    
                     $filtered_courses = my_lifterlms_courses()->get_courses( array(
                     'category_id'    => $category->term_id,
                     'post_status'    => 'publish',
-                    'posts_per_page' => 5,     
+                    'posts_per_page' => 10,     
                     'orderby'        => 'title',  
                     'order'          => 'ASC', 
                 ) );
@@ -71,8 +57,16 @@ function llms_custom_course_list_shortcode($atts) {
                         <!-- <?php echo esc_html($category->name); ?> Category -->
                         <div class="category-card">
                             <div class="category-header">
+                                <?php if($category_icon): ?>
+                                    <i class="category-icon bi <?php echo esc_attr( $category_icon ); ?>"></i>
+                                <?php else: ?>
                                 <i class="bi bi-life-preserver category-icon"></i>
-                                <h3 class="category-title"><?php echo esc_html($category->name); ?></h3>
+                                <?php endif; ?>
+                                <h3 class="category-title">                                    
+                                   <?php 
+                                         echo esc_html($category->name);                                     
+                                    ?>                            
+                                </h3>
                             </div>
                             
                            <?php foreach($filtered_courses as $course_item): ?>

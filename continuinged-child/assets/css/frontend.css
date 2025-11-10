@@ -335,12 +335,18 @@ body {
     font-weight: 600;
     width: 100%;
     transition: all 0.3s;
+    display:block;
+    margin:10px 0px;
+    text-decoration: none;
+    text-align: center;
+    text-transform: uppercase;
 }
 
 .btn-enroll:hover {
-    background: var(--secondary-color);
+    background: var(--primary-color);
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    color:white;
 }
 
 /* Learning Objectives */
@@ -451,6 +457,10 @@ body {
     font-size: 1rem;
     color: var(--text-light);
     font-weight: 500;
+}
+.author-avatar
+{
+    border-radius: 6px;
 }
 
 .author-bio {
@@ -845,7 +855,8 @@ textarea.form-control {
 
 /* Accreditation Section */
 .accreditation-section {
-    background: var(--dark-bg);
+   /* background: var(--dark-bg); */
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     padding: 3rem 0;
 }
@@ -873,7 +884,8 @@ textarea.form-control {
 
 /* Footer */
 .footer {
-    background: var(--primary-color);
+    /* background: var(--primary-color);*/
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: white;
     padding: 2rem 0;
     text-align: center;
@@ -982,6 +994,252 @@ textarea.form-control {
 }
 
 /* override css of Astra theme to make it fit with custom layout */
-
+.sidebar-card ul
+{
+    margin:0px !important;
+}
 
 /* end of override */
+/* single course css */
+.about-author-wrapper
+{
+    display: flex; 
+    align-items: center; 
+    margin-bottom: 1.5rem;
+}
+.about-author-wrapper a
+{
+    text-decoration:none;
+ 
+}
+.about-author-wrapper .img-wrapper
+{
+    width: 80px; 
+    height: 80px;   
+    margin-right: 1rem; 
+}
+.about-author-wrapper .img-wrapper img
+{
+    border-radius: 50%; 
+    width:100%;
+    height:100%;
+    object-fit: cover; 
+    flex-shrink: 0;
+}
+.about-author-wrapper .author-info p
+{
+    font-size: 0.9rem; 
+    margin-bottom: 0;
+}
+.about-author-wrapper .author-info a
+{
+    text-decoration: none;
+    color: var(--primary-color); 
+    font-weight: 600;
+}
+/* end single course css */
+
+/* rewards page css */
+       /* Rewards Section */
+        .rewards-section {
+            padding: 4rem 0;
+        }
+
+        .rewards-intro {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .rewards-intro h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .rewards-intro p {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid var(--accent-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 2rem 0;
+        }
+
+        .highlight-box strong {
+            color: var(--primary-color);
+        }
+
+        /* Reward Cards */
+        .reward-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .reward-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color);
+        }
+
+        .reward-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        }
+
+        .reward-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .reward-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            background: rgba(74, 144, 175, 0.1);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .reward-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .reward-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        .reward-description {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .reward-details {
+            background: var(--light-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .reward-details ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .reward-details li {
+            margin-bottom: 0.5rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 3rem;
+            border-radius: 15px;
+            text-align: center;
+            margin: 3rem 0;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .cta-section h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .cta-section p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.95;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--accent-color);
+            color: var(--dark-bg);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(248, 183, 57, 0.3);
+        }
+
+        .cta-button:hover {
+            background: #e5a520;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(248, 183, 57, 0.4);
+            color: var(--dark-bg);
+        }
+
+        /* Terms Section */
+        .terms-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            margin-top: 3rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+        }
+
+        .terms-section h3 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .terms-section ul {
+            padding-left: 1.5rem;
+        }
+
+        .terms-section li {
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+/* end rewards */
+
+/* some custom css */
+.preference-links 
+{
+    list-style-type:none;
+    padding:0px;
+    margin-left:0px;  
+}
+.preference-links li a
+{
+      text-decoration: none;
+    color:var(--secondary-color);
+}
+/* end */
