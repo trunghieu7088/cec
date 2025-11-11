@@ -169,10 +169,10 @@ get_header();
                                 <p class="text-muted">You may view our privacy policy and other policies and procedures on our Policies and Procedures page.</p>
                                  <p class="text-muted">
                                     <ul class="preference-links">
-                                        <li><a href="#">Privacy Policy</a></li>
-                                        <li><a href="#">Refund Policy</a></li>
-                                        <li><a href="#">Complaint Procedure</a></li>
-                                        <li><a href="#">Conflict of Interest</a></li>
+                                        <li><a href="/policies/#privacy-policy">Privacy Policy</a></li>
+                                        <li><a href="/policies/#refund-policy">Refund Policy</a></li>
+                                        <li><a href="/policies/#complaint-procedure">Complaint Procedure</a></li>
+                                        <li><a href="/policies/#conflict-of-interest">Conflict of Interest</a></li>
                                     </ul>
                                 </p>
                             </div>

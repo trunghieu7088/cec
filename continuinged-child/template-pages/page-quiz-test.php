@@ -219,8 +219,7 @@ get_header();
                     <div class="sidebar-card">
                         <h3><i class="bi bi-info-circle" style="margin-right: 0.5rem;"></i>Test Information</h3>
                         <ul>
-                            <li><i class="bi bi-question-circle"></i> <?php echo count($question_list); ?> Questions</li>
-                            <li><i class="bi bi-check-circle"></i> Multiple Choice</li>
+                            <li><i class="bi bi-question-circle"></i> <?php echo count($question_list); ?> Questions</li>                            
                             <li><i class="bi bi-clock"></i> No Time Limit</li>
                             <li><i class="bi bi-arrow-clockwise"></i> Can Retake</li>
                         </ul>

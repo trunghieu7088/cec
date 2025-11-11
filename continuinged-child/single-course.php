@@ -106,6 +106,21 @@ $category_name = !empty($categories) ? $categories[0]['name'] : 'General';
             <div class="row">
                 <!-- Main Content -->
                 <div class="col-lg-8">
+                    <?php if ($copyright_info || $last_revised): ?>
+                    <!-- References Section -->
+                    <div class="content-section">
+                        <h2>Additional Information</h2>
+                        <div class="references">
+                            <?php if ($last_revised): ?>
+                                <p><strong>Last Revised:</strong> <?php echo esc_html($last_revised); ?></p>
+                            <?php endif; ?>
+                            <?php if ($copyright_info): ?>
+                                <?php echo wp_kses_post($copyright_info); ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <?php endif; ?>
+
                     <?php if ($course_objectives): ?>
                     <!-- Learning Objectives -->
                     <div class="content-section">
@@ -137,20 +152,7 @@ $category_name = !empty($categories) ? $categories[0]['name'] : 'General';
                     </div>
                     <?php endif; ?>
 
-                    <?php if ($copyright_info || $last_revised): ?>
-                    <!-- References Section -->
-                    <div class="content-section">
-                        <h2>Additional Information</h2>
-                        <div class="references">
-                            <?php if ($last_revised): ?>
-                                <p><strong>Last Revised:</strong> <?php echo esc_html($last_revised); ?></p>
-                            <?php endif; ?>
-                            <?php if ($copyright_info): ?>
-                                <?php echo wp_kses_post($copyright_info); ?>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    <?php endif; ?>
+                  
                 </div>
 
                 <!-- Sidebar -->
