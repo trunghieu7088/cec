@@ -50,39 +50,30 @@ jQuery(document).ready(function($) {
             let $selectedRadio = $question.find('input[type="radio"]:checked');
             let isCorrect = $selectedRadio.data('correct') == 1;
             let $feedback = $question.find('.question-feedback');
-            let $choiceLabel = $selectedRadio.closest('.choice-label');
             
-            // Hiển thị kết quả cho từng câu
+            // Chỉ hiển thị border cho khung câu hỏi
             if (isCorrect) {
                 correctCount++;
+                // Border xanh cho câu đúng
+                $question.css({
+                    'border': '3px solid #28a745',
+                    'border-radius': '8px'
+                });
+                // Hiển thị thông báo đúng
                 $feedback.removeClass('incorrect').addClass('correct')
                     .html('<i class="bi bi-check-circle-fill" style="margin-right: 0.5rem;"></i>Correct! Well done.')
                     .slideDown();
-                $choiceLabel.css({
-                    'background': '#d4edda',
-                    'border-color': '#28a745'
-                });
             } else {
                 incorrectCount++;
-                // Tìm đáp án đúng
-                let $correctRadio = $question.find('input[data-correct="1"]');
-                let correctMarker = $correctRadio.siblings('.choice-marker').text();
-                
+                // Border đỏ cho câu sai - KHÔNG hiển thị đáp án đúng
+                $question.css({
+                    'border': '3px solid #dc3545',
+                    'border-radius': '8px'
+                });
+                // Chỉ thông báo sai, không cho biết đáp án
                 $feedback.removeClass('correct').addClass('incorrect')
-                    .html('<i class="bi bi-x-circle-fill" style="margin-right: 0.5rem;"></i>Incorrect. The correct answer is ' + correctMarker + '.')
+                    .html('<i class="bi bi-x-circle-fill" style="margin-right: 0.5rem;"></i>Incorrect. Please review the course material.')
                     .slideDown();
-                
-                // Đánh dấu đáp án sai màu đỏ
-                $choiceLabel.css({
-                    'background': '#f8d7da',
-                    'border-color': '#dc3545'
-                });
-                
-                // Đánh dấu đáp án đúng màu xanh
-                $correctRadio.closest('.choice-label').css({
-                    'background': '#d4edda',
-                    'border-color': '#28a745'
-                });
             }
         });
         
@@ -105,6 +96,7 @@ jQuery(document).ready(function($) {
                 '<h4 style="color: #28a745; margin: 0;">PASSED!</h4>' +
                 '<p style="margin: 0.5rem 0 0 0;">Congratulations! You have successfully passed this test.</p>' +
                 '</div>';
+                create_completion_code(scorePercentage);
         } else {
             statusHtml = '<div class="fail-status" style="background: rgba(220, 53, 69, 0.2); padding: 1.5rem; border-radius: 10px; margin-top: 1.5rem;">' +
                 '<i class="bi bi-x-circle-fill" style="font-size: 3rem; color: #dc3545; margin-bottom: 1rem; display: block;"></i>' +
@@ -127,6 +119,9 @@ jQuery(document).ready(function($) {
             scrollTop: $('#quiz-results').offset().top - 100
         }, 800);
         
+        //hide submit test ( chỉ hiển thị lại khi retake test)
+        $("#submit-test-btn").hide();
+
         // Thêm nút Retake Test
         if (!$('.retake-button').length) {
             let retakeButton = '<button type="button" class="btn-enroll retake-button" style="margin-top: 2rem; max-width: 300px;">' +
@@ -151,14 +146,18 @@ jQuery(document).ready(function($) {
         
         // Ẩn feedback và reset style
         $('.question-feedback').slideUp().empty();
-        $('.choice-label').css({
-            'background': '',
-            'border-color': ''
+        
+        // Reset border của câu hỏi
+        $('.quiz-question').css({
+            'border': '',
+            'border-radius': ''
         });
-        $('.quiz-question').css('border-color', '');
         
         // Xóa nút Retake
         $(this).remove();
+
+        //hiện lại nút submit test
+        $("#submit-test-btn").show();
         
         // Scroll lên đầu form
         $('html, body').animate({
@@ -172,4 +171,43 @@ jQuery(document).ready(function($) {
         // Reset border color khi đã chọn đáp án
         $question.css('border-color', '');
     });
+
+    function create_completion_code(scorePercentage)
+    {
+        // Call AJAX to create completion record
+        $.ajax({
+            url: ajaxurl_global,
+            type: 'POST',
+            data: {
+                action: 'create_completion_record',
+                course_id: $('#course-id').val(),
+                score: scorePercentage,
+                nonce: $('#quiz-nonce').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    console.log('Completion code created: ' + response.data.completion_code);
+                    
+                    // Optional: Display completion code to user
+                    /* let completionCodeHtml = '<div class="completion-code-display" style="background: #d4edda; padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 2px solid #28a745;">' +
+                        '<strong style="color: #155724;">Your Completion Code:</strong> ' +
+                        '<span style="font-size: 1.5rem; color: #155724; font-weight: bold; letter-spacing: 2px;">' + response.data.completion_code + '</span>' +
+                        '<p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #155724;text-align:center;">Save this code for your records.</p>' +
+                        '</div>'; */
+
+                         let completionCodeHtml = '<div class="completion-code-display" style="background: #d4edda; padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 2px solid #28a745;">' +
+                       
+                                '<a style="text-decoration:none;color:#295c79;font-size:16px;" href="'+ response.data.print_certificate_url +'">Print Certificate'+'</a>'+
+                        '</div>';
+
+                    $('.pass-status').append(completionCodeHtml);
+                } else {
+                    console.error('Failed to create completion record: ' + response.data.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX error: ' + error);
+            }
+        });
+    }
 });

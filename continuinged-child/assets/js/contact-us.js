@@ -41,6 +41,10 @@ jQuery(document).ready(function($) {
                     
                     // Clear form
                     $('#contactForm')[0].reset();
+
+                    // Reset Validation
+                    $('#contactForm input, #contactForm textarea').removeClass('is-invalid is-valid');
+
                     
                     // Scroll to message
                     $('html, body').animate({
@@ -53,7 +57,7 @@ jQuery(document).ready(function($) {
                         '<i class="bi bi-exclamation-triangle-fill me-2"></i>' + response.data.message +
                         '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
                         '</div>'
-                    );
+                    );                    
                 }
             },
             error: function(xhr, status, error) {

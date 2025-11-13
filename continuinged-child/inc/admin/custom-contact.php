@@ -52,6 +52,7 @@ function cecontact_custom_columns($columns) {
         'email'      => 'Email',
         'phone'      => 'Phone Number',
         'subject'    => 'Subject',
+        'status'     => 'Status',
         'date'       => 'Date'
     );
     return $new_columns;
@@ -78,6 +79,18 @@ function cecontact_custom_column_content($column, $post_id) {
             break;
         case 'subject':
             echo esc_html(get_post_meta($post_id, '_cecontact_subject', true));
+            break;
+        case 'status': 
+            $status = get_post_meta($post_id, '_cecontact_status', true);         
+           // echo esc_html(ucfirst($status)); 
+            if($status=='pending')
+            {
+                echo '<span style="padding:5px;background-color:#FFA500;color:#fff;border-radius:5px;">'.$status.'</span>';
+            }
+            else
+            {
+                echo '<span style="padding:5px;background-color:#228B22 ;color:#fff;border-radius:5px;">'.$status.'</span>';
+            }
             break;
     }
 }
@@ -114,12 +127,17 @@ add_action('add_meta_boxes', 'cecontact_add_meta_boxes');
  * Meta box callback function
  */
 function cecontact_details_callback($post) {
+
+    wp_nonce_field('cecontact_save_meta_data', 'cecontact_meta_nonce');
     $first_name = get_post_meta($post->ID, '_cecontact_first_name', true);
     $last_name = get_post_meta($post->ID, '_cecontact_last_name', true);
     $email = get_post_meta($post->ID, '_cecontact_email', true);
     $phone = get_post_meta($post->ID, '_cecontact_phone', true);
     $subject = get_post_meta($post->ID, '_cecontact_subject', true);
     $message = get_post_meta($post->ID, '_cecontact_message', true);
+    $status = get_post_meta($post->ID, '_cecontact_status', true); 
+    $status = $status ? $status : 'pending';
+
     ?>
     <table class="form-table">
         <tr>
@@ -150,9 +168,61 @@ function cecontact_details_callback($post) {
                 </div>
             </td>
         </tr>
+        <tr>
+            <th><label>Status:</label></th>
+            <td>
+                <select name="cecontact_status" id="cecontact_status">
+                    <option value="pending" <?php selected($status, 'pending'); ?>>Pending</option>
+                    <option value="solved" <?php selected($status, 'solved'); ?>>Solved</option>
+                </select>
+            </td>
+        </tr>
     </table>
     <?php
 }
+
+/**
+ * Save custom meta data when the post is saved/updated
+ */
+function cecontact_save_meta_data($post_id) {
+    // Check if our nonce is set.
+    if (!isset($_POST['cecontact_meta_nonce'])) {
+        return $post_id;
+    }
+
+    $nonce = $_POST['cecontact_meta_nonce'];
+
+    // Verify that the nonce is valid.
+    if (!wp_verify_nonce($nonce, 'cecontact_save_meta_data')) {
+        return $post_id;
+    }
+
+    // If this is an autosave, our form data is not set.
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return $post_id;
+    }
+
+    // Check the user's permissions.
+    if (!current_user_can('edit_post', $post_id)) {
+        return $post_id;
+    }
+    
+    // Check if we are saving the 'cecontact' post type
+    if (isset($_POST['post_type']) && 'cecontact' !== $_POST['post_type']) {
+        return $post_id;
+    }
+
+    // Check and save the status field.
+    if (isset($_POST['cecontact_status'])) {
+        $new_status = sanitize_text_field($_POST['cecontact_status']);
+        
+        // Only allow 'pending' or 'solved'
+        if (in_array($new_status, array('pending', 'solved'))) {
+            update_post_meta($post_id, '_cecontact_status', $new_status);
+        }
+    }
+}
+add_action('save_post', 'cecontact_save_meta_data');
 
 /**
  * Handle AJAX contact form submission
@@ -200,6 +270,7 @@ function handle_contact_form_submission() {
         update_post_meta($post_id, '_cecontact_phone', $phone);
         update_post_meta($post_id, '_cecontact_subject', $subject);
         update_post_meta($post_id, '_cecontact_message', $message);
+        update_post_meta($post_id,'_cecontact_status','pending');
 
         // Send notification email to admin (optional)
         $admin_email = get_option('admin_email');

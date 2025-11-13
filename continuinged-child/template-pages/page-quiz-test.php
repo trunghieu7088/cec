@@ -41,6 +41,7 @@ $question_list = $course_data_manager->get_course_structured_data($course_id);
 if (!$question_list) {
     wp_die('No questions found for this course', 'Error', array('response' => 404));
 }
+$quiz_nonce = wp_create_nonce('quiz_submit_nonce');
 
 get_header();
 ?>
@@ -102,6 +103,8 @@ get_header();
 
                 <!-- Quiz Form -->
                 <form id="quiz-form" class="content-section">
+                    <input type="hidden" id="course-id" value="<?php echo esc_attr($course_id); ?>">
+                    <input type="hidden" id="quiz-nonce" value="<?php echo esc_attr($quiz_nonce); ?>">
                     <h2><i class="bi bi-pencil-square" style="margin-right: 0.5rem;"></i>Course Test</h2>
                     
                     <?php foreach ($question_list as $index => $question): ?>
@@ -143,7 +146,7 @@ get_header();
                     <?php endforeach; ?>
                     
                     <div class="quiz-actions">
-                        <button type="submit" class="btn-enroll" style="max-width: 300px;">
+                        <button type="submit" id="submit-test-btn" class="btn-enroll" style="max-width: 300px;">
                             <i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i>
                             Submit Test
                         </button>
@@ -152,7 +155,7 @@ get_header();
                     <!-- Quiz Results (Hidden initially) -->
                     <div id="quiz-results" class="quiz-results" style="display: none;">
                         <div class="results-card">
-                            <h3><i class="bi bi-trophy" style="margin-right: 0.5rem;"></i>Test Results</h3>
+                            <h3 style="color:#ffffff;"><i class="bi bi-trophy" style="margin-right: 0.5rem;"></i>Test Results</h3>
                             <div class="results-content">
                                 <div class="score-display">
                                     <span class="score-label">Your Score:</span>
