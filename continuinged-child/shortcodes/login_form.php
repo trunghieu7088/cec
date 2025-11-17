@@ -204,6 +204,10 @@ add_filter('authenticate', 'custom_verify_username_password', 30, 3);
  * Redirect after successful login (optional)
  */
 function custom_login_redirect($redirect_to, $request, $user) {
+    $login_page_url = get_login_page_url(); //url of the page using page login.php template
+    if ($login_page_url  && strpos($redirect_to, $login_page_url) !== false) {
+        return home_url('/dashboard/'); // Redirect đến trang account
+    }
     return site_url(); // Change this to your desired page
 }
 add_filter('login_redirect', 'custom_login_redirect', 99, 3);

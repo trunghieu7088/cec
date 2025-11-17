@@ -127,13 +127,11 @@ get_header();
                             <?php foreach ($question['choices'] as $choice): ?>
                             <div class="choice-item">
                                 <label class="choice-label">
-                                    <input 
-                                        type="radio" 
-                                        name="question_<?php echo esc_attr($question['question_id']); ?>" 
-                                        value="<?php echo esc_attr($choice['id']); ?>"
-                                        data-correct="<?php echo esc_attr($choice['correct'] ? '1' : '0'); ?>"
-                                        class="choice-radio"
-                                    >
+                                    <input type="radio" 
+                                            name="question_<?php echo esc_attr($question['question_id']); ?>" 
+                                            value="<?php echo esc_attr($choice['id']); ?>"
+                                            class="choice-radio"
+                                        >
                                     <span class="choice-marker"><?php echo esc_html($choice['marker']); ?></span>
                                     <span class="choice-text"><?php echo esc_html($choice['choice']); ?></span>
                                 </label>
@@ -251,7 +249,6 @@ get_header();
         </div>
     </div>
 </section>
-
 
 <?php
 get_footer();

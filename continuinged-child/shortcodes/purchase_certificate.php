@@ -5,21 +5,109 @@
  */
 
 function purchase_certificate_shortcode($atts) {
-    // Parse shortcode attributes
-    $atts = shortcode_atts(array(
-        'course_id' => '',
-        'course_name' => '',
-        'completion_code' => '',
-        'hours' => '',
-        'price' => '',
-    ), $atts);
     
-    // Get course details from query string if not in shortcode
-    $course_id = !empty($atts['course_id']) ? $atts['course_id'] : (isset($_GET['course_id']) ? sanitize_text_field($_GET['course_id']) : '');
-    $course_name = !empty($atts['course_name']) ? $atts['course_name'] : (isset($_GET['course_name']) ? sanitize_text_field($_GET['course_name']) : '');
-    $completion_code = !empty($atts['completion_code']) ? $atts['completion_code'] : (isset($_GET['code']) ? sanitize_text_field($_GET['code']) : '');
-    $hours = !empty($atts['hours']) ? $atts['hours'] : (isset($_GET['hours']) ? floatval($_GET['hours']) : 3);
-    $price = !empty($atts['price']) ? $atts['price'] : (isset($_GET['price']) ? floatval($_GET['price']) : 74.00);
+     global $wpdb;
+    
+    // Get completion code from URL
+    $completion_code = isset($_GET['completion_code']) ? sanitize_text_field($_GET['completion_code']) : '';
+    
+    // Validate completion code
+    if (empty($completion_code)) {
+        return '<div class="container mt-5">
+        <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Invalid or missing completion code. Please complete the course quiz first.
+        </div>
+         </div>';
+    }
+    
+    // Get course_id from completion_code table
+    $table_name = $wpdb->prefix . 'course_completion_code';
+    $completion_record = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM $table_name WHERE completion_code = %s",
+        $completion_code
+    ));
+    
+    if (!$completion_record) {
+        return '<div class="container mt-5">
+            <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Completion code not found or has expired.
+        </div>
+         </div>';
+    }
+    
+    // Check if already converted (purchased)
+    if ($completion_record->is_convert == 1) {
+        return '
+        <div class="container mt-5">
+        <div class="alert alert-warning">
+            <i class="bi bi-info-circle-fill me-2"></i>
+            This completion code has already been used to purchase a certificate.
+        </div>
+        </div>';
+    }
+    
+    // Verify cookie exists
+    $cookie_name = 'completion_code_ck_' . $completion_code;
+    
+    if (!isset($_COOKIE[$cookie_name])) {
+            $is_logged_in = is_user_logged_in();
+            $user_id = $is_logged_in ? get_current_user_id() : 0;
+            
+            if ( $is_logged_in && $user_id > 0 ) {
+                
+                // Người dùng đã đăng nhập, tiến hành kiểm tra User Meta
+                $completed_courses = get_user_completed_courses( $user_id );
+                
+                // Kiểm tra xem $completion_code (ID khóa học) có trong mảng meta không
+                if ( ! in_array( (string)$completion_code, $completed_courses ) ) {
+                    // KHÔNG CÓ cookie VÀ KHÔNG CÓ trong meta
+                    
+                    return '<div class="container mt-5"><div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Session expired. Please retake the quiz to generate a new completion code.
+                    </div></div>';
+                }
+                
+                // Nếu $completion_code CÓ trong meta, thì:
+                // Logic tiếp theo của bạn sẽ được thực thi (đi tiếp)
+                // Ví dụ: echo '<p class="alert alert-success">Xác minh meta thành công, đi tiếp!</p>';
+                
+            } else {
+                
+                // KHÔNG có cookie VÀ KHÔNG đăng nhập
+                
+                return '<div class="container mt-5"><div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    Session expired. Please retake the quiz to generate a new completion code.
+                </div></div>';
+            }        
+    }
+ 
+    
+    $course_id = intval($completion_record->course_id);
+    
+    // Get course data using core-features.php function
+    $course_manager = my_lifterlms_courses();
+    $course_data = $course_manager->get_single_course_data($course_id);
+    
+    if (!$course_data) {
+        return '<div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            Course not found. Please contact support.
+        </div>';
+    }
+    
+    // Extract course information
+    $course_name = $course_data['post_title'];
+    $hours = !empty($course_data['llmscehours']) ? floatval($course_data['llmscehours']) : 0;
+    
+    // Get price from access plans
+    $price = 0.00; // Default price    
+    if (!empty($course_data['access_plans'])) {
+       $price=(float)$course_data['access_plans']->price;
+    }
     
     $current_user = wp_get_current_user();
     $is_logged_in = is_user_logged_in();
@@ -51,12 +139,11 @@ function purchase_certificate_shortcode($atts) {
                 <div class="card-body">
                     <div class="course-info">
                         <div class="course-title">
-                            It's More Than Just a Call: Ethical Issues in Providing Behavioral Telehealth                          
-                                - Completion Code <span class="completion-code">307888</span>
-                      
+                            <?php echo esc_html($course_name); ?>
+                            - Completion Code <span class="completion-code"><?php echo esc_html($completion_code); ?></span>                      
                         </div>
                         <div class="course-date">
-                            Date: <?php echo date('m/d/Y'); ?>
+                              Date: <?php echo date('m/d/Y', strtotime($completion_record->completed_date)); ?>
                         </div>
                     </div>
 
@@ -64,7 +151,7 @@ function purchase_certificate_shortcode($atts) {
                         <table class="table">
                             <tbody>
                                 <tr>
-                                    <td>Course Fee (<?php echo esc_html($hours); ?> Hours)</td>
+                                     <td>Course Fee (<?php echo esc_html($hours); ?> Hours)</td>
                                     <td class="text-end"><strong>$<?php echo number_format($price, 2); ?></strong></td>
                                 </tr>
                                 <?php if ($is_logged_in): ?>
@@ -386,7 +473,11 @@ function purchase_certificate_shortcode($atts) {
                         <i class="bi bi-credit-card-2-back-fill text-info ms-1" style="font-size: 1.5rem;"></i>
                     </div>
                     
-                    <form id="paymentForm" class="payment-form" data-nonce="<?php echo wp_create_nonce('process_payment_nonce'); ?>">
+                    <form id="paymentForm" 
+                                class="payment-form" 
+                                data-nonce="<?php echo wp_create_nonce('process_payment_nonce'); ?>"
+                                data-completion-code="<?php echo esc_attr($completion_code); ?>"
+                                data-course-id="<?php echo esc_attr($course_id); ?>">
                         <div class="row">
                             <div class="col-md-8 mb-3">
                                 <label for="card_number" class="form-label">Card Number <span class="required">*</span></label>
@@ -416,9 +507,9 @@ function purchase_certificate_shortcode($atts) {
                                 </select>
                             </div>
                             
-                            <div class="col-md-12 text-center mt-4">
+                            <div class="col-md-12 mt-4">
                                 <button type="submit" class="btn btn-success btn-lg" id="purchase-btn">
-                                    <i class="bi bi-lock-fill me-2"></i>Purchase Certificate - $<span class="final-amount"><?php echo number_format($price, 2); ?></span>
+                                    <i class="bi bi-lock-fill me-2"></i>Purchase Certificate - <span class="final-amount"><?php echo number_format($price, 2); ?></span>
                                 </button>
                             </div>
                         </div>
@@ -688,284 +779,5 @@ function purchase_certificate_shortcode($atts) {
 }
 add_shortcode('purchase_certificate', 'purchase_certificate_shortcode');
 
-
-/**
- * AJAX Handler for Login
- */
-function purchase_login_handler() {
-    check_ajax_referer('purchase_login_nonce', 'nonce');
-    
-    $username = sanitize_user($_POST['username']);
-    $password = $_POST['password'];
-    
-    $user = wp_authenticate($username, $password);
-    
-    if (is_wp_error($user)) {
-        wp_send_json_error(array(
-            'message' => 'Invalid username or password. Please try again.'
-        ));
-    }
-    
-    wp_set_current_user($user->ID);
-    wp_set_auth_cookie($user->ID);
-    
-    wp_send_json_success(array(
-        'message' => 'Login successful!',
-        'user' => array(
-            'id' => $user->ID,
-            'name' => $user->display_name
-        )
-    ));
-}
-add_action('wp_ajax_nopriv_purchase_login', 'purchase_login_handler');
-add_action('wp_ajax_purchase_login', 'purchase_login_handler');
-
-
-/**
- * AJAX Handler for Signup
- */
-function purchase_signup_handler() {
-    check_ajax_referer('purchase_signup_nonce', 'nonce');
-    
-    $username = sanitize_user($_POST['username']);
-    $email = sanitize_email($_POST['email']);
-    $password = $_POST['password'];
-    $fullname = sanitize_text_field($_POST['fullname']);
-    $address= sanitize_text_field($_POST['address']);
-    $license=sanitize_text_field($_POST['license']);
-    $license_state=$_POST['license_state'];
-    $zip=$_POST['zip'];
-    $city=$_POST['city'];
-    $state=$_POST['state'];
-    $phone=$_POST['phone'];
-    
-    // Validate
-    if (username_exists($username)) {
-        wp_send_json_error(array(
-            'message' => 'Username already exists. Please choose another one.'
-        ));
-    }
-    
-    if (email_exists($email)) {
-        wp_send_json_error(array(
-            'message' => 'Email already registered. Please use another email or login.'
-        ));
-    }
-    
-    if (!is_email($email)) {
-        wp_send_json_error(array(
-            'message' => 'Please enter a valid email address.'
-        ));
-    }
-    
-    if (strlen($password) < 6) {
-        wp_send_json_error(array(
-            'message' => 'Password must be at least 6 characters long.'
-        ));
-    }
-    
-    // Create user
-  /*  $user_id = wp_create_user($username, $password, $email);
-    
-    if (is_wp_error($user_id)) {
-        wp_send_json_error(array(
-            'message' => 'Registration failed: ' . $user_id->get_error_message()
-        ));
-    } */
-    
-    //use the lifter lms hook instead of wp 
-    $user_id = llms_register_user( 
-        array(
-            'email_address' => $email,
-            'password'      => $password,
-            'first_name'=>$fullname,
-            'last_name'=>$fullname,
-            'password_confirm'  => $password,
-            'user_login' =>$username,
-            'country'=>1,
-            'llms_billing_country'=>'US',
-            'llms_billing_city'=>$city,
-            'llms_billing_address_1'=>$address,
-            'llms_billing_state'=>$state,
-            'llms_billing_zip'=>$zip,
-            'llms_phone'=>$phone,
-            'license'=>$license,
-            'license_state'=>$license_state,
-            'full_name'=>$fullname,
-            'email_address_confirm'=>$email
-            
-            // other fields
-        ),
-        'registration',  // screen
-        true             // auto signon
-    );
-
-    if (is_wp_error($user_id)) {
-        wp_send_json_error(array(
-            'message' => 'Registration failed: ' . $user_id->get_error_message()
-        ));
-    } 
-
-    if($user_id)
-    {
-        wp_update_user(array(
-            'ID' => $user_id,
-            'display_name' => $fullname,            
-        ));
-    }
-    // Log user in
-    wp_set_current_user($user_id);
-    wp_set_auth_cookie($user_id);
-    
-    wp_send_json_success(array(
-        'message' => 'Account created successfully!',
-        'user' => array(
-            'id' => $user_id,
-            'name' => $fullname
-        )
-    ));
-}
-add_action('wp_ajax_nopriv_purchase_signup', 'purchase_signup_handler');
-add_action('wp_ajax_purchase_signup', 'purchase_signup_handler');
-
-
-/**
- * AJAX Handler for Payment Processing
- * NOTE: This is a placeholder. You need to integrate with your actual payment gateway.
- */
-function process_certificate_payment_handler() {
-    check_ajax_referer('process_payment_nonce', 'nonce');
-    
-    if (!is_user_logged_in()) {
-        wp_send_json_error(array(
-            'message' => 'You must be logged in to make a purchase.'
-        ));
-    }
-    
-    $user_id = get_current_user_id();
-    $course_id = sanitize_text_field($_POST['course_id']);
-    $completion_code = sanitize_text_field($_POST['completion_code']);
-    $mail_certificate = intval($_POST['mail_certificate']);
-    $discount_code = sanitize_text_field($_POST['discount_code']);
-    
-    // TODO: Integrate with your payment gateway here
-    // Example: Stripe, PayPal, Authorize.net, etc.
-    
-    /*
-    try {
-        // Process payment with your gateway
-        $charge = YourPaymentGateway::charge([
-            'amount' => $total_amount,
-            'currency' => 'usd',
-            'card' => $_POST['card_number'],
-            'description' => 'Certificate Purchase - ' . $course_id
-        ]);
-        
-        if ($charge->success) {
-            // Save purchase record
-            // Generate certificate
-            // Send email
-            
-            wp_send_json_success(array(
-                'message' => 'Payment successful!',
-                'redirect_url' => home_url('/certificate?id=' . $certificate_id)
-            ));
-        }
-    } catch (Exception $e) {
-        wp_send_json_error(array(
-            'message' => 'Payment failed: ' . $e->getMessage()
-        ));
-    }
-    */
-    
-    // For now, return a placeholder success response
-    wp_send_json_success(array(
-        'message' => 'Payment processing placeholder. Integrate your payment gateway here.',
-        'redirect_url' => home_url('/certificate-success')
-    ));
-}
-add_action('wp_ajax_process_certificate_payment', 'process_certificate_payment_handler');
-
-
-/**
- * AJAX Handler for Update User Profile
- *
- */
-
-function update_user_profile_handler() {
-    check_ajax_referer('update_user_nonce', 'nonce');
-    
-    // Check if user is logged in
-    if (!is_user_logged_in()) {
-        wp_send_json_error(array(
-            'message' => 'You must be logged in to update your profile.'
-        ));
-    }
-    
-    $user_id = get_current_user_id();
-    
-    // Sanitize input data
-    $fullname = sanitize_text_field($_POST['fullname']);
-    $email = sanitize_email($_POST['email']);
-    $license = sanitize_text_field($_POST['license']);
-    $license_state = sanitize_text_field($_POST['license_state']);
-    $phone = sanitize_text_field($_POST['phone']);
-    $address = sanitize_text_field($_POST['address']);
-    $city = sanitize_text_field($_POST['city']);
-    $state = sanitize_text_field($_POST['state']);
-    $zip = sanitize_text_field($_POST['zip']);
-    
-    // Validate email
-    if (!is_email($email)) {
-        wp_send_json_error(array(
-            'message' => 'Please enter a valid email address.'
-        ));
-    }
-    
-    // Check if email is already used by another user
-    $email_exists = email_exists($email);
-    if ($email_exists && $email_exists != $user_id) {
-        wp_send_json_error(array(
-            'message' => 'This email is already registered to another account.'
-        ));
-    }
-    
-    // Update user data
-    $user_data = array(
-        'ID' => $user_id,
-        'display_name' => $fullname,
-        'user_email' => $email
-    );
-    
-    $updated = wp_update_user($user_data);
-    
-    if (is_wp_error($updated)) {
-        wp_send_json_error(array(
-            'message' => 'Profile update failed: ' . $updated->get_error_message()
-        ));
-    }
-    
-    // Update user meta (LifterLMS fields)
-    update_user_meta($user_id, 'llms_billing_city', $city);
-    update_user_meta($user_id, 'llms_billing_address_1', $address);
-    update_user_meta($user_id, 'llms_billing_state', $state);
-    update_user_meta($user_id, 'llms_billing_zip', $zip);
-    update_user_meta($user_id, 'llms_phone', $phone);
-    update_user_meta($user_id, 'signup_license', $license);
-    update_user_meta($user_id, 'license_state', $license_state);
-    
-    // Send success response
-    wp_send_json_success(array(
-        'message' => 'Your profile has been updated successfully!',
-        'user' => array(
-            'id' => $user_id,
-            'name' => $fullname,
-            'email' => $email
-        )
-    ));
-}
-
-// Register AJAX actions
-add_action('wp_ajax_update_user_profile', 'update_user_profile_handler');
 
 ?>

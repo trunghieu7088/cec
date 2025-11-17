@@ -19,7 +19,7 @@ function course_completion_db_page() {
 
     // Xử lý khi form được submit
     if (isset($_POST['init_db']) && check_admin_referer('init_db_action', 'init_db_nonce')) {
-        // Kiểm tra bảng đã tồn tại chưa
+        
         if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
             // Tạo bảng
             $charset_collate = $wpdb->get_charset_collate();

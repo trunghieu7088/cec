@@ -358,7 +358,7 @@ jQuery(document).ready(function($) {
             rules: {
                 card_number: {
                     required: true,
-                    creditcard: true
+                   // creditcard: true
                 },
                 card_month: {
                     required: true,
@@ -391,57 +391,85 @@ jQuery(document).ready(function($) {
                 error.insertAfter(element);
             },
             submitHandler: function(form) {
-                const $form = $(form);
-                const $btn = $('#purchase-btn');
-                const originalHtml = $btn.html();
+    const $form = $(form);
+    const $btn = $('#purchase-btn');
+    const originalHtml = $btn.html();
+    
+    $form.find('.alert').remove();
+    $btn.addClass('loading').prop('disabled', true);
+    
+    // Get completion_code from form data attribute or URL
+    const completionCode = $form.data('completion-code') || 
+                          new URLSearchParams(window.location.search).get('completion_code');
+    
+    if (!completionCode) {
+        $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+        showFormError($form, 'Missing completion code. Please try again.');
+        return;
+    }
+    
+    const courseData = {
+        action: 'process_certificate_payment',
+        course_id: $form.data('course-id') || '',
+        completion_code: completionCode,
+        card_number: $('#card_number').val().replace(/\s/g, ''),
+        card_month: $('#card_month').val(),
+        card_year: $('#card_year').val(),
+        mail_certificate: $('#mail-certificate').is(':checked') ? 1 : 0,
+        discount_code: $('#discount-code').val().trim(),
+        total_amount: parseFloat($('.total-amount').text().replace('$', '')),
+        nonce: $form.data('nonce')
+    };
+    
+    console.log('Submitting payment with data:', {
+        action: courseData.action,
+        completion_code: courseData.completion_code,
+        course_id: courseData.course_id,
+        total_amount: courseData.total_amount
+    });
+    
+    $.ajax({
+        url: ajaxurl || my_ajax_object.ajax_url,
+        type: 'POST',
+        data: courseData,
+        success: function(response) {
+            console.log('Payment response:', response);
+            
+            if (response.success) {
+                let successMessage = '<div class="alert alert-success text-center">' +
+                    '<i class="bi bi-check-circle-fill me-2" style="font-size: 2rem;"></i>' +
+                    '<h4>Payment Successful!</h4>' +
+                    '<p>' + (response.data.message || 'Your certificate has been awarded!') + '</p>';
                 
-                $form.find('.alert').remove();
-                $btn.addClass('loading').prop('disabled', true);
+                if (response.data.certificate_url) {
+                    successMessage += '<p class="mt-3">' +
+                        '<a href="' + response.data.certificate_url + '" class="btn btn-primary btn-lg">' +
+                        '<i class="bi bi-download me-2"></i>View Your Certificate' +
+                        '</a>' +
+                        '</p>';
+                }
                 
-                const courseData = {
-                    action: 'process_certificate_payment',
-                    course_id: $form.data('course-id') || '',
-                    completion_code: $form.data('completion-code') || '',
-                    card_number: $('#card_number').val().replace(/\s/g, ''),
-                    card_month: $('#card_month').val(),
-                    card_year: $('#card_year').val(),
-                    mail_certificate: $('#mail-certificate').is(':checked') ? 1 : 0,
-                    discount_code: $('#discount-code').val().trim(),
-                    total_amount: parseFloat($('.total-amount').text().replace('$', '')),
-                    nonce: $form.data('nonce')
-                };
+                successMessage += '</div>';
                 
-                $.ajax({
-                    url: ajaxurl || wp.ajax_settings?.url,
-                    type: 'POST',
-                    data: courseData,
-                    success: function(response) {
-                        if (response.success) {
-                            $form.html(`
-                                <div class="alert alert-success text-center">
-                                    <i class="bi bi-check-circle-fill me-2" style="font-size: 2rem;"></i>
-                                    <h4>Payment Successful!</h4>
-                                    <p>${response.data.message || 'Your certificate is being generated...'}</p>
-                                </div>
-                            `);
-                            
-                            if (response.data.redirect_url) {
-                                setTimeout(function() {
-                                    window.location.href = response.data.redirect_url;
-                                }, 2000);
-                            }
-                        } else {
-                            $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-                            showFormError($form, response.data?.message || 'Payment processing failed. Please verify your card information and try again.');
-                        }
-                    },
-                    error: function(xhr) {
-                        $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-                        showFormError($form, 'Payment processing error. Please try again or contact support.');
-                        console.error('Payment error:', xhr);
-                    }
-                });
+                $form.html(successMessage);
+                
+                if (response.data.redirect_url) {
+                    setTimeout(function() {
+                        window.location.href = response.data.redirect_url;
+                    }, 3000);
+                }
+            } else {
+                $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                showFormError($form, response.data?.message || 'Payment processing failed. Please try again.');
             }
+        },
+        error: function(xhr) {
+            console.error('Payment error:', xhr);
+            $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+            showFormError($form, 'Payment processing error. Please try again or contact support.');
+        }
+    });
+}
         });
         
         // Revalidate month when year changes

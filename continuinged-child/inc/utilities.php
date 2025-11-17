@@ -83,6 +83,35 @@ function get_purchase_certificate_page_url() {
     return false; 
 }
 
+//get login page url
+function get_login_page_url($return_type = 'url') {
+    $args = array(
+        'post_type'      => 'page',
+        'meta_query'     => array(
+            array(
+                'key'   => '_wp_page_template',
+                'value' => 'template-pages/page-login.php',
+            ),
+        ),
+        'posts_per_page' => 1,
+        'post_status'    => 'publish',
+    );
+
+    $query = new WP_Query($args);
+
+    if ($query->have_posts()) {
+        $post = $query->posts[0];
+        wp_reset_postdata();
+
+        if ($return_type === 'slug') {
+            return get_post_field('post_name', $post);
+        }
+        return get_permalink($post);
+    }
+
+    return false;
+}
+
 function get_llms_states() {
     // Sử dụng filter để lấy mảng states (tương tự cách LifterLMS load)
     $states = apply_filters( 'lifterlms_states', include( LLMS_PLUGIN_DIR . 'languages/states.php' ) );
@@ -93,3 +122,4 @@ function get_llms_states_by_country( $country_code = 'US' ) {
     $all_states = get_llms_states();
     return isset( $all_states[ $country_code ] ) ? $all_states[ $country_code ] : array();
 }
+

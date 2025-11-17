@@ -262,6 +262,30 @@ class MyLifterLMS_Courses {
             return false; 
         }
     }
+
+    public function get_courses_of_student($user_id,$limit=20)
+    {       
+       
+        $student = llms_get_student($user_id );
+        if ( ! $student->exists() ) {
+            return false;
+        }
+
+        $course_list = $student->get_courses(
+                    array(
+                    	'limit'  => $limit,
+                        'status' => 'enrolled',
+                    )
+                );
+        if($course_list)
+        {
+            return $course_list;
+            //formart return  
+            // array(5) { ["found"]=> int(1) ["limit"]=> int(20) ["more"]=> bool(false) ["skip"]=> int(0) ["results"]=> array(1) { [0]=> int(383) } } 
+        }
+        return false;        
+
+    }
 }
 
 // Global function to get the instance of the class for easier access.
