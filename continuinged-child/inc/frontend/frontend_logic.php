@@ -1,6 +1,8 @@
 <?php 
 require('certificate_quiz_logic.php');
 require('authenticate_register_logic.php');
+require('ce_hours_handler.php');
+
 
 add_action('wp_head','init_ajax_url_frontend',20);
 

@@ -63,7 +63,7 @@ function update_user_profile_handler() {
     update_user_meta($user_id, 'llms_billing_state', $state);
     update_user_meta($user_id, 'llms_billing_zip', $zip);
     update_user_meta($user_id, 'llms_phone', $phone);
-    update_user_meta($user_id, 'signup_license', $license);
+    update_user_meta($user_id, 'license_number', $license);
     update_user_meta($user_id, 'license_state', $license_state);
     
     // Send success response

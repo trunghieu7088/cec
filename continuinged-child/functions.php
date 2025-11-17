@@ -22,6 +22,7 @@ require_once get_stylesheet_directory() . '/inc/admin/settings.php';
 require_once get_stylesheet_directory() . '/inc/llms/custom-llms.php';
 require_once get_stylesheet_directory() . '/inc/utilities.php';
 require_once get_stylesheet_directory() . '/inc/admin/init_db.php';
+require_once get_stylesheet_directory() . '/inc/admin/init_ce.php';
 
 
 function astra_child_setup() {

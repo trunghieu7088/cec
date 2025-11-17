@@ -33,8 +33,8 @@ function customer_account_shortcode($atts) {
     $zip = get_user_meta($user_id, 'llms_billing_zip', true);
     
     // Get CERewards information
-    $completed_hours = get_user_meta($user_id, 'completed_hours', true) ?: 0;
-    $completed_hours = floatval($completed_hours);
+    $completed_hours = get_user_total_ce_hours($user_id);
+    
     
     // Calculate discount tier
     $discount_percentage = 0;
@@ -53,26 +53,49 @@ function customer_account_shortcode($atts) {
         foreach ($courses_data['results'] as $course_id) {
            
             $student = llms_get_student($user_id);
-            
+        
             // Check if course is completed
-          // if (llms_is_complete($user_id,$course_id,'course')) {
+           if (llms_is_complete($user_id,$course_id,'course')) {
                 $course_data = $course_manager->get_single_course_data($course_id);
                
                 if ($course_data) {
                     // Get completion date
-                    $completion_date = $student->get_completion_date($course_id);                                  
-                    
+                    $completion_date = $student->get_completion_date($course_id);                                                      
                     $completed_courses[] = array(
                         'course_id' => $course_id,
                         'title' => $course_data['post_title'],
                         'hours' => !empty($course_data['llmscehours']) ? floatval($course_data['llmscehours']) : 0,
                         'completion_date' => $completion_date,
                         //'certificate_number' => $certificate_record ? $certificate_record->completion_code : '',
-                        'certificate_number' => 'aaaaaaa',
+                        'certificate_number' => 'Print', //rule web cũ là completion code.
                         'course_link' => $course_data['course_link']
                     );
                 }
-           // }
+            }
+        }
+    }
+
+    //handling unpaid coures
+    $unpaid_courses_info = get_user_meta($user_id, 'course_complete_not_paid', true);    
+    if($unpaid_courses_info)
+    {
+        foreach($unpaid_courses_info as $unpaid_course)
+        {
+           $course_info=get_completion_code($unpaid_course);
+           if($course_info->course_id)
+           {
+            $course_id = $course_info->course_id;
+             $course_data = $course_manager->get_single_course_data($course_id);
+            $unpaid_courses[]=array( 
+                        'course_id' => $course_id,
+                        'title' => $course_data['post_title'],
+                        'hours' => !empty($course_data['llmscehours']) ? floatval($course_data['llmscehours']) : 0,
+                        'completion_date' => $course_info->completed_date,// get completed date of completion code instead of completion date                                                
+                        'course_link' => $course_data['course_link'],
+                        'completion_code'=>$course_info->completion_code
+            );
+           }
+           
         }
     }
     
@@ -91,7 +114,7 @@ function customer_account_shortcode($atts) {
                 <div class="card-body">
                     <p class="mb-3">
                         With CERewards you automatically receive discounts as you complete more courses. 
-                        <a href="#" class="text-decoration-none">Click here for more information</a>.
+                        <a href="<?php echo site_url('rewards'); ?>" class="text-decoration-none">Click here for more information</a>.
                     </p>
                     
                     <div class="rewards-info">
@@ -126,11 +149,44 @@ function customer_account_shortcode($atts) {
                             </thead>
                             <tbody>
                                 <!-- This section will be populated by you later -->
-                                <tr>
+                                 <?php if(!empty($unpaid_courses)): ?>
+                                    
+                                         <?php foreach ($unpaid_courses as $course): ?>
+                                        <tr>
+                                            <td>
+                                                <a href="<?php echo esc_url($course['course_link']); ?>" class="course-link">
+                                                    <?php echo esc_html($course['title']); ?>
+                                                </a>
+                                            </td>
+                                            <td class="text-center"><?php echo number_format($course['hours'], 0); ?></td>
+                                            <td class="text-center">
+                                                <?php 
+                                                if ($course['completion_date']) {
+                                                    echo date('m/d/Y', strtotime($course['completion_date']));
+                                                } else {
+                                                    echo '-';
+                                                }
+                                                ?>
+                                            </td>
+                                            <td class="text-center">                                                
+                                                    <a 
+                                                    href="<?php echo get_purchase_certificate_page_url().'?completion_code='.$course['completion_code']; ?>" 
+                                                    class="btn btn-sm btn-outline-primary certificate-link">                                        
+                                                        Buy Now
+                                                    </a>
+                                         
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    
+                                <?php else: ?>
+                                  <tr>
                                     <td colspan="4" class="text-center text-muted">
                                         <i class="bi bi-info-circle me-2"></i>No unpaid courses
                                     </td>
                                 </tr>
+                                <?php endif; ?>
+                              
                             </tbody>
                         </table>
                     </div>
@@ -236,7 +292,7 @@ function customer_account_shortcode($atts) {
                                         
                                         <div class="col-md-6 mb-3">
                                             <label for="signup_license_state" class="form-label">License State</label>
-                                            <select class="form-select form-card-chooser" id="signup_license_state" name="license_state">                                             
+                                            <select style="padding:0px 10px;" class="form-select form-card-chooser" id="signup_license_state" name="license_state">                                             
                                                 <!-- Add more states -->
                                                  <?php foreach($state_list as $state_item):?>
                                                     <option <?php if($license_state==$state_item) echo 'selected'; ?> value="<?php echo $state_item; ?>"> 
@@ -268,7 +324,7 @@ function customer_account_shortcode($atts) {
                                         
                                         <div class="col-md-3 mb-3">
                                             <label for="signup_state" class="form-label">State</label>
-                                            <select class="form-select form-card-chooser" id="signup_state" name="state">
+                                            <select style="padding:0px 10px;" class="form-select form-card-chooser" id="signup_state" name="state">
                                                  <?php foreach($state_list as $state_item):?>
                                                     <option <?php if($state==$state_item) echo 'selected'; ?> value="<?php echo $state_item; ?>"> 
                                                         <?php echo $state_item; ?>
@@ -527,8 +583,7 @@ function customer_account_shortcode($atts) {
         .badge.bg-success {
             background-color: #28a745 !important;
         }
-    </style>
-
+    </style>    
     <?php
     return ob_get_clean();
 }

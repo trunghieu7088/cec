@@ -263,7 +263,7 @@ class MyLifterLMS_Courses {
         }
     }
 
-    public function get_courses_of_student($user_id,$limit=20)
+    public function get_courses_of_student($user_id,$limit=20,$status='any')
     {       
        
         $student = llms_get_student($user_id );
@@ -274,7 +274,7 @@ class MyLifterLMS_Courses {
         $course_list = $student->get_courses(
                     array(
                     	'limit'  => $limit,
-                        'status' => 'enrolled',
+                       'status' =>$status,
                     )
                 );
         if($course_list)

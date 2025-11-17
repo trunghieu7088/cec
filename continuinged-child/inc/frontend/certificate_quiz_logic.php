@@ -250,6 +250,8 @@ function save_completion_codes_on_login( ) {
             setcookie( $cookie_name, '', $past_time, $cookie_path, $cookie_domain, $is_secure, true );
         }
     }
+
+
     }
    
 }
@@ -268,4 +270,32 @@ function get_completion_code($completion_code)
 
     return $completion_record;
     //false or $completion_code object ->id, is_convert,..
+}
+
+//remove unpaid course from user meta
+function remove_course_from_complete_not_paid($user_id, $completion_code) {
+    // Lấy dữ liệu hiện tại từ user meta
+    $courses = get_user_meta($user_id, 'course_complete_not_paid', true);
+    
+    // Kiểm tra nếu không có dữ liệu
+    if (empty($courses) || !is_array($courses)) {
+        return false;
+    }
+    
+    // Tìm và xóa course_id khỏi mảng
+    $key = array_search($completion_code, $courses);
+    
+    if ($key !== false) {
+        unset($courses[$key]);
+        
+        // Đánh lại index của mảng (0, 1, 2,...)
+        $courses = array_values($courses);
+        
+        // Cập nhật lại user meta
+        update_user_meta($user_id, 'course_complete_not_paid', $courses);
+        
+        return true;
+    }
+    
+    return false;
 }

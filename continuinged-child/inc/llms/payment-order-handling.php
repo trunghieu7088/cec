@@ -179,31 +179,24 @@ function ajax_process_certificate_purchase() {
         $completion_code,
         number_format($total_amount, 2)
     ));
-
-
-    $student = llms_get_student($user_id);
-
-        if ($student) {
-            // Option 1: Mark course complete directly
-            $student->mark_complete($course_id, 'course');
-            
-            // Option 2: Nếu option 1 không work, dùng cách này
-            // llms_mark_complete($user_id, $course_id, 'course', 'admin_purchase');            
-        }
-            
+          
     // Award Certificate
     $certificate_id = 159; // Certificate template ID
     $certificate_awarded = false;
     
     if (class_exists('LLMS_Engagement_Handler')) {
         try {
-            LLMS_Engagement_Handler::handle_certificate(array(
+            $earned_certificate_id= LLMS_Engagement_Handler::handle_certificate(array(
                 $user_id,
                 $certificate_id,
                 $course_id,
                 null
             ));
             $certificate_awarded = true;
+
+            if ($earned_certificate_id) {
+                update_post_meta($earned_certificate_id, '_custom_completion_code', $completion_code);
+             }
         } catch (Exception $e) {
             error_log('Certificate award error: ' . $e->getMessage());
         }
@@ -238,6 +231,9 @@ function ajax_process_certificate_purchase() {
         }
     }
     
+    // remove course from meta user for unpaid course list.
+    remove_course_from_complete_not_paid($user_id, $completion_code);
+
     // Send success response
     wp_send_json_success(array(
         'message' => 'Certificate purchased successfully!',
@@ -249,3 +245,43 @@ function ajax_process_certificate_purchase() {
     ));
 }
 add_action('wp_ajax_process_certificate_payment', 'ajax_process_certificate_purchase');
+
+
+add_action('llms_user_enrolled_in_course', function($user_id, $course_id) {
+    global $wpdb;
+    
+    // 1. Insert completion status
+    $wpdb->replace(
+        $wpdb->prefix . 'lifterlms_user_postmeta',
+        array(
+            'user_id' => $user_id,
+            'post_id' => $course_id,
+            'meta_key' => '_is_complete',
+            'meta_value' => 'yes',
+            'updated_date' => current_time('mysql')
+        ),
+        array('%d', '%d', '%s', '%s', '%s')
+    );
+    
+    // 2. Insert completion date
+    $wpdb->replace(
+        $wpdb->prefix . 'lifterlms_user_postmeta',
+        array(
+            'user_id' => $user_id,
+            'post_id' => $course_id,
+            'meta_key' => '_completion_date',
+            'meta_value' => current_time('mysql'),
+            'updated_date' => current_time('mysql')
+        ),
+        array('%d', '%d', '%s', '%s')
+    );   
+
+    //add CE hours for the users
+    $ce_hours=get_post_meta($course_id,'_llms_ce_hours',true) ? get_post_meta($course_id,'_llms_ce_hours',true) : 0;
+    
+    $inserted_id = insert_ce_hours_record($user_id, $course_id,date('Y-m-d H:i:s'),$ce_hours);
+    
+ 
+    
+}, 90, 2);
+

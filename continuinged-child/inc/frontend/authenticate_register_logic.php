@@ -115,9 +115,12 @@ function purchase_signup_handler() {
             'message' => 'Registration failed: ' . $user_id->get_error_message()
         ));
     } 
-
+    
     if($user_id)
     {
+        //manually update user meta license number because lifterlms does not have this field
+        update_user_meta($user_id,'license_number',$license);
+
         wp_update_user(array(
             'ID' => $user_id,
             'display_name' => $fullname,            
