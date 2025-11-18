@@ -46,35 +46,32 @@ function customer_account_shortcode($atts) {
     
     // Get completed courses using core-features function
     $course_manager = my_lifterlms_courses();
-    $courses_data = $course_manager->get_courses_of_student($user_id, 100);      
+    $student = llms_get_student( $user_id );
+    $certificates = $student->get_certificates(
+            'updated_date',  // $orderby: Sắp xếp theo ngày cập nhật
+            'DESC',          // $order: Giảm dần (mới nhất trước)
+            'certificates'   // $return: Array của LLMS_User_Certificate instances (thay vì raw DB objects)
+        );
     $completed_courses = array();
-    
-    if ($courses_data && !empty($courses_data['results'])) {
-        foreach ($courses_data['results'] as $course_id) {
-           
-            $student = llms_get_student($user_id);
-        
-            // Check if course is completed
-           if (llms_is_complete($user_id,$course_id,'course')) {
-                $course_data = $course_manager->get_single_course_data($course_id);
-               
-                if ($course_data) {
-                    // Get completion date
-                    $completion_date = $student->get_completion_date($course_id);                                                      
-                    $completed_courses[] = array(
-                        'course_id' => $course_id,
-                        'title' => $course_data['post_title'],
-                        'hours' => !empty($course_data['llmscehours']) ? floatval($course_data['llmscehours']) : 0,
-                        'completion_date' => $completion_date,
-                        //'certificate_number' => $certificate_record ? $certificate_record->completion_code : '',
-                        'certificate_number' => 'Print', //rule web cũ là completion code.
-                        'course_link' => $course_data['course_link']
+
+    if($certificates)
+    {
+        foreach($certificates as $certificate)
+        {            
+              $course_info= $course_manager->get_single_course_data($certificate->get('related'));
+              $completed_courses[] = array(
+                        'course_id' => $course_info['ID'],
+                        'title' => $course_info['post_title'],
+                        'hours' => !empty($course_info['llmscehours']) ? floatval($course_info['llmscehours']) : 0,
+                        'completion_date' => $certificate->get_earned_date(),                        
+                        'certificate_number' => $certificate->get('id'), 
+                        'course_link' => $course_info['course_link'],
+                        'certificate_link'=>get_permalink( $certificate->get( 'id' ))
                     );
-                }
-            }
         }
     }
-
+    
+ 
     //handling unpaid coures
     $unpaid_courses_info = get_user_meta($user_id, 'course_complete_not_paid', true);    
     if($unpaid_courses_info)
@@ -230,7 +227,7 @@ function customer_account_shortcode($atts) {
                                             </td>
                                             <td class="text-center">
                                                 <?php if ($course['certificate_number']): ?>
-                                                    <a href="#" class="btn btn-sm btn-outline-primary certificate-link" 
+                                                    <a href="<?php echo $course['certificate_link']; ?>" class="btn btn-sm btn-outline-primary certificate-link" 
                                                        data-certificate="<?php echo esc_attr($course['certificate_number']); ?>">
                                                         #<?php echo esc_html($course['certificate_number']); ?>
                                                     </a>

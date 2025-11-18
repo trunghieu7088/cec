@@ -2,79 +2,125 @@
 add_action('admin_menu', 'register_course_completion_menu');
 function register_course_completion_menu() {
     add_submenu_page(
-        'options-general.php', // Menu cha: Settings
-        'Course Completion DB', // Tiêu đề trang
-        'Course Completion', // Tên menu
-        'manage_options', // Quyền truy cập
-        'course-completion-db', // Slug
-        'course_completion_db_page' // Hàm render trang
+        'options-general.php',
+        'Course Completion DB',
+        'Course Completion',
+        'manage_options',
+        'course-completion-db',
+        'course_completion_db_page'
     );
 }
 
-// Hàm render trang admin
+// Hàm tạo/xóa bảng chung
+function course_completion_create_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'course_completion_code';
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        completion_code VARCHAR(6) NOT NULL,
+        completed_date DATETIME NOT NULL,
+        course_id BIGINT(20) UNSIGNED NOT NULL,
+        is_convert TINYINT(1) NOT NULL DEFAULT 0,
+        score_test DECIMAL(5,2) NULL DEFAULT NULL,
+        PRIMARY KEY (id),
+        KEY course_id (course_id),
+        KEY completion_code (completion_code)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+
+    return $wpdb->last_error === '' ? true : false;
+}
+
+function course_completion_drop_table() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'course_completion_code';
+    $wpdb->query("DROP TABLE IF EXISTS $table_name");
+}
+
+// Trang admin
 function course_completion_db_page() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'course_completion_code';
     $message = '';
 
-    // Xử lý khi form được submit
+    // Xử lý Init DB (tạo bảng nếu chưa có)
     if (isset($_POST['init_db']) && check_admin_referer('init_db_action', 'init_db_nonce')) {
-        
-        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-            // Tạo bảng
-            $charset_collate = $wpdb->get_charset_collate();
-            $sql = "CREATE TABLE $table_name (
-                id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-                completion_code VARCHAR(6) NOT NULL,
-                completed_date DATETIME NOT NULL,
-                course_id BIGINT(20) UNSIGNED NOT NULL,
-                is_convert TINYINT(1) NOT NULL DEFAULT 0,
-                PRIMARY KEY (id)
-            ) $charset_collate;";
-
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
-
-            // Kiểm tra lỗi
-            if ($wpdb->last_error) {
-                $message = '<div class="error"><p>Error:' . esc_html($wpdb->last_error) . '</p></div>';
-            } else {
-                $message = '<div class="updated"><p>Table ' . esc_html($table_name) . ' has been created!</p></div>';
-            }
+        if (course_completion_create_table()) {
+            $message = '<div class="updated"><p>Bảng <strong>' . esc_html($table_name) . '</strong> đã được tạo thành công (hoặc đã tồn tại và được cập nhật cấu trúc)!</p></div>';
         } else {
-            $message = '<div class="notice notice-info"><p>Table ' . esc_html($table_name) . ' already existed!</p></div>';
+            $message = '<div class="error"><p>Lỗi khi tạo bảng: ' . esc_html($wpdb->last_error) . '</p></div>';
         }
     }
 
+    // Xử lý Xóa & tạo lại DB
+    if (isset($_POST['reset_db']) && check_admin_referer('reset_db_action', 'reset_db_nonce')) {
+        course_completion_drop_table();
+        if (course_completion_create_table()) {
+            $message = '<div class="updated"><p>Bảng đã được <strong>xóa và tạo lại thành công</strong> với cấu trúc mới (có cột score_test)!</p></div>';
+        } else {
+            $message = '<div class="error"><p>Lỗi khi tạo lại bảng: ' . esc_html($wpdb->last_error) . '</p></div>';
+        }
+    }
+
+    $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name;
     ?>
+
     <div class="wrap">
-        <h1>Init Database Course Completion</h1>
+        <h1>Quản lý Database Course Completion</h1>
+
         <?php echo $message; ?>
-        <form method="post" action="">
-            <?php wp_nonce_field('init_db_action', 'init_db_nonce'); ?>
-            <p>Click to create the table <strong><?php echo esc_html($table_name); ?></strong></p>
-            <input type="submit" name="init_db" class="button button-primary" value="Init DB">
-        </form>
+
+        <div class="card" style="max-width: 800px; margin: 20px 0;">
+            <h2>Trạng thái bảng</h2>
+            <p>
+                Bảng: <code><?php echo esc_html($table_name); ?></code><br>
+                <strong style="color: <?php echo $table_exists ? 'green' : 'red'; ?>">
+                    <?php echo $table_exists ? 'Đã tồn tại' : 'Chưa tồn tại'; ?>
+                </strong>
+            </p>
+
+            <!-- Nút tạo bảng (nếu chưa có hoặc muốn cập nhật cấu trúc) -->
+            <form method="post" style="display:inline-block; margin-right: 10px;">
+                <?php wp_nonce_field('init_db_action', 'init_db_nonce'); ?>
+                <input type="submit" name="init_db" class="button button-primary" value="Tạo / Cập nhật DB">
+                <p class="description">Chỉ tạo bảng nếu chưa có, hoặc cập nhật cấu trúc (thêm cột score_test nếu thiếu)</p>
+            </form>
+
+            <!-- Nút XÓA & TẠO LẠI (có xác nhận) -->
+            <form method="post" style="display:inline-block;" onsubmit="return confirm('⚠️ CẢNH BÁO: Toàn bộ dữ liệu trong bảng course completion sẽ bị XÓA VĨNH VIỄN!\n\nBạn có chắc chắn muốn tiếp tục không?');">
+                <?php wp_nonce_field('reset_db_action', 'reset_db_nonce'); ?>
+                <input type="submit" name="reset_db" class="button button-danger" value="Xóa & Tạo lại DB" style="background:#d63638; color:white; border:none;">
+                <p class="description" style="color:#d63638;"><strong>Xóa hoàn toàn</strong> bảng và tạo lại với cột score_test mới</p>
+            </form>
+        </div>
+
+        <?php if ($table_exists): ?>
+            <h3>Cấu trúc bảng hiện tại:</h3>
+            <?php
+            $columns = $wpdb->get_results("SHOW COLUMNS FROM $table_name");
+            echo '<ul>';
+            foreach ($columns as $col) {
+                $null = $col->Null == 'YES' ? 'NULL' : 'NOT NULL';
+                $default = $col->Default !== null ? "DEFAULT " . $col->Default : '';
+                echo '<li><code>' . esc_html($col->Field) . ' ' . esc_html($col->Type) . ' ' . $null . ' ' . $default . '</code></li>';
+            }
+            echo '</ul>';
+            ?>
+        <?php endif; ?>
     </div>
+
+    <style>
+        .button-danger:hover { background:#b32d2e !important; }
+    </style>
     <?php
 }
 
-// Kích hoạt plugin hoặc kiểm tra version để đảm bảo bảng được tạo đúng
-register_activation_hook(__FILE__, 'create_course_completion_table');
-function create_course_completion_table() {
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'course_completion_code';
-    if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
-        $charset_collate = $wpdb->get_charset_collate();
-        $sql = "CREATE TABLE $table_name (
-            id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-            completion_code VARCHAR(6) NOT NULL,
-            completed_date DATETIME NOT NULL,
-            course_id BIGINT(20) UNSIGNED NOT NULL,
-            PRIMARY KEY (id)
-        ) $charset_collate;";
-
-        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-        dbDelta($sql);
-    }
+// Khi kích hoạt plugin → tạo bảng với cấu trúc mới (có score_test)
+register_activation_hook(__FILE__, 'course_completion_activate');
+function course_completion_activate() {
+    course_completion_create_table();
 }

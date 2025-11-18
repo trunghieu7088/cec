@@ -6,3 +6,4 @@ require('shortcodes/author_list.php');
 require('shortcodes/login_form.php');
 require('shortcodes/purchase_certificate.php');
 require('shortcodes/customer_account.php');
+require('shortcodes/forgot_password.php');

@@ -183,19 +183,20 @@ function ajax_process_certificate_purchase() {
     // Award Certificate
     $certificate_id = 159; // Certificate template ID
     $certificate_awarded = false;
-    
+    $completion_code_instance=get_completion_code($completion_code);
     if (class_exists('LLMS_Engagement_Handler')) {
         try {
-            $earned_certificate_id= LLMS_Engagement_Handler::handle_certificate(array(
+            $earned_certificate= LLMS_Engagement_Handler::handle_certificate(array(
                 $user_id,
                 $certificate_id,
                 $course_id,
                 null
             ));
-            $certificate_awarded = true;
-
-            if ($earned_certificate_id) {
-                update_post_meta($earned_certificate_id, '_custom_completion_code', $completion_code);
+            $certificate_awarded = true;        
+            
+            if ($earned_certificate) {
+                update_post_meta($earned_certificate->get('id'), '_custom_completion_code', $completion_code);
+                update_post_meta($earned_certificate->get('id'), 'score_test', $completion_code_instance->score_test);
              }
         } catch (Exception $e) {
             error_log('Certificate award error: ' . $e->getMessage());

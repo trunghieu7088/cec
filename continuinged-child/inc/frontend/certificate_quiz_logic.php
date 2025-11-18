@@ -131,9 +131,10 @@ function grade_quiz_submission() {
                     'completion_code' => $completion_code,
                     'completed_date' => current_time('mysql'),
                     'course_id' => $course_id,
-                    'is_convert' => 0
+                    'is_convert' => 0,
+                    'score_test'=> (int)$score_percentage,
                 ),
-                array('%s', '%s', '%d', '%d')
+                array('%s', '%s', '%d', '%d','%d')
             );
             
             // Set cookie for 1 day

@@ -103,6 +103,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					)
 				);
 				?>
+				<!-- Search Icon -->
+				<li class="nav-item search-icon-wrapper">
+					<span class="search-icon" data-bs-toggle="modal" data-bs-target="#searchModal">
+						<i class="bi bi-search"></i>
+					</span>
+				</li>
 			</div>
 		</div>
 	</nav>
@@ -110,5 +116,5 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php //astra_header_after(); ?>
 
 	<?php //astra_content_before(); ?>
-			
+	<?php get_template_part( 'templates/search', 'modal' ); ?>
 	<div class="main-content">

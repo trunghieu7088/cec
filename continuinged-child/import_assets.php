@@ -58,6 +58,21 @@ function astra_child_enqueue_assets() {
             );
         
     }
+
+    //search course
+    // Search Course AJAX Script - with proper nonce
+        wp_enqueue_script(
+            'cec-search-course-js',
+            get_stylesheet_directory_uri() . '/assets/js/search_course.js',
+            array('jquery'),
+            '1.0.0',
+            true
+        );
+
+        // Localize script with AJAX URL and proper nonce
+        wp_localize_script('cec-search-course-js', 'cecAjax', array(            
+            'nonce'   => wp_create_nonce('search_courses_nonce')  // This must match what you check on server side
+        ));
   
     // Enqueue child frontend CSS
     wp_enqueue_style( 'continuinged-child-frontend', get_stylesheet_directory_uri() . '/assets/css/frontend.css', array(), '1.0.0' );
