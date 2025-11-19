@@ -1,2 +1,2 @@
 # cec
-CEC HTML templates
+CEC Project

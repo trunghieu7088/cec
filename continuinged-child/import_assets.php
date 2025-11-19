@@ -39,9 +39,7 @@ function astra_child_enqueue_assets() {
 
     //jquery validation
     wp_enqueue_script( 'cec-jquery-validation', get_stylesheet_directory_uri() . '/assets/js/jquery-validation.js', array( 'jquery' ), '1.0.0', true );  
-
-    //login js
-    wp_enqueue_script( 'cec-login-js', get_stylesheet_directory_uri() . '/assets/js/login.js', array( 'jquery','cec-jquery-validation' ), '1.0.0', true );  
+    
     
     //purchase certificate js
     if (is_page_template('template-pages/page-purchase-certificate.php') || is_page_template('template-pages/page-account.php')) {

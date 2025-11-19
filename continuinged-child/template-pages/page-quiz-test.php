@@ -187,7 +187,7 @@ get_header();
                     <div class="sidebar-card">
                         <h3>About the <?php echo count($instructors) > 1 ? 'Authors' : 'Author'; ?></h3>
                         <?php foreach ($instructors as $index => $instructor): 
-                            $author_list_page_url = get_author_list_page_url();
+                            $author_list_page_url = get_custom_page_url_by_template('page-author-list.php');
                         ?>
                         <div class="about-author-wrapper">
                             <a href="<?php echo $author_list_page_url.'#'.$instructor['user_login']; ?>">     

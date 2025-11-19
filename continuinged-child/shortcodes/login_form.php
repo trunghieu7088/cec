@@ -1,6 +1,6 @@
 <?php
 /**
- * Custom Login Form Shortcode
+ * Custom Ajax Login Form Shortcode
  * Usage: [custom_login_form]
  * Add this code to your theme's functions.php file
  */
@@ -16,24 +16,6 @@ function custom_login_form_shortcode($atts) {
                         <a href="' . wp_logout_url(get_permalink()) . '">Logout</a>
                     </div>
                 </div>';
-    }
-    
-    // Get redirect URL (current page by default)
-    $redirect = isset($_GET['redirect_to']) ? esc_url($_GET['redirect_to']) : get_permalink();
-    
-    // Check for login errors
-    $login_error = '';
-    if (isset($_GET['login']) && $_GET['login'] == 'failed') {
-        $login_error = '<div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            Invalid username or password. Please try again.
-                        </div>';
-    }
-    if (isset($_GET['login']) && $_GET['login'] == 'empty') {
-        $login_error = '<div class="alert alert-warning">
-                            <i class="bi bi-exclamation-circle-fill me-2"></i>
-                            Please enter your username and password.
-                        </div>';
     }
     
     ob_start();
@@ -53,19 +35,20 @@ function custom_login_form_shortcode($atts) {
                             </p>
                         </div>
 
-                        <?php echo $login_error; ?>
+                        <!-- Alert message container -->
+                        <div id="login-alert" class="alert" style="display: none;"></div>
 
-                        <form id="customLoginForm" method="post" action="<?php echo esc_url(site_url('wp-login.php', 'login_post')); ?>">
+                        <form id="customLoginForm">
                             
                             <div class="mb-3">
                                 <label for="user_login" class="form-label">Username <span class="required">*</span></label>
                                 <input type="text" 
                                        class="form-control" 
                                        id="user_login" 
-                                       name="log" 
+                                       name="username" 
                                        autocomplete="username"
                                        placeholder="Enter your username">
-                               
+                                <div class="invalid-feedback">Please enter your username.</div>
                             </div>
 
                             <div class="mb-3">
@@ -73,9 +56,10 @@ function custom_login_form_shortcode($atts) {
                                 <input type="password" 
                                        class="form-control" 
                                        id="user_pass" 
-                                       name="pwd" 
+                                       name="password" 
                                        autocomplete="current-password"
-                                       placeholder="Enter your password">                             
+                                       placeholder="Enter your password">
+                                <div class="invalid-feedback">Please enter your password.</div>
                             </div>
 
                             <div class="mb-3 form-check">
@@ -83,17 +67,14 @@ function custom_login_form_shortcode($atts) {
                                        class="form-check-input" 
                                        id="rememberme" 
                                        name="rememberme" 
-                                       value="forever">
+                                       value="1">
                                 <label class="form-check-label" for="rememberme">
                                     Remember Me
                                 </label>
                             </div>
 
-                            <input type="hidden" name="redirect_to" value="<?php echo esc_url($redirect); ?>">
-                            <input type="hidden" name="testcookie" value="1">
-
                             <div class="d-grid gap-2 mb-3">
-                                <button type="submit" class="btn btn-primary">
+                                <button type="submit" class="btn btn-primary" id="loginBtn">
                                     <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
                                 </button>
                             </div>
@@ -167,9 +148,154 @@ function custom_login_form_shortcode($atts) {
         .form-control:focus {
             box-shadow: 0 0 0 0.25rem rgba(74, 144, 175, 0.25);
         }
+
+        /* Loading spinner */
+        #loginBtn.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        #loginBtn.loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spinner 0.6s linear infinite;
+        }
+
+        @keyframes spinner {
+            to { transform: rotate(360deg); }
+        }
     </style>
 
- 
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        'use strict';
+        // Validate single field
+        function validateField(field) {
+            var value = field.val().trim();
+            var isValid = value !== '';
+            
+            if (isValid) {
+                field.removeClass('is-invalid').addClass('is-valid');
+                field.next('.invalid-feedback').removeClass('d-block');
+            } else {
+                field.removeClass('is-valid').addClass('is-invalid');
+                field.next('.invalid-feedback').addClass('d-block');
+            }
+            
+            return isValid;
+        }
+
+        // Validate all fields
+        function validateForm() {
+            var username = $('#user_login');
+            var password = $('#user_pass');
+            
+            var isUsernameValid = validateField(username);
+            var isPasswordValid = validateField(password);
+            
+            return isUsernameValid && isPasswordValid;
+        }
+
+        // Real-time validation on blur
+        $('#user_login, #user_pass').on('blur', function() {
+            validateField($(this));
+        });
+
+        // Remove validation on input
+        $('#user_login, #user_pass').on('input', function() {
+            if ($(this).hasClass('is-invalid') || $(this).hasClass('is-valid')) {
+                validateField($(this));
+            }
+        });
+
+        // Show alert message
+        function showAlert(message, type) {
+            var iconClass = type === 'success' ? 'bi-check-circle-fill' : 
+                          type === 'danger' ? 'bi-exclamation-triangle-fill' : 
+                          'bi-exclamation-circle-fill';
+            
+            $('#login-alert')
+                .removeClass('alert-success alert-danger alert-warning')
+                .addClass('alert-' + type)
+                .html('<i class="bi ' + iconClass + ' me-2"></i>' + message)
+                .fadeIn();
+            
+            // Auto hide after 5 seconds for non-error messages
+            if (type === 'success') {
+                setTimeout(function() {
+                    $('#login-alert').fadeOut();
+                }, 5000);
+            }
+        }
+
+        // Handle form submit
+        $('#customLoginForm').on('submit', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Form submitted');
+            // Validate form
+            if (!validateForm()) {
+                showAlert('Please fill in all required fields.', 'warning');
+                return false;
+            }
+            
+            // Get form data
+            var username = $('#user_login').val();
+            var password = $('#user_pass').val();
+            var remember = $('#rememberme').is(':checked') ? 1 : 0;
+            
+            // Disable button and show loading
+            var $btn = $('#loginBtn');
+            $btn.prop('disabled', true).addClass('loading');
+            $('#login-alert').fadeOut();
+            
+            // Ajax request
+            $.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'POST',
+                data: {
+                    action: 'custom_ajax_login',
+                    username: username,
+                    password: password,
+                    remember: remember,
+                    security: '<?php echo wp_create_nonce('ajax-login-nonce'); ?>'
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showAlert(response.data.message, 'success');
+                        
+                        // Redirect after 1 second
+                        setTimeout(function() {
+                            window.location.href = response.data.redirect;
+                        }, 1000);
+                    } else {
+                        showAlert(response.data.message, 'danger');
+                        $btn.prop('disabled', false).removeClass('loading');
+                        
+                        // Mark fields as invalid
+                        $('#user_login, #user_pass').addClass('is-invalid');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    showAlert('An error occurred. Please try again.', 'danger');
+                    $btn.prop('disabled', false).removeClass('loading');
+                    console.error('Ajax error:', error);
+                }
+            });
+            
+            return false;
+        });
+    });
+    </script>
 
     <?php
     return ob_get_clean();
@@ -178,37 +304,68 @@ add_shortcode('custom_login_form', 'custom_login_form_shortcode');
 
 
 /**
- * Custom login redirect to handle errors
+ * Ajax Login Handler
  */
-function custom_login_failed() {
-    $login_page = home_url('/login-page/'); // Change this to your login page URL
-    wp_redirect($login_page . '?login=failed');
-    exit;
-}
-add_action('wp_login_failed', 'custom_login_failed');
-
-function custom_verify_username_password($user, $username, $password) {
-    // Only check if username or password is empty on login attempt
-    if (isset($_POST['log']) && isset($_POST['pwd'])) {
-        if (empty($username) || empty($password)) {
-            $login_page = home_url('/login-page/'); // Change this to your login page URL
-            wp_redirect($login_page . '?login=empty');
-            exit;
-        }
+function custom_ajax_login() {
+    // Check nonce
+    check_ajax_referer('ajax-login-nonce', 'security');
+    
+    // Get POST data
+    $username = isset($_POST['username']) ? sanitize_user($_POST['username']) : '';
+    $password = isset($_POST['password']) ? $_POST['password'] : '';
+    $remember = isset($_POST['remember']) ? (bool)$_POST['remember'] : false;
+    
+    // Validate input
+    if (empty($username) || empty($password)) {
+        wp_send_json_error(array(
+            'message' => 'Please enter both username and password.'
+        ));
     }
-    return $user;
+    
+    // Attempt login
+    $creds = array(
+        'user_login'    => $username,
+        'user_password' => $password,
+        'remember'      => $remember
+    );
+    
+    $user = wp_signon($creds, false);
+    
+    // Check for errors
+    if (is_wp_error($user)) {
+        wp_send_json_error(array(
+            'message' => 'Invalid username or password. Please try again.'
+        ));
+    }
+    
+    // Success - set auth cookie
+    wp_set_current_user($user->ID);
+    wp_set_auth_cookie($user->ID, $remember);
+    
+    // Determine redirect URL
+    $redirect_to = home_url('/dashboard/');
+    
+    // Allow filtering of redirect URL
+    $redirect_to = apply_filters('custom_ajax_login_redirect', $redirect_to, $user);
+    
+    wp_send_json_success(array(
+        'message' => 'Login successful! Redirecting...',
+        'redirect' => $redirect_to
+    ));
 }
-add_filter('authenticate', 'custom_verify_username_password', 30, 3);
+add_action('wp_ajax_nopriv_custom_ajax_login', 'custom_ajax_login');
+add_action('wp_ajax_custom_ajax_login', 'custom_ajax_login');
+
 
 /**
- * Redirect after successful login (optional)
+ * Custom login redirect filter
  */
-function custom_login_redirect($redirect_to, $request, $user) {
-    $login_page_url = get_login_page_url(); //url of the page using page login.php template
-    if ($login_page_url  && strpos($redirect_to, $login_page_url) !== false) {
-        return home_url('/dashboard/'); // Redirect đến trang account
+function custom_ajax_login_redirect_filter($redirect_to, $user) {
+    // You can customize redirect based on user role
+    if (in_array('administrator', $user->roles)) {
+        return admin_url();
     }
-    return site_url(); // Change this to your desired page
+    return $redirect_to;
 }
-add_filter('login_redirect', 'custom_login_redirect', 99, 3);
+add_filter('custom_ajax_login_redirect', 'custom_ajax_login_redirect_filter', 10, 2);
 ?>

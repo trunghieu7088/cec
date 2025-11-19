@@ -152,7 +152,7 @@ function grade_quiz_submission() {
                 true
             );
             
-            $print_certificate_url = get_purchase_certificate_page_url() . '?completion_code=' . $completion_code;
+            $print_certificate_url = get_custom_page_url_by_template('page-purchase-certificate.php') . '?completion_code=' . $completion_code;
         }
     }
     

@@ -1,119 +1,5 @@
 <?php
-//get author list page url
-function get_author_list_page_url() {
-    $args = array(
-        'post_type'  => 'page',
-        'meta_query' => array(
-            array(
-                'key'   => '_wp_page_template',
-                'value' => 'template-pages/page-author-list.php', 
-            ),
-        ),
-        'posts_per_page' => 1, 
-        'post_status'    => 'publish', 
-    );
-
-    $query = new WP_Query($args);
-
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $page_url = get_permalink(); 
-            wp_reset_postdata();
-            return $page_url;
-        }
-    }
-
-    return false; 
-}
-
-//get quiz page url
-function get_quiz_page_url() {
-    $args = array(
-        'post_type'  => 'page',
-        'meta_query' => array(
-            array(
-                'key'   => '_wp_page_template',
-                'value' => 'template-pages/page-quiz-test.php', 
-            ),
-        ),
-        'posts_per_page' => 1, 
-        'post_status'    => 'publish', 
-    );
-
-    $query = new WP_Query($args);
-
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $page_url = get_permalink(); 
-            wp_reset_postdata();
-            return $page_url;
-        }
-    }
-
-    return false; 
-}
-
-//get purchase certificate page url
-function get_purchase_certificate_page_url() {
-    $args = array(
-        'post_type'  => 'page',
-        'meta_query' => array(
-            array(
-                'key'   => '_wp_page_template',
-                'value' => 'template-pages/page-purchase-certificate.php', 
-            ),
-        ),
-        'posts_per_page' => 1, 
-        'post_status'    => 'publish', 
-    );
-
-    $query = new WP_Query($args);
-
-    if ($query->have_posts()) {
-        while ($query->have_posts()) {
-            $query->the_post();
-            $page_url = get_permalink(); 
-            wp_reset_postdata();
-            return $page_url;
-        }
-    }
-
-    return false; 
-}
-
-//get login page url
-function get_login_page_url($return_type = 'url') {
-    $args = array(
-        'post_type'      => 'page',
-        'meta_query'     => array(
-            array(
-                'key'   => '_wp_page_template',
-                'value' => 'template-pages/page-login.php',
-            ),
-        ),
-        'posts_per_page' => 1,
-        'post_status'    => 'publish',
-    );
-
-    $query = new WP_Query($args);
-
-    if ($query->have_posts()) {
-        $post = $query->posts[0];
-        wp_reset_postdata();
-
-        if ($return_type === 'slug') {
-            return get_post_field('post_name', $post);
-        }
-        return get_permalink($post);
-    }
-
-    return false;
-}
-
-function get_llms_states() {
-    // Sử dụng filter để lấy mảng states (tương tự cách LifterLMS load)
+function get_llms_states() {    
     $states = apply_filters( 'lifterlms_states', include( LLMS_PLUGIN_DIR . 'languages/states.php' ) );
     return $states;
 }
@@ -123,3 +9,47 @@ function get_llms_states_by_country( $country_code = 'US' ) {
     return isset( $all_states[ $country_code ] ) ? $all_states[ $country_code ] : array();
 }
 
+
+function get_custom_page_url_by_template( $template_filename, $return_type = 'url' ) {
+    // Chuẩn hóa đường dẫn template để chắc chắn đúng format WordPress lưu
+    $template_path = 'template-pages/' . ltrim( $template_filename, '/' );
+    
+    // Cache kết quả để tăng tốc (vì hàm này hay được gọi nhiều lần)
+    $cache_key = 'page_by_template_' . md5( $template_path . $return_type );
+    $cached    = wp_cache_get( $cache_key, 'custom_pages' );
+    
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $args = array(
+        'post_type'      => 'page',
+        'post_status'    => 'publish',
+        'posts_per_page' => 1,
+        'meta_query'     => array(
+            array(
+                'key'   => '_wp_page_template',
+                'value' => $template_path,
+            ),
+        ),
+        'fields'         => 'ids', // Chỉ lấy ID để tối ưu
+    );
+
+    $query = new WP_Query( $args );
+
+    if ( ! $query->have_posts() ) {
+        wp_cache_set( $cache_key, false, 'custom_pages', HOUR_IN_SECONDS );
+        return false;
+    }
+
+    $page_id = $query->posts[0];
+
+    $result = ( $return_type === 'slug' )
+        ? get_post_field( 'post_name', $page_id )
+        : get_permalink( $page_id );
+
+    // Cache kết quả 1 tiếng (hoặc lâu hơn nếu muốn)
+    wp_cache_set( $cache_key, $result, 'custom_pages', HOUR_IN_SECONDS );
+
+    return $result;
+}

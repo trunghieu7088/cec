@@ -11,7 +11,7 @@ function customer_account_shortcode($atts) {
         return '<div class="container mt-5">
             <div class="alert alert-warning">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                Please <a href="' .get_login_page_url(). '">login</a> to access your account.
+                Please <a href="' .get_custom_page_url_by_template('page-login.php'). '">login</a> to access your account.
             </div>
         </div>';
     }
@@ -167,7 +167,7 @@ function customer_account_shortcode($atts) {
                                             </td>
                                             <td class="text-center">                                                
                                                     <a 
-                                                    href="<?php echo get_purchase_certificate_page_url().'?completion_code='.$course['completion_code']; ?>" 
+                                                    href="<?php echo get_custom_page_url_by_template('page-purchase-certificate.php').'?completion_code='.$course['completion_code']; ?>" 
                                                     class="btn btn-sm btn-outline-primary certificate-link">                                        
                                                         Buy Now
                                                     </a>

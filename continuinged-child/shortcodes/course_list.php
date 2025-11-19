@@ -21,7 +21,7 @@ function llms_custom_course_list_shortcode($atts) {
             <?php          
               //init currency
             $llms_currency_symbol = get_lifterlms_currency_symbol();  
-            $author_list_page_url = get_author_list_page_url();        
+            $author_list_page_url = get_custom_page_url_by_template('page-author-list.php');       
             // Get all course categories ordered by 'order' term meta
             $categories = get_terms(array(
                 'taxonomy' => 'course_cat',

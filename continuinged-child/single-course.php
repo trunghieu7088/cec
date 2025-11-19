@@ -32,8 +32,8 @@ $instructors = $course_data['instructors'] ?? array();
 $categories = $course_data['course_categories'] ?? array();
 $difficulties = $course_data['course_difficulties'] ?? array();
 $access_plan = $course_data['access_plans'] ?? array();
-$author_list_page_url = get_author_list_page_url(); 
-$quiz_page=get_quiz_page_url();
+$author_list_page_url = get_custom_page_url_by_template('page-author-list.php');
+$quiz_page=get_custom_page_url_by_template('page-quiz-test.php');
 
 // Get price from access plan
 $price = '$0';
