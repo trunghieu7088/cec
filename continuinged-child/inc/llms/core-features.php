@@ -42,14 +42,14 @@ class MyLifterLMS_Courses {
     /**
      * Prevent cloning of the instance.
      */
-    private function __clone() {
+    public function __clone() {
         // Prevent cloning
     }
 
     /**
      * Prevent unserializing of the instance.
      */
-    private function __wakeup() {
+    public function __wakeup() {
         // Prevent unserializing
     }
 

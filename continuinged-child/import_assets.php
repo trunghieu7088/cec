@@ -51,7 +51,9 @@ function astra_child_enqueue_assets() {
                     'login_nonce' => wp_create_nonce('purchase_login_nonce'),
                     'signup_nonce' => wp_create_nonce('purchase_signup_nonce'),
                     'payment_nonce' => wp_create_nonce('process_payment_nonce'),
-                    'update_user_nonce' => wp_create_nonce('update_user_nonce')
+                    'update_user_nonce' => wp_create_nonce('update_user_nonce'),
+                     'update_password_nonce' => wp_create_nonce('update_password_nonce')
+
                 )
             );
         

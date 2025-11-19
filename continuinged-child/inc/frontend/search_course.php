@@ -32,7 +32,7 @@ function search_courses_callback() {
     $query = new WP_Query($args);
     $results = array();
     //$course_instance=my_lifterlms_courses();
-    //cần tối ưu chỗ này có thể chỉ cần lấy main_content
+    
     if ($query->have_posts()) {
         while ($query->have_posts()) {
             $query->the_post();
@@ -57,3 +57,30 @@ function search_courses_callback() {
     wp_send_json_success($results);
 }
 
+
+
+/**
+ * Thêm rewrite rule cho search
+ */
+function add_search_rewrite_rules() {
+    // Lấy slug của search results page
+    $search_page_slug = get_custom_page_url_by_template( 'page-search-results.php', 'slug' );
+    
+    if ( $search_page_slug ) {
+        add_rewrite_rule(
+            '^' . $search_page_slug . '/search/([^/]*)/?',
+            'index.php?pagename=' . $search_page_slug . '&search_term=$matches[1]',
+            'top'
+        );
+    }
+}
+add_action( 'init', 'add_search_rewrite_rules' );
+
+/**
+ * Đăng ký query var
+ */
+function register_search_term_query_var( $vars ) {
+    $vars[] = 'search_term';
+    return $vars;
+}
+add_filter( 'query_vars', 'register_search_term_query_var' );

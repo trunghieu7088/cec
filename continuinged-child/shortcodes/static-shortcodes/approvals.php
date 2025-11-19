@@ -15,7 +15,7 @@ function custom_static_approvals_shortcode() {
             <div class="col-lg-6">
                 <div class="reward-card h-100">
                     <div class="reward-header">
-                        <img src="http://lms.test/wp-content/uploads/2025/11/unnamed.png" alt="APA Logo" class="img-fluid me-3" style="height: 100px;">
+                        <img src="<?php echo get_stylesheet_directory_uri().'/assets/images/APA.png'; ?>" alt="APA Logo" class="img-fluid me-3" style="height: 100px;">
                        
                         <h3 class="reward-title">American Psychological Association (APA)</h3>
                     </div>
@@ -30,7 +30,7 @@ function custom_static_approvals_shortcode() {
                 <div class="reward-card h-100">
                     <div class="reward-header">
                       
-                            <img src="http://lms.test/wp-content/uploads/2025/11/1200x600wa.png" alt="ASWB Logo" class="img-fluid me-3" style="height: 100px;">
+                            <img src="<?php echo get_stylesheet_directory_uri().'/assets/images/ASWB.png'; ?>" alt="ASWB Logo" class="img-fluid me-3" style="height: 100px;">
                      
                         <h3 class="reward-title">Association of Social Work Boards (ASWB)</h3>
                     </div>
@@ -45,7 +45,7 @@ function custom_static_approvals_shortcode() {
                 <div class="reward-card h-100">
                     <div class="reward-header">
                       
-                            <img src="http://lms.test/wp-content/uploads/2025/11/NBCC-Symbol-Circle-Logo-600px-acclaim.png" alt="NBCC Logo" class="img-fluid me-3" style="height: 100px;">
+                            <img src="<?php echo get_stylesheet_directory_uri().'/assets/images/NBCC.png'; ?>" alt="NBCC Logo" class="img-fluid me-3" style="height: 100px;">
                 
                         <h3 class="reward-title">National Board for Certified Counselors (NBCC)</h3>
                     </div>
@@ -60,7 +60,7 @@ function custom_static_approvals_shortcode() {
                 <div class="reward-card h-100">
                     <div class="reward-header">
                        
-                            <img src="http://lms.test/wp-content/uploads/2025/11/nysed.png" alt="NYSED Logo" class="img-fluid me-3" style="height: 100px;">
+                            <img src="<?php echo get_stylesheet_directory_uri().'/assets/images/NYSED.png'; ?>" alt="NYSED Logo" class="img-fluid me-3" style="height: 100px;">
                     
                         <h3 class="reward-title">NY State Education Department (NYSED-PSY)</h3>
                     </div>
@@ -75,7 +75,7 @@ function custom_static_approvals_shortcode() {
                 <div class="reward-card h-100">
                     <div class="reward-header">
                      
-                            <img src="http://lms.test/wp-content/uploads/2025/11/nysed.png" alt="NYSED Logo" class="img-fluid me-3" style="height: 100px;">
+                            <img src="<?php echo get_stylesheet_directory_uri().'/assets/images/NYSED.png'; ?>" alt="NYSED Logo" class="img-fluid me-3" style="height: 100px;">
                        
                         <h3 class="reward-title">NY State Education Department (NYSED-SW)</h3>
                     </div>
@@ -90,7 +90,7 @@ function custom_static_approvals_shortcode() {
                 <div class="reward-card h-100">
                     <div class="reward-header">
                       
-                            <img src="http://lms.test/wp-content/uploads/2025/11/nysed.png" alt="NYSED Logo" class="img-fluid me-3" style="height: 100px;">
+                            <img src="<?php echo get_stylesheet_directory_uri().'/assets/images/NYSED.png'; ?>" alt="NYSED Logo" class="img-fluid me-3" style="height: 100px;">
                       
                         <h3 class="reward-title">NY State Education Department (NYSED-MHC)</h3>
                     </div>

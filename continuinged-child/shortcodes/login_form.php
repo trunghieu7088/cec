@@ -31,7 +31,7 @@ function custom_login_form_shortcode($atts) {
                         <div class="info-box mb-4">
                             <p><i class="bi bi-info-circle-fill me-2"></i>
                                 Note: you don't need to create an account until after you have completed a course. 
-                                <a href="<?php echo esc_url(home_url('/courses')); ?>">Click here</a> to begin taking a course.
+                                <a href="<?php echo esc_url(home_url('/#course')); ?>">Click here</a> to begin taking a course.
                             </p>
                         </div>
 
@@ -80,12 +80,12 @@ function custom_login_form_shortcode($atts) {
                             </div>
 
                             <div class="text-center">
-                                <p class="mb-2">
-                                    <a href="<?php echo esc_url(wp_lostpassword_url()); ?>" class="text-decoration-none">
+                                <p class="mb-2 mt-4">
+                                    <a href="<?php echo get_custom_page_url_by_template('page-forgot-password.php'); ?>" class="text-decoration-none">
                                         <i class="bi bi-key-fill me-1"></i>I have forgotten my username or password, help me retrieve it
                                     </a>
                                 </p>
-                                <p class="text-muted small">
+                                <p class="text-muted small mt-4">
                                     For additional help email 
                                     <a href="mailto:CustomerService@ContinuingEdCourses.Net">CustomerService@ContinuingEdCourses.Net</a> 
                                     or call 858-484-4304.
@@ -343,7 +343,7 @@ function custom_ajax_login() {
     wp_set_auth_cookie($user->ID, $remember);
     
     // Determine redirect URL
-    $redirect_to = home_url('/dashboard/');
+    $redirect_to = get_custom_page_url_by_template('page-account.php');
     
     // Allow filtering of redirect URL
     $redirect_to = apply_filters('custom_ajax_login_redirect', $redirect_to, $user);

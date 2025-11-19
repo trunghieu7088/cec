@@ -358,6 +358,41 @@ function customer_account_shortcode($atts) {
             </div>
             <?php endif; ?>
 
+
+            <!-- change password section -->
+             <!-- Change Password Section -->
+            <div class="account-card">
+                <div class="card-header">
+                    <h3><i class="bi bi-key-fill me-2"></i>Change Password</h3>
+                </div>
+                <div class="card-body">
+                    <form id="updatePasswordForm" class="customer-form" data-nonce="<?php echo wp_create_nonce('update_password_nonce'); ?>">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="new_password" class="form-label">New Password <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="new_password" name="new_password" autocomplete="new-password">                                   
+                                </div>
+                                <small class="form-text text-muted">Password must be at least 6 characters long</small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="confirm_password" class="form-label">Confirm New Password <span class="required">*</span></label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="confirm_password" name="confirm_password" autocomplete="new-password">                                  
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-shield-lock-fill me-2"></i>Update Password
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -580,6 +615,26 @@ function customer_account_shortcode($atts) {
         .badge.bg-success {
             background-color: #28a745 !important;
         }
+        /* Password Toggle Button */
+        .toggle-password {
+            border-left: 0;
+        }
+
+        .toggle-password:hover {
+            background-color: #e9ecef;
+        }
+
+        .toggle-password i {
+            font-size: 1rem;
+        }
+
+        /* Required field indicator */
+        .required {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+  
     </style>    
     <?php
     return ob_get_clean();

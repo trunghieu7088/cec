@@ -707,5 +707,146 @@ if ($('#updateUserForm').length) {
             $(this).valid();
         }
     });
+
+
+    /**
+ * jQuery Validation Setup for Update Password Form
+ */
+if ($('#updatePasswordForm').length) {
+    // Custom validation method for password confirmation
+    $.validator.addMethod("passwordMatch", function(value, element) {
+        return value === $('#new_password').val();
+    }, "Passwords do not match.");
+
+    $('#updatePasswordForm').validate({
+        rules: {
+            new_password: {
+                required: true,
+                minlength: 6,
+                maxlength: 50
+            },
+            confirm_password: {
+                required: true,
+                minlength: 6,
+                passwordMatch: true
+            }
+        },
+        messages: {
+            new_password: {
+                required: "Please enter a new password.",
+                minlength: "Password must be at least 6 characters long.",
+                maxlength: "Password must not exceed 50 characters."
+            },
+            confirm_password: {
+                required: "Please confirm your new password.",
+                minlength: "Password must be at least 6 characters long."
+            }
+        },
+        errorElement: 'div',
+        errorClass: 'invalid-feedback d-block',
+        highlight: function(element) {
+            $(element).addClass('is-invalid').removeClass('is-valid');
+            $(element).closest('.input-group').addClass('has-error');
+        },
+        unhighlight: function(element) {
+            $(element).removeClass('is-invalid').addClass('is-valid');
+            $(element).closest('.input-group').removeClass('has-error');
+        },
+        errorPlacement: function(error, element) {
+            if (element.parent('.input-group').length) {
+                error.insertAfter(element.parent());
+            } else {
+                error.insertAfter(element);
+            }
+        },
+        submitHandler: function(form) {
+            const $form = $(form);
+            const $btn = $form.find('button[type="submit"]');
+            const originalHtml = $btn.html();
+            
+            // Remove any existing alerts
+            $form.find('.alert').remove();
+            
+            // Show loading state
+            $btn.addClass('loading').prop('disabled', true)
+                .html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+            
+            const formData = {
+                action: 'update_user_password',
+                new_password: $('#new_password').val(),
+                confirm_password: $('#confirm_password').val(),
+                nonce: $form.data('nonce')
+            };
+            
+            $.ajax({
+                url: ajaxurl || my_ajax_object.ajax_url,
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                    
+                    if (response.success) {
+                        // Show success message
+                        const successAlert = `
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i>${response.data.message || 'Password updated successfully!'}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        `;
+                        $form.prepend(successAlert);
+                        
+                        // Reset form
+                        $form[0].reset();
+                        $form.find('.form-control').removeClass('is-valid is-invalid');
+                        $form.find('.input-group').removeClass('has-error');
+                        
+                        // Hide password fields
+                        $('.toggle-password').each(function() {
+                            const targetId = $(this).data('target');
+                            const $input = $('#' + targetId);
+                            if ($input.attr('type') === 'text') {
+                                $input.attr('type', 'password');
+                                $(this).find('i').removeClass('bi-eye-slash').addClass('bi-eye');
+                            }
+                        });
+                        
+                        // Scroll to success message
+                        $('html, body').animate({
+                            scrollTop: $form.offset().top - 100
+                        }, 300);
+                        
+                        // Auto-hide success message after 5 seconds
+                        setTimeout(function() {
+                            $('.alert-success').fadeOut('slow', function() {
+                                $(this).remove();
+                            });
+                        }, 5000);
+                    } else {
+                        showFormError($form, response.data?.message || 'Password update failed. Please try again.');
+                    }
+                },
+                error: function(xhr) {
+                    $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                    showFormError($form, 'Connection error. Please check your internet and try again.');
+                    console.error('Update password error:', xhr);
+                }
+            });
+        }
+    });
+    
+        // Real-time validation on blur
+        $('#updatePasswordForm input').on('blur', function() {
+            if ($(this).val()) {
+                $(this).valid();
+            }
+        });
+        
+        // Revalidate confirm password when new password changes
+        $('#new_password').on('input', function() {
+            if ($('#confirm_password').val()) {
+                $('#confirm_password').valid();
+            }
+        });
+    }
 }
 });

@@ -60,12 +60,12 @@ function custom_forgot_password_form_shortcode($atts) {
                             </div>
 
                             <div class="text-center">
-                                <p class="mb-2">
-                                    <a href="<?php echo esc_url(home_url('/login-page/')); ?>" class="text-decoration-none">
+                                <p class="mb-2 mt-4">
+                                    <a href="<?php echo get_custom_page_url_by_template('page-login.php'); ?>" class="text-decoration-none">
                                         <i class="bi bi-arrow-left me-1"></i>Back to Login
                                     </a>
                                 </p>
-                                <p class="text-muted small">
+                                <p class="text-muted small mt-3">
                                     If you are having trouble, email 
                                     <a href="mailto:CustomerService@ContinuingEdCourses.Net">CustomerService@ContinuingEdCourses.Net</a> 
                                     or call 858-484-4304.
@@ -408,10 +408,7 @@ function custom_reset_password_form_shortcode($atts) {
                                                name="new_password" 
                                                autocomplete="new-password"
                                                placeholder="Enter your new password"
-                                               required>
-                                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                            <i class="bi bi-eye" id="toggleIcon"></i>
-                                        </button>
+                                               required>                                       
                                     </div>                                 
                                 </div>
 
@@ -436,12 +433,12 @@ function custom_reset_password_form_shortcode($atts) {
                                 </div>
 
                                 <div class="text-center">
-                                    <p class="mb-2">
-                                        <a href="<?php echo esc_url(home_url('/login-page/')); ?>" class="text-decoration-none">
+                                    <p class="mb-4 mt-4">
+                                        <a href="<?php echo get_custom_page_url_by_template('page-login.php'); ?>" class="text-decoration-none">
                                             <i class="bi bi-arrow-left me-1"></i>Back to Login
                                         </a>
                                     </p>
-                                    <p class="text-muted small">
+                                    <p class="text-muted small mt-3">
                                         If you are having trouble, email 
                                         <a href="mailto:CustomerService@ContinuingEdCourses.Net">CustomerService@ContinuingEdCourses.Net</a> 
                                         or call 858-484-4304.

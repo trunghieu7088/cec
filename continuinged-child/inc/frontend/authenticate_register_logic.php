@@ -140,3 +140,84 @@ function purchase_signup_handler() {
 }
 add_action('wp_ajax_nopriv_purchase_signup', 'purchase_signup_handler');
 add_action('wp_ajax_purchase_signup', 'purchase_signup_handler');
+
+
+/**
+ * AJAX Handler for Update Password
+ */
+function update_user_password_handler() {
+    // Verify nonce for security
+    check_ajax_referer('update_password_nonce', 'nonce');
+    
+    // Check if user is logged in
+    if (!is_user_logged_in()) {
+        wp_send_json_error(array(
+            'message' => 'You must be logged in to change your password.'
+        ));
+    }
+    
+    $user_id = get_current_user_id();
+    
+    // Sanitize input
+    $new_password = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+    
+    // Validate password
+    if (empty($new_password) || empty($confirm_password)) {
+        wp_send_json_error(array(
+            'message' => 'Please fill in all password fields.'
+        ));
+    }
+    
+    if (strlen($new_password) < 6) {
+        wp_send_json_error(array(
+            'message' => 'Password must be at least 6 characters long.'
+        ));
+    }
+    
+    if (strlen($new_password) > 50) {
+        wp_send_json_error(array(
+            'message' => 'Password must not exceed 50 characters.'
+        ));
+    }
+    
+    if ($new_password !== $confirm_password) {
+        wp_send_json_error(array(
+            'message' => 'Passwords do not match. Please try again.'
+        ));
+    }
+    
+    // Check password strength (optional)
+    $strength = 0;
+    if (preg_match('/[a-z]/', $new_password) && preg_match('/[A-Z]/', $new_password)) {
+        $strength++;
+    }
+    if (preg_match('/\d/', $new_password)) {
+        $strength++;
+    }
+    if (preg_match('/[^a-zA-Z0-9]/', $new_password)) {
+        $strength++;
+    }
+    
+    // Optional: Enforce minimum strength
+    // if ($strength < 2) {
+    //     wp_send_json_error(array(
+    //         'message' => 'Password is too weak. Please use a mix of uppercase, lowercase, numbers, and special characters.'
+    //     ));
+    // }
+    
+    // Update password
+    wp_set_password($new_password, $user_id);
+    
+    // Log the user back in (since wp_set_password logs them out)
+    $user = get_user_by('id', $user_id);
+    wp_set_current_user($user_id);
+    wp_set_auth_cookie($user_id);
+    
+    // Send success response
+    wp_send_json_success(array(
+        'message' => 'Password updated successfully! You have been automatically logged back in.',
+        'user_id' => $user_id
+    ));
+}
+add_action('wp_ajax_update_user_password', 'update_user_password_handler');
