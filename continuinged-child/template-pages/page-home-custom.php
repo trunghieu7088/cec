@@ -15,7 +15,6 @@ get_header();
 <?php echo do_shortcode('[ce_testimonial_section]'); ?>
 <?php echo do_shortcode('[llms_course_list_custom limit="-1"]'); ?>
 
-
 <?php
 get_footer();
 ?>
