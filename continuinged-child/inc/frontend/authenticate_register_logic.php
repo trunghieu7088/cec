@@ -48,6 +48,7 @@ function purchase_signup_handler() {
     $city=$_POST['city'];
     $state=$_POST['state'];
     $phone=$_POST['phone'];
+    $newsletter=$_POST['newsletter'];
     
     // Validate
     if (username_exists($username)) {
@@ -120,7 +121,7 @@ function purchase_signup_handler() {
     {
         //manually update user meta license number because lifterlms does not have this field
         update_user_meta($user_id,'license_number',$license);
-
+        update_user_meta($user_id,'email_me',$newsletter);
         wp_update_user(array(
             'ID' => $user_id,
             'display_name' => $fullname,            

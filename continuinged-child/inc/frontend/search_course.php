@@ -5,7 +5,7 @@
 class Course_Redis_Cache {
     private $redis;
     private $cache_key = 'courses_cache';
-    private $cache_ttl = 86400; // 24 hours
+    private $cache_ttl = 86400 * 30; // 24 hours * 30 days = 1 month
     
     public function __construct() {
         $this->init_redis();
@@ -32,20 +32,22 @@ class Course_Redis_Cache {
         /* live with redis io */
         try {
         $this->redis = new Redis();
-            $host = 'redis-19179.c11.us-east-1-2.ec2.cloud.redislabs.com';
-            $port = 19179; 
-            $timeout = 5.0;
+          
+            
+             $redis_options = get_option('redis_cache_options', [
+            'endpoint' => '127.0.0.1',
+            'port'     => 6379,
+            'username' => '',
+            'password' => ''
+        ]);
+            $this->redis->connect($redis_options['endpoint'], (int)$redis_options['port'], 2);
 
-            //$redis_username = 'nesterp'; // Thay bằng username thực tế
-            $redis_password = 'sDxkiYXQM6zNri3e5zB4WasLF9fe7WzF'; // Thay bằng password thực tế
-        
-        // Redis Cloud bắt buộc dùng TLS
-            $this->redis->connect($host, $port, $timeout, null, 0, 0, [               
-            ]);
-
-            // Xác thực bằng password (Redis Cloud dùng ACL: default user + password)
-            if (!$this->redis->auth($redis_password)) {
-                throw new Exception('Redis authentication failed');
+                if (!empty($redis_options['password'])) {
+                if (!empty($redis_options['username'])) {
+                    $this->redis->auth([$redis_options['username'], $redis_options['password']]);
+                } else {
+                    $this->redis->auth($redis_options['password']);
+                }
             }
         
         error_log('Redis connected successfully');
@@ -171,8 +173,7 @@ class Course_Redis_Cache {
         
         foreach ($courses as $course) {
             // Tìm kiếm trong title và content
-            if (mb_strpos($course['title_lower'], $search_term_lower) !== false || 
-                mb_strpos($course['content_lower'], $search_term_lower) !== false) {
+            if (mb_strpos($course['title_lower'], $search_term_lower) !== false) {
                 
                 // Không trả về các field _lower
                 $results[] = array(

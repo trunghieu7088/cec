@@ -9,6 +9,45 @@ function add_instructor_custom_fields( $user ) {
     <h3 id="llms-instructor-details">LifterLMS Instructor Details</h3>
     
     <table class="form-table">
+
+     <tr>
+            <th><label for="llms_instructor_cover_img">Image File Name</label></th>
+            <td>
+                <input 
+                    type="text" 
+                    name="llms_instructor_cover_img" 
+                    id="llms_instructor_cover_img" 
+                    value="<?php echo esc_attr( get_the_author_meta( 'llms_instructor_cover_img', $user->ID ) ); ?>" 
+                    class="regular-text"
+                    placeholder="e.g. drjim.png"
+                />
+                <br />
+                <span class="description">
+                    Enter the exact filename of the image uploaded to <code>/assets/author-image/</code> inside your child theme.
+                </span>
+
+                <?php 
+                $img_name = get_the_author_meta( 'llms_instructor_cover_img', $user->ID );
+                
+                if ( ! empty( $img_name ) ) {
+                    // Tạo đường dẫn URL tới folder trong child theme
+                    $img_url = get_stylesheet_directory_uri() . '/assets/author-image/' . $img_name;
+                    ?>
+                    <br>
+                    <div style="margin-top: 10px; background: #f1f1f1; padding: 10px; display: inline-block; border: 1px solid #ccc;">
+                        <strong>Preview:</strong><br>
+                        <img src="<?php echo esc_url( $img_url ); ?>" 
+                             alt="Instructor Preview" 
+                             style="max-width: 150px; height: auto; display: block; margin-top: 5px;" 
+                             onerror="this.style.display='none'; this.insertAdjacentHTML('afterend', '<p style=\'color:red; margin:5px 0 0;\'>File not found in assets/author-image/</p>');"
+                        />
+                    </div>
+                    <?php
+                }
+                ?>
+            </td>
+        </tr>
+
         
         <tr>
             <th><label for="llms_instructor_bio">Instructor Bio (Visual Editor)</label></th>
@@ -103,6 +142,13 @@ function save_instructor_custom_fields( $user_id ) {
         
         $degree_cert =  sanitize_text_field($_POST['llms_degrees_certs']);
         update_user_meta( $user_id, 'llms_degrees_certs', $degree_cert );
+    }
+
+     // --- Save Image File Name ---
+    if ( isset( $_POST['llms_instructor_cover_img'] ) ) {
+        // Sanitize file name (remove special chars usually not allowed in filenames)
+        $img_name = sanitize_file_name( $_POST['llms_instructor_cover_img'] );
+        update_user_meta( $user_id, 'llms_instructor_cover_img', $img_name );
     }
 }
 add_action( 'personal_options_update', 'save_instructor_custom_fields' );

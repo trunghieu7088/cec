@@ -2,6 +2,10 @@
 require('hero-section.php');
 require('testimonial-section.php');
 require('commons.php');
-require('avatar-handling.php');
+require('user-extra-fields-handling.php');
 require('color-settings.php');
 require('custom-contact.php');
+require('email_notification.php');
+require('init_email_notification_db.php');
+require('rewards.php');
+require('redis-cache-settings.php');
