@@ -58,6 +58,9 @@ function cec_render_import_page() {
                 $username = $clean_name_for_user . '_instructor';
                 $email    = $username . '@cecinstructor.com';
 
+                //author stable ID
+                $author_stable_id= $author->author_stable_id ? $author->author_stable_id : '';
+
                 // --- TÁCH FIRST NAME / LAST NAME ---
                 $full_name_arr = explode(' ', $real_name);
                 $last_name  = array_pop($full_name_arr); // Lấy từ cuối làm Last Name
@@ -112,7 +115,10 @@ function cec_render_import_page() {
                     if (!empty($author->description_html)) {
                         update_user_meta($user_id, 'llms_instructor_bio', $author->description_html);
                     }
-                    
+
+                    //update author stable Id để migrate bảng khác cần author id
+                    update_user_meta($user_id,'author_stable_id',$author_stable_id);
+                                        
                     // Lưu ID cũ để đối chiếu nếu cần
                     update_user_meta($user_id, '_original_author_id', $author->id);
 
