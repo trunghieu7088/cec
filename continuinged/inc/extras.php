@@ -138,6 +138,7 @@ if ( ! function_exists( 'astra_is_logo_in_section' ) ) {
 /**
  * Return current content layout.
  */
+
 if ( ! function_exists( 'astra_get_content_layout' ) ) {
 
 	/**
