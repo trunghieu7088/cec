@@ -74,10 +74,11 @@ function get_all_courses_for_search() {
 add_action('wp_ajax_load_courses_search', 'get_all_courses_for_search');
 add_action('wp_ajax_nopriv_load_courses_search', 'get_all_courses_for_search');
 
-/* clear cache de test *
+/* clear cache de test */
+/*
 add_action('init',function(){
     delete_transient('all_courses_search_data');
 
-})
+})*/
 /* end */
 ?>

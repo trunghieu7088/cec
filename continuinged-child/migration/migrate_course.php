@@ -122,6 +122,9 @@ function migrate_courses_to_lifterlms() {
 
             //xử lý course plan
             create_course_access_plan( $post_id, $course['CoursePrice'], $course['CourseName'] );
+
+            $content_instance=create_content_course($post_id);
+            import_create_single_choice_question( $content_instance['quiz_id'], $course['CourseId'] );
             
             $success_count++;
             echo "✓ Migrated: {$course['CourseName']} (ID: {$post_id})\n";
@@ -200,12 +203,12 @@ function run_lifterlms_migration() {
  * WP-CLI Command (nếu dùng WP-CLI)
  * Usage: wp migrate-lifterlms-courses
  */
-/*
+
 if (defined('WP_CLI') && WP_CLI) {
     WP_CLI::add_command('migrate-lifterlms-courses', function() {
         migrate_courses_to_lifterlms();
     });
-} */
+} 
 
 
 //handing access plan & price
@@ -300,3 +303,271 @@ function lifterlms_migration_admin_page() {
 
     echo '</div>';
 }
+
+//handling section, lesson, quiz, questions
+function create_content_course( $course_id, $section_title = 'Section mới', $lesson_title = 'Bài học miễn phí', $quiz_title = '' ) {
+
+    // Kiểm tra course tồn tại
+    $course = llms_get_post( $course_id );
+    if ( ! $course || 'course' !== $course->get( 'type' ) ) {
+        return new WP_Error( 'invalid_course', 'Course ID không hợp lệ hoặc không không tồn tại.' );
+    }
+
+    // 1. TẠO SECTION
+  //  $sections   = $course->get_sections( 'ids' );
+    $next_order =1;
+
+    $section_title=$course->get('title').' main section';
+    $lesson_title=$course->get('title').' main lesson';
+
+    $section_data = array(
+        'post_title'  => wp_strip_all_tags( $section_title ),
+        'post_type'   => 'section',
+        'post_status' => 'publish',
+      //  'menu_order'  => $next_order,
+        'meta_input'  => array(
+            '_llms_parent_course' => $course_id,
+            '_llms_order'         => $next_order,
+        ),
+    );
+
+    //$section_id = LLMS_Post_Handler::create( $section_data );
+    $section_id=wp_insert_post($section_data);
+    if ( is_wp_error( $section_id ) ) {
+        return $section_id;
+    }
+
+    // 2. TẠO LESSON
+    $lesson_data = array(
+        'post_title'  => wp_strip_all_tags( $lesson_title ),
+        'post_type'   => 'lesson',
+        'post_status' => 'publish',
+       // 'menu_order'  => 1,
+        'meta_input'  => array(
+            '_llms_parent_course'    => $course_id,
+            '_llms_parent_section'   => $section_id,
+            '_llms_order'            => 1,
+            '_llms_free_lesson'      => 'yes',
+            '_llms_quiz_enabled'     => 'yes',
+            '_llms_has_prerequisite' => 'no',
+        ),
+    );
+
+    //$lesson_id = LLMS_Post_Handler::create( $lesson_data );
+    $lesson_id = wp_insert_post($lesson_data);
+    if ( is_wp_error( $lesson_id ) ) {
+        wp_delete_post( $section_id, true );
+        return $lesson_id;
+    }
+
+    // 3. TẠO QUIZ TỰ ĐỘNG CHO LESSON VỪA TẠO
+    if ( empty( $quiz_title ) ) {
+        $quiz_title = 'Quiz - ' . $lesson_title;
+    }
+
+    $quiz_data = array(
+        'post_title'  => wp_strip_all_tags( $quiz_title ),
+        'post_type'   => 'llms_quiz',
+        'post_status' => 'publish',
+        //'menu_order'  => 0,
+        'meta_input'  => array(
+            '_llms_lesson_id'       => $lesson_id,           // Liên kết với lesson
+            '_llms_passing_percent' => 75,                   // Điểm đỗ cố định 75%
+            '_llms_time_limit'      => 'no',                    // Không giới hạn thời gian (mặc định tốt)
+            '_llms_show_correct_answer'    => 'no',                // Hiển thị đáp án đúng/sai
+            '_llms_random_questions'  => 'no',                 // Không xáo trộn đáp án
+            '_llms_limit_attempts'  => 'no',                 // Cho làm lại không giới hạn
+        ),
+    );
+
+   // $quiz_id = LLMS_Post_Handler::create( $quiz_data );
+    $quiz_id = wp_insert_post( $quiz_data );
+    if ( is_wp_error( $quiz_id ) ) {
+        // Nếu tạo quiz lỗi thì vẫn giữ lại lesson/section (vì vẫn dùng được)
+        // Nhưng trả về lỗi để bạn biết
+        return new WP_Error( 'quiz_create_failed', 'Tạo Quiz thất bại: ' . $quiz_id->get_error_message(), array(
+            'section_id' => $section_id,
+            'lesson_id'  => $lesson_id,
+            'quiz_id'    => false,
+        ) );
+    }
+
+    //update lesson to link quiz
+    update_post_meta( $lesson_id, '_llms_quiz', $quiz_id );
+
+    // Thành công hoàn toàn
+    return array(
+        'section_id' => $section_id,
+        'lesson_id'  => $lesson_id,
+        'quiz_id'    => $quiz_id,
+    );
+}
+
+
+
+/* claude */
+function llms_create_multiple_choice_question( $quiz_id, $question_text, $choices = array(), $args = array() ) {
+    
+    // Kiểm tra quiz có tồn tại không
+    $quiz = llms_get_post( $quiz_id );
+    if ( ! $quiz || 'llms_quiz' !== $quiz->get( 'type' ) ) {
+        return new WP_Error( 'invalid_quiz', 'Quiz ID không hợp lệ' );
+    }
+    
+    // Merge với các tham số mặc định
+    $defaults = array(
+        'title'              => $question_text,
+        'question_type'      => 'choice', // choice = multiple choice
+        'points'             => 1,
+        'multi_choices'      => 'no', // 'no' = single choice, 'yes' = multiple choices
+        'description_enabled' => 'no',
+        'clarifications_enabled' => 'no',
+        'video_enabled'      => 'no',
+        'parent_id'          => $quiz_id,
+    );
+    
+    $question_data = wp_parse_args( $args, $defaults );
+    
+    // Tạo question mới
+    $question = new LLMS_Question( 'new', $question_data );
+    
+    if ( ! $question->get( 'id' ) ) {
+        return new WP_Error( 'question_create_failed', 'Không thể tạo câu hỏi' );
+    }
+    
+    // Thêm các lựa chọn (choices)
+    if ( ! empty( $choices ) && is_array( $choices ) ) {
+        foreach ( $choices as $choice ) {
+            $choice_data = array(
+                'choice'  => isset( $choice['text'] ) ? $choice['text'] : $choice,
+                'correct' => isset( $choice['correct'] ) ? $choice['correct'] : false,
+                'marker'  => isset( $choice['marker'] ) ? $choice['marker'] : '',
+            );
+            
+            $choice_id = $question->create_choice( $choice_data );
+            
+            if ( ! $choice_id ) {
+                error_log( 'Không thể tạo choice cho question ID: ' . $question->get( 'id' ) );
+            }
+        }
+    }
+    
+    // Thêm question vào quiz
+    //$quiz->add_question( $question->get( 'id' ) );
+    update_post_meta($choice_id,'_llms_parent_id',$quiz_id);
+    
+    return $question->get( 'id' );
+}
+/* end claude */
+
+function example_create_single_choice_question($quiz_id) {
+    //$quiz_id = 123; // Thay bằng quiz ID của bạn
+    
+    $question_text = 'WordPress được viết bằng ngôn ngữ lập trình nào?';
+    
+    $choices = array(
+        array(
+            'text'    => 'Python',
+            'correct' => false,
+        ),
+        array(
+            'text'    => 'PHP',
+            'correct' => true, // Đáp án đúng
+        ),
+        array(
+            'text'    => 'Java',
+            'correct' => false,
+        ),
+        array(
+            'text'    => 'Ruby',
+            'correct' => false,
+        ),
+    );
+    
+    $args = array(
+        'points' => 1, // Số điểm cho câu hỏi này
+        'multi_choices' => 'no', // Single choice
+    );
+    
+    $question_id = llms_create_multiple_choice_question( $quiz_id, $question_text, $choices, $args );
+    
+    if ( is_wp_error( $question_id ) ) {
+        echo 'Lỗi: ' . $question_id->get_error_message();
+    } else {
+        echo 'Đã tạo câu hỏi thành công! Question ID: ' . $question_id;
+    }
+}
+
+
+function import_create_single_choice_question($quiz_id, $course_id) {
+    global $wpdb;
+    
+    // Lấy tất cả câu hỏi từ bảng testquestions theo CourseId
+    $table_name = 'testquestions';
+    $questions = $wpdb->get_results( 
+        $wpdb->prepare(
+            "SELECT * FROM {$table_name} WHERE CourseId = %d ORDER BY QuestionNumber ASC",
+            $course_id
+        ),
+        ARRAY_A
+    );
+    
+    if (empty($questions)) {
+        echo 'Không tìm thấy câu hỏi nào cho Course ID: ' . $course_id;
+        return;
+    }
+    
+    $created_count = 0;
+    $error_count = 0;
+
+    // Mảng markers cho A, B, C, D, E...
+    $markers = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
+    
+    foreach ($questions as $question_data) {
+        // Lấy text của câu hỏi
+        $question_text = $question_data['Question'];
+        
+        // Parse các choices (ngăn cách bởi dấu |)
+        $choices_array = explode('|', $question_data['Choices']);
+        
+        // Lấy đáp án đúng (Answer là số thứ tự, bắt đầu từ 1)
+        $correct_answer_index = intval($question_data['Answer']) - 1;
+        
+        // Tạo mảng choices theo format của LifterLMS
+        $choices = array();
+        foreach ($choices_array as $index => $choice_text) {
+            $choices[] = array(
+                'text'    => trim($choice_text),
+                'correct' => ($index === $correct_answer_index), // So sánh index
+                'marker'  => isset($markers[$index]) ? $markers[$index] : '', // Gán marker A, B, C...
+            );
+        }
+        
+        $args = array(
+            'points' => 1,
+            'multi_choices' => 'no',
+        );
+        
+        // Tạo câu hỏi
+        $question_id = llms_create_multiple_choice_question($quiz_id, $question_text, $choices, $args);
+        
+        if (is_wp_error($question_id)) {
+            echo 'Lỗi tạo câu hỏi ID ' . $question_data['TestQuestionId'] . ': ' . $question_id->get_error_message() . '<br>';
+            $error_count++;
+        } else {
+            // Lưu QuestionNumber và Help vào post meta
+            update_post_meta($question_id, '_question_number', $question_data['QuestionNumber']);
+            update_post_meta($question_id, '_question_help', $question_data['Help']);
+            
+            // Có thể lưu thêm TestQuestionId gốc để tham chiếu
+            update_post_meta($question_id, '_original_test_question_id', $question_data['TestQuestionId']);
+            
+            $created_count++;
+        }
+    }
+    
+    echo "Hoàn thành migration! Đã tạo {$created_count} câu hỏi, {$error_count} lỗi.";
+}
+
+// Cách sử dụng:
+// example_create_single_choice_question($quiz_id, $course_id);
