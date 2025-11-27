@@ -90,7 +90,7 @@ function create_course_completion_record() {
     wp_send_json_success(array(
         'completion_code' => $completion_code,
         'message' => 'Completion record created successfully',
-        'print_certificate_url'=>get_purchase_certificate_page_url().'?completion_code='.$completion_code,
+        'print_certificate_url'=>get_custom_page_url_by_template('page-purchase-certificate.php').'?completion_code='.$completion_code, //cần fix chỗ này
     ));
 }
 add_action('wp_ajax_create_completion_record', 'create_course_completion_record');

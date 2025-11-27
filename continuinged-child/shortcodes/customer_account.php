@@ -258,7 +258,7 @@ function customer_account_shortcode($atts) {
                 $state=get_user_meta($current_user->ID,'llms_billing_state',true);
                 $zip=get_user_meta($current_user->ID,'llms_billing_zip',true);                
                 $phone=get_user_meta($current_user->ID,'llms_phone',true);
-                $license_number= get_user_meta($current_user->ID,'signup_license',true);
+                $license_number= get_user_meta($current_user->ID,'license',true);
                 $license_state=get_user_meta($current_user->ID,'license_state',true);
                
             
