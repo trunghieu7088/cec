@@ -41,21 +41,58 @@ function astra_child_enqueue_assets() {
     wp_enqueue_script( 'cec-jquery-validation', get_stylesheet_directory_uri() . '/assets/js/jquery-validation.js', array( 'jquery' ), '1.0.0', true );  
     
     
-    //purchase certificate js
+      //purchase certificate js with Authorize.Net Accept.js
     if (is_page_template('template-pages/page-purchase-certificate.php') || is_page_template('template-pages/page-account.php')) {
-        wp_enqueue_script( 'cec-purchase-certificate-js', get_stylesheet_directory_uri() . '/assets/js/purchase_certificate.js', array( 'jquery','cec-jquery-validation' ), '1.0.0', true );        
-
-        wp_localize_script( 'cec-purchase-certificate-js', 'my_ajax_object',
-                array(
-                    'ajax_url' => admin_url( 'admin-ajax.php' ),
-                    'login_nonce' => wp_create_nonce('purchase_login_nonce'),
-                    'signup_nonce' => wp_create_nonce('purchase_signup_nonce'),
-                    'payment_nonce' => wp_create_nonce('process_payment_nonce'),
-                    'update_user_nonce' => wp_create_nonce('update_user_nonce'),
-                     'update_password_nonce' => wp_create_nonce('update_password_nonce')
-
-                )
+        
+        // Get Authorize.Net credentials
+        $credentials = authorizenet_get_credentials();
+        $api_login_id = isset($credentials['api_login_id']) ? $credentials['api_login_id'] : '';
+        $client_key = isset($credentials['client_key']) ? $credentials['client_key'] : '';
+        $mode = isset($credentials['mode']) ? $credentials['mode'] : 'sandbox';
+        
+        // Enqueue Authorize.Net Accept.js
+        if ($mode === 'live') {
+            wp_enqueue_script(
+                'authorizenet-accept-js',
+                'https://js.authorize.net/v1/Accept.js',
+                array(),
+                null,
+                true
             );
+        } else {
+            wp_enqueue_script(
+                'authorizenet-accept-js',
+                'https://jstest.authorize.net/v1/Accept.js',
+                array(),
+                null,
+                true
+            );
+        }
+        
+        // Enqueue purchase certificate script
+        wp_enqueue_script( 
+            'cec-purchase-certificate-js', 
+            get_stylesheet_directory_uri() . '/assets/js/purchase_certificate.js', 
+            array('jquery', 'cec-jquery-validation', 'authorizenet-accept-js'), 
+            '1.0.1', 
+            true 
+        );        
+
+        // Localize script with AJAX data and Authorize.Net credentials
+        wp_localize_script( 'cec-purchase-certificate-js', 'my_ajax_object',
+            array(
+                'ajax_url' => admin_url( 'admin-ajax.php' ),
+                'login_nonce' => wp_create_nonce('purchase_login_nonce'),
+                'signup_nonce' => wp_create_nonce('purchase_signup_nonce'),
+                'payment_nonce' => wp_create_nonce('process_payment_nonce'),
+                'update_user_nonce' => wp_create_nonce('update_user_nonce'),
+                'update_password_nonce' => wp_create_nonce('update_password_nonce'),
+                // Authorize.Net credentials
+                'authnet_api_login_id' => $api_login_id,
+                'authnet_client_key' => $client_key,
+                'authnet_mode' => $mode
+            )
+        );
         
     }
 

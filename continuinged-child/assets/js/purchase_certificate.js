@@ -1,16 +1,29 @@
 /**
  * Purchase Certificate Page JavaScript
- * Handles AJAX login, signup, and payment processing with jQuery Validation
+ * Handles AJAX login, signup, and payment processing with Authorize.Net Accept.js
  */
 
 jQuery(document).ready(function($) {
     'use strict';
-    var ajaxurl=my_ajax_object.ajax_url;
+    var ajaxurl = my_ajax_object.ajax_url;
+    var ajaxurl_global = my_ajax_object.ajax_url;
+    
     // Configuration
     const config = {
         basePrice: parseFloat($('.total-amount').text().replace('$', '')) || 74.00,
         mailFee: 9.00
     };
+    
+    // Get Authorize.Net credentials from localized script
+    const AUTHNET_CREDENTIALS = {
+        apiLoginId: my_ajax_object.authnet_api_login_id || '',
+        clientKey: my_ajax_object.authnet_client_key || '',
+        mode: my_ajax_object.authnet_mode || 'sandbox'
+    };
+    
+    console.log('🔧 Authorize.Net Mode:', AUTHNET_CREDENTIALS.mode);
+    console.log('🔧 API Login ID:', AUTHNET_CREDENTIALS.apiLoginId ? 'Set ✓' : 'Missing ✗');
+    console.log('🔧 Client Key:', AUTHNET_CREDENTIALS.clientKey ? 'Set ✓' : 'Missing ✗');
     
     /**
      * Price Calculation
@@ -25,7 +38,7 @@ jQuery(document).ready(function($) {
             $('#mail-fee').text('$0.00');
         }
         
-        $('.total-amount, .final-amount').text('$' + total.toFixed(2));
+        $('.total-amount, .final-amount').text(total.toFixed(2));
     }
     
     // Event listeners for price updates
@@ -34,7 +47,6 @@ jQuery(document).ready(function($) {
         e.preventDefault();
         updatePrice();
         
-        // Show feedback
         const $btn = $(this);
         const originalHtml = $btn.html();
         $btn.html('<i class="bi bi-check-circle-fill me-1"></i>Updated!');
@@ -53,27 +65,28 @@ jQuery(document).ready(function($) {
     });
     
     /**
+     * CVV Formatting - Only numbers
+     */
+    $('#card_cvv').on('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+    });
+    
+    /**
      * Custom Validation Methods
      */
-    
-    // Phone number validation
     $.validator.addMethod("phoneUS", function(phone_number, element) {
         phone_number = phone_number.replace(/\s+/g, "");
         return this.optional(element) || phone_number.length > 9 &&
             phone_number.match(/^[\d\s\-\(\)]+$/);
     }, "Please enter a valid phone number.");
     
-    // Card number validation
     $.validator.addMethod("creditcard", function(value, element) {
-        // Remove spaces and dashes
         value = value.replace(/[\s\-]/g, '');
-        
-        // Check if it's numeric and between 13-19 digits
         if (!/^\d{13,19}$/.test(value)) {
             return false;
         }
         
-        // Luhn algorithm check
+        // Luhn algorithm
         let sum = 0;
         let shouldDouble = false;
         
@@ -92,7 +105,6 @@ jQuery(document).ready(function($) {
         return (sum % 10) === 0;
     }, "Please enter a valid card number.");
     
-    // Card expiration validation
     $.validator.addMethod("cardExpiry", function(value, element) {
         if (!value) return false;
         
@@ -102,10 +114,14 @@ jQuery(document).ready(function($) {
         const expYear = parseInt($('#card_year').val());
         const expMonth = parseInt(value);
         
-        if (!expYear) return true; // Let required validation handle empty year
+        if (!expYear) return true;
         
         return expYear > currentYear || (expYear === currentYear && expMonth >= currentMonth);
     }, "Card has expired.");
+    
+    $.validator.addMethod("cvvValid", function(value, element) {
+        return /^\d{3,4}$/.test(value);
+    }, "Please enter a valid CVV (3-4 digits).");
     
     /**
      * Helper Functions
@@ -120,7 +136,6 @@ jQuery(document).ready(function($) {
         $form.find('.alert').remove();
         $form.prepend(alertHtml);
         
-        // Scroll to error
         $('html, body').animate({
             scrollTop: $form.offset().top - 100
         }, 300);
@@ -132,14 +147,8 @@ jQuery(document).ready(function($) {
     if ($('#purchaseLoginForm').length) {
         $('#purchaseLoginForm').validate({
             rules: {
-                username: {
-                    required: true,
-                    minlength: 3
-                },
-                password: {
-                    required: true,
-                    minlength: 6
-                }
+                username: { required: true, minlength: 3 },
+                password: { required: true, minlength: 6 }
             },
             messages: {
                 username: {
@@ -171,7 +180,7 @@ jQuery(document).ready(function($) {
                 $btn.addClass('loading').prop('disabled', true);
                 
                 $.ajax({
-                    url: ajaxurl || wp.ajax_settings?.url,
+                    url: ajaxurl,
                     type: 'POST',
                     data: {
                         action: 'purchase_login',
@@ -187,10 +196,7 @@ jQuery(document).ready(function($) {
                                     Login successful! Reloading page...
                                 </div>
                             `);
-                            
-                            setTimeout(function() {
-                                location.reload();
-                            }, 1000);
+                            setTimeout(function() { location.reload(); }, 1000);
                         } else {
                             $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
                             showFormError($form, response.data?.message || 'Login failed. Please try again.');
@@ -212,75 +218,17 @@ jQuery(document).ready(function($) {
     if ($('#purchaseSignupForm').length) {
         $('#purchaseSignupForm').validate({
             rules: {
-                fullname: {
-                    required: true,
-                    minlength: 2
-                },
-                license: {
-                    required: true,
-                    minlength: 2
-                },
-                license_state:
-                {
-                    required:true,
-                },
-                email: {
-                    required: true,
-                    email: true
-                },
-                phone: {
-                    required: true,                    
-                },
-                username: {
-                    required: true,
-                    minlength: 3
-                },
-                password: {
-                    required: true,
-                    minlength: 6
-                },
-                address:
-                {
-                    required: true,
-                    minlength: 3,
-                },
-                zip: {
-                    required: true,
-                    minlength: 5,
-                    maxlength: 10
-                },
-                 city: {
-                     required: true,
-                    minlength: 3,                    
-                },
-                 state: {
-                    required: true,                    
-                }
-            },
-            messages: {
-                fullname: {
-                    required: "Please enter your full name.",
-                    minlength: "Name must be at least 2 characters long."
-                },
-                license: {
-                    minlength: "License number must be at least 2 characters."
-                },
-                email: {
-                    required: "Please enter your email address.",
-                    email: "Please enter a valid email address."
-                },
-                username: {
-                    required: "Please choose a username.",
-                    minlength: "Username must be at least 3 characters long."
-                },
-                password: {
-                    required: "Please create a password.",
-                    minlength: "Password must be at least 6 characters long."
-                },
-                zip: {
-                    minlength: "ZIP code must be at least 5 characters.",
-                    maxlength: "ZIP code must be no more than 10 characters."
-                }
+                fullname: { required: true, minlength: 2 },
+                license: { required: true, minlength: 2 },
+                license_state: { required: true },
+                email: { required: true, email: true },
+                phone: { required: true },
+                username: { required: true, minlength: 3 },
+                password: { required: true, minlength: 6 },
+                address: { required: true, minlength: 3 },
+                zip: { required: true, minlength: 5, maxlength: 10 },
+                city: { required: true, minlength: 3 },
+                state: { required: true }
             },
             errorElement: 'div',
             errorClass: 'invalid-feedback d-block',
@@ -315,11 +263,11 @@ jQuery(document).ready(function($) {
                     username: $('#signup_username').val().trim(),
                     password: $('#signup_password').val(),
                     newsletter: $('#signup_newsletter').is(':checked') ? 1 : 0,
-                     nonce: $form.data('nonce') || my_ajax_object.signup_nonce
+                    nonce: $form.data('nonce') || my_ajax_object.signup_nonce
                 };
                 
                 $.ajax({
-                    url: ajaxurl || wp.ajax_settings?.url,
+                    url: ajaxurl,
                     type: 'POST',
                     data: formData,
                     success: function(response) {
@@ -331,10 +279,7 @@ jQuery(document).ready(function($) {
                                     Reloading page...
                                 </div>
                             `);
-                            
-                            setTimeout(function() {
-                                location.reload();
-                            }, 1500);
+                            setTimeout(function() { location.reload(); }, 1500);
                         } else {
                             $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
                             showFormError($form, response.data?.message || 'Registration failed. Please try again.');
@@ -351,33 +296,21 @@ jQuery(document).ready(function($) {
     }
     
     /**
-     * jQuery Validation Setup for Payment Form
+     * jQuery Validation Setup for Payment Form with Accept.js
      */
     if ($('#paymentForm').length) {
         $('#paymentForm').validate({
             rules: {
-                card_number: {
-                    required: true,
-                   // creditcard: true
-                },
-                card_month: {
-                    required: true,
-                    cardExpiry: true
-                },
-                card_year: {
-                    required: true
-                }
+                card_number: { required: true, creditcard: true },
+                card_month: { required: true, cardExpiry: true },
+                card_year: { required: true },
+                card_cvv: { required: true, cvvValid: true }
             },
             messages: {
-                card_number: {
-                    required: "Please enter your card number."
-                },
-                card_month: {
-                    required: "Please select expiration month."
-                },
-                card_year: {
-                    required: "Please select expiration year."
-                }
+                card_number: { required: "Please enter your card number." },
+                card_month: { required: "Please select expiration month." },
+                card_year: { required: "Please select expiration year." },
+                card_cvv: { required: "Please enter CVV." }
             },
             errorElement: 'div',
             errorClass: 'invalid-feedback d-block',
@@ -391,85 +324,8 @@ jQuery(document).ready(function($) {
                 error.insertAfter(element);
             },
             submitHandler: function(form) {
-    const $form = $(form);
-    const $btn = $('#purchase-btn');
-    const originalHtml = $btn.html();
-    
-    $form.find('.alert').remove();
-    $btn.addClass('loading').prop('disabled', true);
-    
-    // Get completion_code from form data attribute or URL
-    const completionCode = $form.data('completion-code') || 
-                          new URLSearchParams(window.location.search).get('completion_code');
-    
-    if (!completionCode) {
-        $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-        showFormError($form, 'Missing completion code. Please try again.');
-        return;
-    }
-    
-    const courseData = {
-        action: 'process_certificate_payment',
-        course_id: $form.data('course-id') || '',
-        completion_code: completionCode,
-        card_number: $('#card_number').val().replace(/\s/g, ''),
-        card_month: $('#card_month').val(),
-        card_year: $('#card_year').val(),
-        mail_certificate: $('#mail-certificate').is(':checked') ? 1 : 0,
-        discount_code: $('#discount-code').val().trim(),
-        total_amount: parseFloat($('.total-amount').text().replace('$', '')),
-        nonce: $form.data('nonce')
-    };
-    
-    console.log('Submitting payment with data:', {
-        action: courseData.action,
-        completion_code: courseData.completion_code,
-        course_id: courseData.course_id,
-        total_amount: courseData.total_amount
-    });
-    
-    $.ajax({
-        url: ajaxurl || my_ajax_object.ajax_url,
-        type: 'POST',
-        data: courseData,
-        success: function(response) {
-            console.log('Payment response:', response);
-            
-            if (response.success) {
-                let successMessage = '<div class="alert alert-success text-center">' +
-                    '<i class="bi bi-check-circle-fill me-2" style="font-size: 2rem;"></i>' +
-                    '<h4>Payment Successful!</h4>' +
-                    '<p>' + (response.data.message || 'Your certificate has been awarded!') + '</p>';
-                
-                if (response.data.certificate_url) {
-                    successMessage += '<p class="mt-3">' +
-                        '<a href="' + response.data.certificate_url + '" class="btn btn-primary btn-lg">' +
-                        '<i class="bi bi-download me-2"></i>View Your Certificate' +
-                        '</a>' +
-                        '</p>';
-                }
-                
-                successMessage += '</div>';
-                
-                $form.html(successMessage);
-                
-                if (response.data.redirect_url) {
-                    setTimeout(function() {
-                        window.location.href = response.data.redirect_url;
-                    }, 3000);
-                }
-            } else {
-                $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-                showFormError($form, response.data?.message || 'Payment processing failed. Please try again.');
+                processPaymentWithAcceptJs(form);
             }
-        },
-        error: function(xhr) {
-            console.error('Payment error:', xhr);
-            $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-            showFormError($form, 'Payment processing error. Please try again or contact support.');
-        }
-    });
-}
         });
         
         // Revalidate month when year changes
@@ -479,13 +335,331 @@ jQuery(document).ready(function($) {
     }
     
     /**
+     * Process Payment with Authorize.Net Accept.js
+     */
+    function processPaymentWithAcceptJs(form) {
+        const $form = $(form);
+        const $btn = $('#purchase-btn');
+        const originalHtml = $btn.html();
+        
+        // Check if credentials are available
+        if (!AUTHNET_CREDENTIALS.apiLoginId || !AUTHNET_CREDENTIALS.clientKey) {
+            showFormError($form, 'Payment gateway is not properly configured. Please contact support.');
+            console.error('❌ Authorize.Net credentials are missing');
+            return;
+        }
+        
+        $form.find('.alert').remove();
+        $btn.addClass('loading').prop('disabled', true)
+            .html('<span class="spinner-border spinner-border-sm me-2"></span>Processing...');
+        
+        console.log('🔵 Step 1: Getting payment nonce from Accept.js...');
+        
+        // Prepare secure data for Accept.js
+        const secureData = {
+            authData: {
+                clientKey: AUTHNET_CREDENTIALS.clientKey,
+                apiLoginID: AUTHNET_CREDENTIALS.apiLoginId
+            },
+            cardData: {
+                cardNumber: $('#card_number').val().replace(/\s/g, ''),
+                month: $('#card_month').val(),
+                year: $('#card_year').val(),
+                cardCode: $('#card_cvv').val()
+            }
+        };
+        
+        // Check if Accept.js is loaded
+        if (typeof Accept === 'undefined') {
+            $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+            showFormError($form, 'Payment system not loaded. Please refresh the page and try again.');
+            console.error('❌ Accept.js not loaded');
+            return;
+        }
+        
+        // Call Accept.js to get payment nonce
+        Accept.dispatchData(secureData, function(response) {
+            if (response.messages.resultCode === 'Error') {
+                // Handle Accept.js error
+                let errorMsg = '';
+                for (let i = 0; i < response.messages.message.length; i++) {
+                    errorMsg += response.messages.message[i].text;
+                    if (i < response.messages.message.length - 1) errorMsg += '<br>';
+                }
+                
+                $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                showFormError($form, 'Card validation error: ' + errorMsg);
+                console.error('❌ Accept.js Error:', response.messages);
+            } else {
+                // Success - Got payment nonce
+                const paymentNonce = response.opaqueData.dataDescriptor;
+                const paymentValue = response.opaqueData.dataValue;
+                
+                console.log('✅ Step 2: Got payment nonce:', paymentNonce);
+                console.log('🔵 Step 3: Sending to WordPress backend...');
+                
+                // Send to WordPress backend
+                sendPaymentToBackend(paymentNonce, paymentValue, $form, $btn, originalHtml);
+            }
+        });
+    }
+    
+    /**
+     * Send payment data to WordPress backend
+     */
+    function sendPaymentToBackend(paymentNonce, paymentValue, $form, $btn, originalHtml) {
+        const completionCode = $form.data('completion-code') || 
+                              new URLSearchParams(window.location.search).get('completion_code');
+        
+        if (!completionCode) {
+            $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+            showFormError($form, 'Missing completion code. Please try again.');
+            return;
+        }
+        
+        const paymentData = {
+            action: 'process_certificate_payment',
+            course_id: $form.data('course-id') || '',
+            completion_code: completionCode,
+            payment_nonce: paymentNonce,
+            payment_value: paymentValue,
+            mail_certificate: $('#mail-certificate').is(':checked') ? 1 : 0,
+            total_amount: parseFloat($('.total-amount').text()),
+            nonce: $form.data('nonce')
+        };
+        
+        console.log('📤 Sending payment data:', {
+            action: paymentData.action,
+            completion_code: paymentData.completion_code,
+            total_amount: paymentData.total_amount
+        });
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: paymentData,
+            timeout: 30000,
+            success: function(response) {
+                console.log('📥 Backend response:', response);
+                
+                if (response.success) {
+                    let successMessage = '<div class="alert alert-success text-center">' +
+                        '<i class="bi bi-check-circle-fill me-2" style="font-size: 2rem;"></i>' +
+                        '<h4>Payment Successful!</h4>' +
+                        '<p>' + (response.data.message || 'Your certificate has been awarded!') + '</p>' +
+                        '<p><small>Transaction ID: ' + (response.data.transaction_id || 'N/A') + '</small></p>';
+                    
+                    if (response.data.certificate_url) {
+                        successMessage += '<p class="mt-3">' +
+                            '<a href="' + response.data.certificate_url + '" class="btn btn-primary btn-lg">' +
+                            '<i class="bi bi-download me-2"></i>View Your Certificate' +
+                            '</a>' +
+                            '</p>';
+                    }
+                    
+                    successMessage += '</div>';
+                    
+                    $form.html(successMessage);
+                    
+                    if (response.data.redirect_url) {
+                        setTimeout(function() {
+                            window.location.href = response.data.redirect_url;
+                        }, 3000);
+                    }
+                } else {
+                    $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                    showFormError($form, response.data?.message || 'Payment processing failed. Please try again.');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('❌ Payment error:', {xhr, status, error});
+                $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                
+                let errorMsg = 'Payment processing error. Please try again or contact support.';
+                if (status === 'timeout') {
+                    errorMsg = 'Request timed out. Please check your order status before trying again.';
+                }
+                
+                showFormError($form, errorMsg);
+            }
+        });
+    }
+    
+    /**
+     * Update User Form Validation
+     */
+    if ($('#updateUserForm').length) {
+        $('#updateUserForm').validate({
+            rules: {
+                fullname: { required: true, minlength: 2 },
+                license: { required: true, minlength: 2 },
+                license_state: { required: true },
+                email: { required: true, email: true },
+                phone: { required: true },
+                address: { required: true, minlength: 3 },
+                zip: { required: true, minlength: 5, maxlength: 10 },
+                city: { required: true, minlength: 3 },
+                state: { required: true }
+            },
+            errorElement: 'div',
+            errorClass: 'invalid-feedback d-block',
+            highlight: function(element) {
+                $(element).addClass('is-invalid').removeClass('is-valid');
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid').addClass('is-valid');
+            },
+            errorPlacement: function(error, element) {
+                error.insertAfter(element);
+            },
+            submitHandler: function(form) {
+                const $form = $(form);
+                const $btn = $form.find('button[type="submit"]');
+                const originalHtml = $btn.html();
+                
+                $form.find('.alert').remove();
+                $btn.addClass('loading').prop('disabled', true);
+                
+                const formData = {
+                    action: 'update_user_profile',
+                    fullname: $('#signup_fullname').val().trim(),
+                    license: $('#signup_license').val().trim(),
+                    license_state: $('#signup_license_state').val(),
+                    email: $('#signup_email').val().trim(),
+                    phone: $('#signup_phone').val().trim(),
+                    address: $('#signup_address').val().trim(),
+                    city: $('#signup_city').val().trim(),
+                    state: $('#signup_state').val(),
+                    zip: $('#signup_zip').val().trim(),
+                    nonce: my_ajax_object.update_user_nonce
+                };
+                
+                $.ajax({
+                    url: ajaxurl_global,
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                        
+                        if (response.success) {
+                            const successAlert = `
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-check-circle-fill me-2"></i>${response.data.message || 'Profile updated successfully!'}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            `;
+                            $form.prepend(successAlert);
+                            setTimeout(function() { window.location.reload(); }, 500);
+                        } else {
+                            showFormError($form, response.data?.message || 'Update failed. Please try again.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                        showFormError($form, 'Connection error. Please check your internet and try again.');
+                        console.error('Update user error:', xhr);
+                    }
+                });
+            }
+        });
+    }
+    
+    /**
+     * Update Password Form Validation
+     */
+    if ($('#updatePasswordForm').length) {
+        $.validator.addMethod("passwordMatch", function(value, element) {
+            return value === $('#new_password').val();
+        }, "Passwords do not match.");
+
+        $('#updatePasswordForm').validate({
+            rules: {
+                new_password: { required: true, minlength: 6, maxlength: 50 },
+                confirm_password: { required: true, minlength: 6, passwordMatch: true }
+            },
+            errorElement: 'div',
+            errorClass: 'invalid-feedback d-block',
+            highlight: function(element) {
+                $(element).addClass('is-invalid').removeClass('is-valid');
+                $(element).closest('.input-group').addClass('has-error');
+            },
+            unhighlight: function(element) {
+                $(element).removeClass('is-invalid').addClass('is-valid');
+                $(element).closest('.input-group').removeClass('has-error');
+            },
+            errorPlacement: function(error, element) {
+                if (element.parent('.input-group').length) {
+                    error.insertAfter(element.parent());
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            submitHandler: function(form) {
+                const $form = $(form);
+                const $btn = $form.find('button[type="submit"]');
+                const originalHtml = $btn.html();
+                
+                $form.find('.alert').remove();
+                $btn.addClass('loading').prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
+                
+                const formData = {
+                    action: 'update_user_password',
+                    new_password: $('#new_password').val(),
+                    confirm_password: $('#confirm_password').val(),
+                    nonce: $form.data('nonce')
+                };
+                
+                $.ajax({
+                    url: ajaxurl,
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                        
+                        if (response.success) {
+                            const successAlert = `
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-check-circle-fill me-2"></i>${response.data.message || 'Password updated successfully!'}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            `;
+                            $form.prepend(successAlert);
+                            
+                            // Reset form
+                            $form[0].reset();
+                            $form.find('.form-control').removeClass('is-valid is-invalid');
+                            
+                            setTimeout(function() {
+                                $('.alert-success').fadeOut('slow', function() {
+                                    $(this).remove();
+                                });
+                            }, 5000);
+                        } else {
+                            showFormError($form, response.data?.message || 'Password update failed. Please try again.');
+                        }
+                    },
+                    error: function(xhr) {
+                        $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                        showFormError($form, 'Connection error. Please check your internet and try again.');
+                        console.error('Update password error:', xhr);
+                    }
+                });
+            }
+        });
+        
+        // Revalidate confirm password when new password changes
+        $('#new_password').on('input', function() {
+            if ($('#confirm_password').val()) {
+                $('#confirm_password').valid();
+            }
+        });
+    }
+    
+    /**
      * Real-time validation on blur
      */
-    $('#login_username, #login_password').on('blur', function() {
-        $(this).valid();
-    });
-    
-    $('#purchaseSignupForm input, #purchaseSignupForm select').on('blur', function() {
+    $('input, select').on('blur', function() {
         if ($(this).val()) {
             $(this).valid();
         }
@@ -503,350 +677,11 @@ jQuery(document).ready(function($) {
     });
     
     /**
-     * Discount Code Handler
-     */
-    $('#discount-code').on('change', function() {
-        const code = $(this).val().trim();
-        if (code) {
-            // TODO: Add AJAX call to validate discount code
-            console.log('Discount code entered:', code);
-            
-            // Example implementation:
-            /*
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'validate_discount_code',
-                    code: code,
-                    nonce: $('#paymentForm').data('nonce')
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Update price with discount
-                        const discountAmount = response.data.discount;
-                        // Update UI to show discount
-                    } else {
-                        alert('Invalid discount code');
-                    }
-                }
-            });
-            */
-        }
-    });
-    
-    /**
      * Initialize
      */
-    updatePrice();        
+    updatePrice();
     
-    console.log('Purchase Certificate page initialized with jQuery Validation');
-
-    /**
- * jQuery Validation Setup for Update User Form
- */
-if ($('#updateUserForm').length) {
-    $('#updateUserForm').validate({
-        rules: {
-            fullname: {
-                required: true,
-                minlength: 2
-            },
-            license: {
-                required: true,
-                minlength: 2
-            },
-            license_state: {
-                required: true,
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            phone: {
-                required: true,
-            },
-            address: {
-                required: true,
-                minlength: 3,
-            },
-            zip: {
-                required: true,
-                minlength: 5,
-                maxlength: 10
-            },
-            city: {
-                required: true,
-                minlength: 3,
-            },
-            state: {
-                required: true,
-            }
-        },
-        messages: {
-            fullname: {
-                required: "Please enter your full name.",
-                minlength: "Name must be at least 2 characters long."
-            },
-            license: {
-                required: "Please enter your license number.",
-                minlength: "License number must be at least 2 characters."
-            },
-            license_state: {
-                required: "Please select license state."
-            },
-            email: {
-                required: "Please enter your email address.",
-                email: "Please enter a valid email address."
-            },
-            phone: {
-                required: "Please enter your phone number."
-            },
-            address: {
-                required: "Please enter your address.",
-                minlength: "Address must be at least 3 characters."
-            },
-            zip: {
-                required: "Please enter your ZIP code.",
-                minlength: "ZIP code must be at least 5 characters.",
-                maxlength: "ZIP code must be no more than 10 characters."
-            },
-            city: {
-                required: "Please enter your city.",
-                minlength: "City must be at least 3 characters."
-            },
-            state: {
-                required: "Please select your state."
-            }
-        },
-        errorElement: 'div',
-        errorClass: 'invalid-feedback d-block',
-        highlight: function(element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
-        },
-        unhighlight: function(element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
-        },
-        errorPlacement: function(error, element) {
-            error.insertAfter(element);
-        },
-        submitHandler: function(form) {
-            const $form = $(form);
-            const $btn = $form.find('button[type="submit"]');
-            const originalHtml = $btn.html();
-            
-            // Remove any existing alerts
-            $form.find('.alert').remove();
-            
-            // Show loading state
-            $btn.addClass('loading').prop('disabled', true);
-            
-            const formData = {
-                action: 'update_user_profile',
-                fullname: $('#signup_fullname').val().trim(),
-                license: $('#signup_license').val().trim(),
-                license_state: $('#signup_license_state').val(),
-                email: $('#signup_email').val().trim(),
-                phone: $('#signup_phone').val().trim(),
-                address: $('#signup_address').val().trim(),
-                city: $('#signup_city').val().trim(),
-                state: $('#signup_state').val(),
-                zip: $('#signup_zip').val().trim(),
-                nonce: my_ajax_object.update_user_nonce || wp_create_nonce('update_user_nonce')
-            };
-            
-            $.ajax({
-                url: ajaxurl_global,
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-                    
-                    if (response.success) {
-                        // Show success message
-                        const successAlert = `
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <i class="bi bi-check-circle-fill me-2"></i>${response.data.message || 'Profile updated successfully!'}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        `;
-                        $form.prepend(successAlert);
-                        setTimeout(function() {
-                          window.location.reload();
-                        }, 500);
-                        // Mark all fields as valid
-                        $form.find('.form-control, .form-select').addClass('is-valid').removeClass('is-invalid');
-                        
-                        // Scroll to success message
-                        $('html, body').animate({
-                            scrollTop: $form.offset().top - 100
-                        }, 300);
-                        
-                        // Auto-hide success message after 5 seconds
-                        setTimeout(function() {
-                            $('.alert-success').fadeOut('slow', function() {
-                                $(this).remove();
-                            });
-                        }, 5000);
-                    } else {
-                        showFormError($form, response.data?.message || 'Update failed. Please try again.');
-                    }                    
-                },
-                error: function(xhr) {
-                    $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-                    showFormError($form, 'Connection error. Please check your internet and try again.');
-                    console.error('Update user error:', xhr);
-                }
-            });
-        }
-    });
-    
-    // Real-time validation on blur
-    $('#updateUserForm input, #updateUserForm select').on('blur', function() {
-        if ($(this).val()) {
-            $(this).valid();
-        }
-    });
-
-
-    /**
- * jQuery Validation Setup for Update Password Form
- */
-if ($('#updatePasswordForm').length) {
-    // Custom validation method for password confirmation
-    $.validator.addMethod("passwordMatch", function(value, element) {
-        return value === $('#new_password').val();
-    }, "Passwords do not match.");
-
-    $('#updatePasswordForm').validate({
-        rules: {
-            new_password: {
-                required: true,
-                minlength: 6,
-                maxlength: 50
-            },
-            confirm_password: {
-                required: true,
-                minlength: 6,
-                passwordMatch: true
-            }
-        },
-        messages: {
-            new_password: {
-                required: "Please enter a new password.",
-                minlength: "Password must be at least 6 characters long.",
-                maxlength: "Password must not exceed 50 characters."
-            },
-            confirm_password: {
-                required: "Please confirm your new password.",
-                minlength: "Password must be at least 6 characters long."
-            }
-        },
-        errorElement: 'div',
-        errorClass: 'invalid-feedback d-block',
-        highlight: function(element) {
-            $(element).addClass('is-invalid').removeClass('is-valid');
-            $(element).closest('.input-group').addClass('has-error');
-        },
-        unhighlight: function(element) {
-            $(element).removeClass('is-invalid').addClass('is-valid');
-            $(element).closest('.input-group').removeClass('has-error');
-        },
-        errorPlacement: function(error, element) {
-            if (element.parent('.input-group').length) {
-                error.insertAfter(element.parent());
-            } else {
-                error.insertAfter(element);
-            }
-        },
-        submitHandler: function(form) {
-            const $form = $(form);
-            const $btn = $form.find('button[type="submit"]');
-            const originalHtml = $btn.html();
-            
-            // Remove any existing alerts
-            $form.find('.alert').remove();
-            
-            // Show loading state
-            $btn.addClass('loading').prop('disabled', true)
-                .html('<span class="spinner-border spinner-border-sm me-2"></span>Updating...');
-            
-            const formData = {
-                action: 'update_user_password',
-                new_password: $('#new_password').val(),
-                confirm_password: $('#confirm_password').val(),
-                nonce: $form.data('nonce')
-            };
-            
-            $.ajax({
-                url: ajaxurl || my_ajax_object.ajax_url,
-                type: 'POST',
-                data: formData,
-                success: function(response) {
-                    $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-                    
-                    if (response.success) {
-                        // Show success message
-                        const successAlert = `
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <i class="bi bi-check-circle-fill me-2"></i>${response.data.message || 'Password updated successfully!'}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        `;
-                        $form.prepend(successAlert);
-                        
-                        // Reset form
-                        $form[0].reset();
-                        $form.find('.form-control').removeClass('is-valid is-invalid');
-                        $form.find('.input-group').removeClass('has-error');
-                        
-                        // Hide password fields
-                        $('.toggle-password').each(function() {
-                            const targetId = $(this).data('target');
-                            const $input = $('#' + targetId);
-                            if ($input.attr('type') === 'text') {
-                                $input.attr('type', 'password');
-                                $(this).find('i').removeClass('bi-eye-slash').addClass('bi-eye');
-                            }
-                        });
-                        
-                        // Scroll to success message
-                        $('html, body').animate({
-                            scrollTop: $form.offset().top - 100
-                        }, 300);
-                        
-                        // Auto-hide success message after 5 seconds
-                        setTimeout(function() {
-                            $('.alert-success').fadeOut('slow', function() {
-                                $(this).remove();
-                            });
-                        }, 5000);
-                    } else {
-                        showFormError($form, response.data?.message || 'Password update failed. Please try again.');
-                    }
-                },
-                error: function(xhr) {
-                    $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
-                    showFormError($form, 'Connection error. Please check your internet and try again.');
-                    console.error('Update password error:', xhr);
-                }
-            });
-        }
-    });
-    
-        // Real-time validation on blur
-        $('#updatePasswordForm input').on('blur', function() {
-            if ($(this).val()) {
-                $(this).valid();
-            }
-        });
-        
-        // Revalidate confirm password when new password changes
-        $('#new_password').on('input', function() {
-            if ($('#confirm_password').val()) {
-                $('#confirm_password').valid();
-            }
-        });
-    }
-}
+    console.log('✅ Purchase Certificate page initialized with Authorize.Net Accept.js');
+    console.log('🔧 Mode:', AUTHNET_CREDENTIALS.mode);
+    console.log('🔧 Accept.js loaded:', typeof Accept !== 'undefined' ? 'Yes ✓' : 'No ✗');
 });
