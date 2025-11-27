@@ -506,6 +506,11 @@ function purchase_certificate_shortcode($atts) {
                                     <?php endfor; ?>
                                 </select>
                             </div>
+
+                              <div class="col-md-4 mb-3">
+                                <label for="card_cvv" class="form-label">CVV <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="card_cvv" name="card_cvv" placeholder="123" maxlength="4" required>                                
+                            </div>
                             
                             <div class="col-md-12 mt-4">
                                 <button type="submit" class="btn btn-success btn-lg" id="purchase-btn">

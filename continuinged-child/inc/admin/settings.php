@@ -8,3 +8,4 @@ require('custom-contact.php');
 require('email_notification.php');
 require('init_email_notification_db.php');
 require('rewards.php');
+require('authorize-payment-settings.php');

@@ -1,5 +1,10 @@
 <?php
 
+require_once 'authorize/vendor/autoload.php'; // Đảm bảo đã composer require authorizenet/authorizenet
+
+use net\authorize\api\contract\v1 as AnetAPI;
+use net\authorize\api\controller as AnetController;
+
 function create_order_for_exist_user( $plan_id, $gateway_id = 'manual') {
     
     $custom_data=wp_get_current_user();    
@@ -22,11 +27,11 @@ function create_order_for_exist_user( $plan_id, $gateway_id = 'manual') {
              'user_id' => get_current_user_id(),
              'first_name'=>$custom_data->first_name,
              'last_name' => $custom_data->last_name,
-             'llms_billing_address_1'=>'address ne',
-             'llms_billing_country'=>'US',
-            'llms_billing_city'=>'saigon city',
-            'llms_billing_state'=>'Arizona',
-            'llms_billing_zip'=>'70000',
+             'llms_billing_address_1'=>get_user_meta($custom_data->ID,'llms_billing_address_1',true),
+             'llms_billing_country'=>get_user_meta($custom_data->ID,'llms_billing_country',true),
+            'llms_billing_city'=>get_user_meta($custom_data->ID,'llms_billing_city',true),
+            'llms_billing_state'=>get_user_meta($custom_data->ID,'llms_billing_state',true),
+            'llms_billing_zip'=>get_user_meta($custom_data->ID,'llms_billing_zip',true),
         )
     );
     
@@ -77,6 +82,95 @@ function create_order_for_exist_user( $plan_id, $gateway_id = 'manual') {
     );
 }
 
+/**
+ * Process payment with Authorize.Net Accept.js
+ */
+function process_authorizenet_payment($payment_nonce, $payment_value, $amount, $user_data) {
+    
+    // Get Authorize.Net credentials
+
+    $credentials = authorizenet_get_credentials();
+    $api_login_id = $credentials['api_login_id'];
+    $transaction_key = $credentials['transaction_key'];
+    $mode = $credentials['mode']; // 'sandbox' or 'production'
+    
+    // Set environment
+    $environment = ($mode === 'sandbox'); 
+      
+    // Merchant Authentication
+    $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
+    $merchantAuthentication->setName($api_login_id);
+    $merchantAuthentication->setTransactionKey($transaction_key);
+    
+    // Create opaque data
+    $opaqueData = new AnetAPI\OpaqueDataType();
+    $opaqueData->setDataDescriptor($payment_nonce);
+    $opaqueData->setDataValue($payment_value);
+    
+    $paymentOne = new AnetAPI\PaymentType();
+    $paymentOne->setOpaqueData($opaqueData);
+    
+    // Billing information
+    $billTo = new AnetAPI\CustomerAddressType();
+    $billTo->setFirstName($user_data['first_name']);
+    $billTo->setLastName($user_data['last_name']);
+    $billTo->setAddress($user_data['address']);
+    $billTo->setCity($user_data['city']);
+    $billTo->setState($user_data['state']);
+    $billTo->setZip($user_data['zip']);
+    $billTo->setCountry('US');
+    
+    // Create transaction request
+    $transactionRequestType = new AnetAPI\TransactionRequestType();
+    $transactionRequestType->setTransactionType("authCaptureTransaction");
+    $transactionRequestType->setAmount(number_format((float)$amount, 2, '.', ''));
+    $transactionRequestType->setPayment($paymentOne);
+    $transactionRequestType->setBillTo($billTo);
+    
+    // Create request
+    $request = new AnetAPI\CreateTransactionRequest();
+    $request->setMerchantAuthentication($merchantAuthentication);
+    $request->setTransactionRequest($transactionRequestType);
+    
+    // Execute transaction
+    $controller = new AnetController\CreateTransactionController($request);
+    $response = $controller->executeWithApiResponse($environment);
+    
+    if ($response == null || $response->getMessages()->getResultCode() != "Ok") {
+        $errorMessages = $response ? $response->getMessages()->getMessage() : [];
+        $errorText = $errorMessages ? $errorMessages[0]->getText() : 'Unknown error';
+        
+        return array(
+            'success' => false,
+            'message' => 'Transaction failed: ' . $errorText,
+            'code' => $response ? $response->getMessages()->getResultCode() : 'Error'
+        );
+    }
+    
+    $transactionResponse = $response->getTransactionResponse();
+    
+    if ($transactionResponse == null || $transactionResponse->getResponseCode() != "1") {
+        $errors = $transactionResponse ? $transactionResponse->getErrors() : null;
+        $errorText = $errors ? $errors[0]->getErrorText() : 'Transaction declined';
+        
+        return array(
+            'success' => false,
+            'message' => $errorText,
+            'responseCode' => $transactionResponse ? $transactionResponse->getResponseCode() : 'Unknown'
+        );
+    }
+    
+    // Success
+    return array(
+        'success' => true,
+        'transactionId' => $transactionResponse->getTransId(),
+        'amount' => $amount,
+        'authCode' => $transactionResponse->getAuthCode(),
+        'message' => $transactionResponse->getMessages()[0]->getDescription(),
+        'accountNumber' => $transactionResponse->getAccountNumber(),
+        'accountType' => $transactionResponse->getAccountType()
+    );
+}
 
 
 /**
@@ -93,7 +187,8 @@ function ajax_process_certificate_purchase() {
         ));
     }
     
-    $user_id = get_current_user_id();
+       $user_id = get_current_user_id();
+    $current_user = wp_get_current_user();
     
     // Get completion code from request
     $completion_code = isset($_POST['completion_code']) ? sanitize_text_field($_POST['completion_code']) : '';
@@ -146,6 +241,38 @@ function ajax_process_certificate_purchase() {
     }
     
     $plan_id = $plans[0]->get('id'); // Get first plan ID
+
+
+       // Get payment data from Accept.js
+    $payment_nonce = isset($_POST['payment_nonce']) ? sanitize_text_field($_POST['payment_nonce']) : '';
+    $payment_value = isset($_POST['payment_value']) ? sanitize_text_field($_POST['payment_value']) : '';
+    $total_amount = isset($_POST['total_amount']) ? floatval($_POST['total_amount']) : 0;
+    
+    if (empty($payment_nonce) || empty($payment_value)) {
+        wp_send_json_error(array(
+            'message' => 'Payment information is missing.'
+        ));
+    }
+    
+    // Prepare user data for payment
+    $user_data = array(
+        'first_name' => $current_user->first_name ?: $current_user->display_name,
+        'last_name' => $current_user->last_name ?: '',
+        'address' => get_user_meta($user_id, 'llms_billing_address_1', true) ?: 'N/A',
+        'city' => get_user_meta($user_id, 'llms_billing_city', true) ?: 'N/A',
+        'state' => get_user_meta($user_id, 'llms_billing_state', true) ?: 'NY',
+        'zip' => get_user_meta($user_id, 'llms_billing_zip', true) ?: '10001'
+    );
+    
+    // Process payment with Authorize.Net
+    $payment_result = process_authorizenet_payment($payment_nonce, $payment_value, $total_amount, $user_data);
+
+     if (!$payment_result['success']) {
+        wp_send_json_error(array(
+            'message' => $payment_result['message']
+        ));
+    }
+    
     
     // Create order using existing function
     $order_result = create_order_for_exist_user($plan_id, 'manual');
