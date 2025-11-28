@@ -2,9 +2,9 @@
 add_action('admin_menu', 'register_course_completion_menu');
 function register_course_completion_menu() {
     add_submenu_page(
-        'options-general.php',
-        'Course Completion DB',
-        'Course Completion',
+        'tools.php',
+        'Create Completion Code Table',
+        'Create Completion Code Table',
         'manage_options',
         'course-completion-db',
         'course_completion_db_page'

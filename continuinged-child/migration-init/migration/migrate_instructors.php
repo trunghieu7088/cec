@@ -6,15 +6,14 @@
 // 1. Tạo Menu trong Admin Dashboard
 add_action('admin_menu', 'cec_register_import_menu');
 function cec_register_import_menu() {
-    add_menu_page(
-        'Import Instructors', 
-        'Import Instructors', 
-        'manage_options', 
-        'cec-import-instructors', 
-        'cec_render_import_page',
-        'dashicons-groups',
-        99
-    );
+    add_submenu_page(
+            'tools.php',                  // Parent menu: Tools (Công cụ)
+            'Migrate Instructors',         // Tiêu đề trang
+            'Migrate Instructors',         // Tên hiển thị trong menu
+            'manage_options',             // Quyền yêu cầu
+            'cec-import-instructors',     // Slug của trang
+            'cec_render_import_page'      // Hàm render nội dung trang
+        );
 }
 
 // 2. Hiển thị giao diện và Xử lý Logic

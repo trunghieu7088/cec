@@ -7,9 +7,9 @@ if ( ! function_exists( 'init_llms_email_queue_db_menu' ) ) :
 add_action( 'admin_menu', 'init_llms_email_queue_db_menu' );
 function init_llms_email_queue_db_menu() {
     add_submenu_page(
-        'options-general.php',
-        'LLMS Email Queue DB',
-        'LLMS Email Queue',
+        'tools.php',
+        'Create Email Queue Table',
+        'Create Email Queue Table',
         'manage_options',
         'llms-email-queue-db',
         'llms_email_queue_db_page'

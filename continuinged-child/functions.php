@@ -15,17 +15,15 @@ define( 'CHILD_THEME_ASTRA_CHILD_VERSION', '1.0.0' );
 
 
 // Include custom PHP files & asset files
+require_once get_stylesheet_directory() . '/shortcodes.php';
 require_once get_stylesheet_directory() . '/import_assets.php';
 require_once get_stylesheet_directory() . '/inc/frontend/frontend_logic.php';
-require_once get_stylesheet_directory() . '/shortcodes.php';
 require_once get_stylesheet_directory() . '/inc/admin/settings.php';
 require_once get_stylesheet_directory() . '/inc/llms/custom-llms.php';
 require_once get_stylesheet_directory() . '/inc/utilities.php';
-require_once get_stylesheet_directory() . '/inc/admin/init_db.php';
-require_once get_stylesheet_directory() . '/inc/admin/init_ce.php';
-require_once get_stylesheet_directory() . '/inc/admin/init_static_pages.php';
-require_once get_stylesheet_directory() . '/inc/admin/init_author_db.php';
-require_once get_stylesheet_directory() . '/migration/import_migration.php';
+
+require_once get_stylesheet_directory() . '/migration-init/migration/import_migration_files.php';
+require_once get_stylesheet_directory() . '/migration-init/init/import_init_files.php';
 
 
 function astra_child_setup() {

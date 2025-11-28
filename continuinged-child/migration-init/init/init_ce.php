@@ -8,9 +8,9 @@
 add_action('admin_menu', 'register_ce_hours_menu');
 function register_ce_hours_menu() {
     add_submenu_page(
-        'options-general.php',
-        'CE Hours DB',
-        'CE Hours Completion',
+        'tools.php',
+        'Create CE Hours Table',
+        'Create CE Hours Table',
         'manage_options',
         'ce-hours-db',
         'ce_hours_db_page'
