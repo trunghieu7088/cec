@@ -96,7 +96,7 @@ function create_custom_static_pages() {
 
                 // Nếu có template thì gán Page Template
                 if ($template) {
-                    update_post_meta($page_id, '_wp_page_template','/template-pages/'.$template);
+                    update_post_meta($page_id, '_wp_page_template','template-pages/'.$template);
                 }
 
                 // Đặc biệt: set trang Home làm trang chủ (nếu slug là 'home')

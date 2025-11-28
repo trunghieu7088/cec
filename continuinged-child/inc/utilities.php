@@ -53,3 +53,22 @@ function get_custom_page_url_by_template( $template_filename, $return_type = 'ur
 
     return $result;
 }
+
+function cec_get_latest_certificate_id($order_by = 'ID') {
+    $args = [
+        'post_type'      => 'llms_certificate',
+        'post_status'    => 'publish',
+        'posts_per_page' => 1,
+        'orderby'        => ($order_by === 'date') ? 'date' : 'ID',
+        'order'          => 'DESC',
+        'fields'         => 'ids', // Chỉ trả về ID để tối ưu
+    ];
+
+    $query = new WP_Query($args);
+    
+    if ($query->have_posts()) {
+        return $query->posts[0];
+    }
+
+    return false; // Không tìm thấy
+}
