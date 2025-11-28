@@ -99,9 +99,7 @@ function purchase_signup_handler() {
             'llms_billing_address_1'=>$address,
             'llms_billing_state'=>$state,
             'llms_billing_zip'=>$zip,
-            'llms_phone'=>$phone,
-            'license'=>$license,
-            'license_state'=>$license_state,
+            'llms_phone'=>$phone,                      
             'full_name'=>$fullname,
             'email_address_confirm'=>$email
             
@@ -120,6 +118,7 @@ function purchase_signup_handler() {
     if($user_id)
     {
         //manually update user meta license number because lifterlms does not have this field
+        update_user_meta($user_id,'license_state',$license_state);
         update_user_meta($user_id,'license_number',$license);
         update_user_meta($user_id,'email_me',$newsletter);
         wp_update_user(array(
