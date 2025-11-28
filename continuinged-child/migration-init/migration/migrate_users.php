@@ -97,7 +97,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
                         $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_phone', $row->PhoneNumber);
                         $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_billing_address_1', $row->Address);
                         $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_billing_city', $row->City);
-                        $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_billing_state', $row->State);
+                        $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_billing_state', convert_state_abbr_to_full($row->State));
                         $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_billing_zip', $row->Zip);
                         $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_billing_first_name', $first_name);
                         $this->add_to_meta_buffer($meta_inserts, $user_id, 'llms_billing_last_name', $last_name);
@@ -165,4 +165,78 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
     }
 
     WP_CLI::add_command( 'cec_migrate_users', 'CEC_Migrate_Users_Command' );
+}
+
+function convert_state_abbr_to_full($abbr) {
+    // Trim và uppercase để tránh lỗi do khoảng trắng hoặc chữ thường
+    $abbr = trim(strtoupper($abbr));
+
+    $states = [
+        // 50 tiểu bang + District of Columbia
+        'AL' => 'Alabama',
+        'AK' => 'Alaska',
+        'AZ' => 'Arizona',
+        'AR' => 'Arkansas',
+        'CA' => 'California',
+        'CO' => 'Colorado',
+        'CT' => 'Connecticut',
+        'DE' => 'Delaware',
+        'DC' => 'District of Columbia',
+        'FL' => 'Florida',
+        'GA' => 'Georgia',
+        'HI' => 'Hawaii',
+        'ID' => 'Idaho',
+        'IL' => 'Illinois',
+        'IN' => 'Indiana',
+        'IA' => 'Iowa',
+        'KS' => 'Kansas',
+        'KY' => 'Kentucky',
+        'LA' => 'Louisiana',
+        'ME' => 'Maine',
+        'MD' => 'Maryland',
+        'MA' => 'Massachusetts',
+        'MI' => 'Michigan',
+        'MN' => 'Minnesota',
+        'MS' => 'Mississippi',
+        'MO' => 'Missouri',
+        'MT' => 'Montana',
+        'NE' => 'Nebraska',
+        'NV' => 'Nevada',
+        'NH' => 'New Hampshire',
+        'NJ' => 'New Jersey',
+        'NM' => 'New Mexico',
+        'NY' => 'New York',
+        'NC' => 'North Carolina',
+        'ND' => 'North Dakota',
+        'OH' => 'Ohio',
+        'OK' => 'Oklahoma',
+        'OR' => 'Oregon',
+        'PA' => 'Pennsylvania',
+        'RI' => 'Rhode Island',
+        'SC' => 'South Carolina',
+        'SD' => 'South Dakota',
+        'TN' => 'Tennessee',
+        'TX' => 'Texas',
+        'UT' => 'Utah',
+        'VT' => 'Vermont',
+        'VA' => 'Virginia',
+        'WA' => 'Washington',
+        'WV' => 'West Virginia',
+        'WI' => 'Wisconsin',
+        'WY' => 'Wyoming',
+
+        // Các vùng lãnh thổ & mã quân đội phổ biến trong form Mỹ
+        'AE' => 'Armed Forces Europe',       // hoặc có thể để "AE (Europe)" tùy yêu cầu
+        'AP' => 'Armed Forces Pacific',      // hoặc "AP (Pacific)"
+        'AA' => 'Armed Forces Americas',     // đôi khi có xuất hiện
+        'PR' => 'Puerto Rico',
+        'VI' => 'Virgin Islands',
+        'GU' => 'Guam',                      // nếu có trong dữ liệu cũ
+        'MP' => 'Northern Mariana Islands',  // nếu có
+
+        // Trường hợp đặc biệt trong danh sách của bạn
+        'OTHER' => 'Other',
+    ];
+
+    return $states[$abbr] ?? $abbr; // Nếu không tìm thấy thì trả về mã gốc
 }

@@ -108,8 +108,12 @@ function migrate_courses_to_lifterlms() {
             }
             
             // Xử lý Author/Instructor
-            if (!empty($course['AuthorId'])) {
-                $author_ids = process_course_instructors($course['AuthorId']);
+            if (!empty($course['AuthorId']) || !empty($course['AndAuthorName']) || !empty($course['WithAuthorName'])) {
+                $author_ids = process_course_instructors(
+                    $course['AuthorId'],
+                    $course['AndAuthorName'] ?? '',
+                    $course['WithAuthorName'] ?? ''
+                );
                 if (!empty($author_ids)) {
                     update_post_meta($post_id, '_llms_instructors', $author_ids);
                 }
@@ -118,6 +122,11 @@ function migrate_courses_to_lifterlms() {
             //xử lý label highlight
              if (!empty($course['Highlight'])) {
                 update_post_meta($post_id, '_status_update_label', $course['Highlight']);
+            }
+
+            //xử lý alternate copy right
+            if (!empty($course['AlternateCopyright'])) {
+                update_post_meta($post_id, '_alternate_copyright', $course['alternate_copyright']);
             }
 
             //xử lý course plan
@@ -143,20 +152,23 @@ function migrate_courses_to_lifterlms() {
 /**
  * Xử lý danh sách instructors cho course
  * 
- * @param string|int $author_id AuthorId từ bảng cũ (có thể là 1 ID hoặc nhiều IDs phân cách bởi dấu phẩy)
+ * @param string|int $author_id AuthorId từ bảng cũ
+ * @param string $and_author_name Tên từ cột AndAuthorName
+ * @param string $with_author_name Tên từ cột WithAuthorName
  * @return array Mảng serialized format LifterLMS
  */
-function process_course_instructors($author_id) {
+function process_course_instructors($author_id, $and_author_name = '', $with_author_name = '') {
     global $wpdb;
     
-    // Xử lý trường hợp nhiều authors (nếu có)
-    $author_ids = is_array($author_id) ? $author_id : explode(',', $author_id);
     $instructors = array();
+    $index = 0;
     
-    foreach ($author_ids as $index => $old_author_id) {
+    // 1. Xử lý AuthorId (logic cũ)
+    $author_ids = is_array($author_id) ? $author_id : explode(',', $author_id);
+    
+    foreach ($author_ids as $old_author_id) {
         $old_author_id = trim($old_author_id);
         
-        // Tìm user có meta key author_stable_id
         $user_id = $wpdb->get_var($wpdb->prepare(
             "SELECT user_id FROM {$wpdb->usermeta} 
             WHERE meta_key = 'author_stable_id' 
@@ -171,10 +183,77 @@ function process_course_instructors($author_id) {
                 'visibility' => 'visible',
                 'id'         => intval($user_id)
             );
+            $index++;
+        }
+    }
+    
+    // 2. Xử lý AndAuthorName
+    if (!empty($and_author_name)) {
+        $clean_name = extract_author_name($and_author_name);
+        $user_id = find_user_by_display_name($clean_name);
+        
+        if ($user_id) {
+            $instructors[$index] = array(
+                'label'      => 'Author',
+                'visibility' => 'visible',
+                'id'         => intval($user_id)
+            );
+            $index++;
+        }
+    }
+    
+    // 3. Xử lý WithAuthorName
+    if (!empty($with_author_name)) {
+        $clean_name = extract_author_name($with_author_name);
+        $user_id = find_user_by_display_name($clean_name);
+        
+        if ($user_id) {
+            $instructors[$index] = array(
+                'label'      => 'Author',
+                'visibility' => 'visible',
+                'id'         => intval($user_id)
+            );
+            $index++;
         }
     }
     
     return !empty($instructors) ? $instructors : array();
+}
+
+/**
+ * Lấy tên tác giả sạch (bỏ học vị)
+ * 
+ * @param string $full_name Tên đầy đủ có học vị, ví dụ: "Stephanie Knatz Peck, Ph.D."
+ * @return string Tên sạch: "Stephanie Knatz Peck"
+ */
+function extract_author_name($full_name) {
+    // Loại bỏ khoảng trắng thừa
+    $full_name = trim($full_name);
+    
+    // Tách theo dấu phẩy và lấy phần đầu tiên
+    $parts = explode(',', $full_name);
+    $clean_name = trim($parts[0]);
+    
+    return $clean_name;
+}
+
+/**
+ * Tìm user theo display name
+ * 
+ * @param string $display_name Tên hiển thị cần tìm
+ * @return int|false User ID hoặc false nếu không tìm thấy
+ */
+function find_user_by_display_name($display_name) {
+    global $wpdb;
+    
+    $user_id = $wpdb->get_var($wpdb->prepare(
+        "SELECT ID FROM {$wpdb->users} 
+        WHERE display_name = %s 
+        LIMIT 1",
+        $display_name
+    ));
+    
+    return $user_id ? intval($user_id) : false;
 }
 
 /**
