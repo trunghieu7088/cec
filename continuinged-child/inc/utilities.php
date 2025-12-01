@@ -72,3 +72,16 @@ function cec_get_latest_certificate_id($order_by = 'ID') {
 
     return false; // Không tìm thấy
 }
+
+
+function get_currency_of_llms() {
+    $currency_instance= array('code'=>'USD','sign'=>'$');
+    $currency_code = get_lifterlms_currency();
+    if($currency_code)
+    {
+        $currency_instance['code']=$currency_code;
+        $currency_instance['sign']= get_lifterlms_currency_symbol( $currency_code);         
+    }
+ 
+    return $currency_instance;
+}

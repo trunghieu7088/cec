@@ -33,16 +33,11 @@ function customer_account_shortcode($atts) {
     $zip = get_user_meta($user_id, 'llms_billing_zip', true);
     
     // Get CERewards information
-    $completed_hours = get_user_total_ce_hours($user_id);
-    
-    
+    $completed_hours = get_user_total_ce_hours($user_id);   
+    $current_reward_info = calculate_ce_rewards_discount($user_id); 
+    $next_tier_rewards= get_next_ce_rewards_level($user_id);    
     // Calculate discount tier
-    $discount_percentage = 0;
-    $next_tier_hours = 10;
-    if ($completed_hours >= 10) {
-        $discount_percentage = 5;
-        $next_tier_hours = 20; // You can adjust this based on your tier system
-    }
+   
     
     // Get completed courses using core-features function
     $course_manager = my_lifterlms_courses();
@@ -117,11 +112,13 @@ function customer_account_shortcode($atts) {
                     <div class="rewards-info">
                         <div class="rewards-status">
                             <p class="mb-2">
-                                You have completed <strong><?php echo number_format($completed_hours, 0); ?> hours</strong> of courses.
+                                You have completed <strong><?php echo number_format($completed_hours, 0); ?> hours</strong> of courses.                                
+                                You are receiving an automatic <strong><?php echo $current_reward_info['discount']; ?>%</strong> 
+                                on your courses.
                             </p>
                             <p class="mb-0">
-                                After you complete a total of <strong><?php echo $next_tier_hours; ?> hours</strong>, 
-                                you will begin receiving an automatic <strong><?php echo ($discount_percentage > 0 ? $discount_percentage : 5); ?>%</strong> discount.
+                                After you complete a total of <strong><?php echo $next_tier_rewards['from_hours']; ?> hours</strong>, 
+                                you will begin receiving an automatic <strong><?php echo $next_tier_rewards['discount'] ; ?>%</strong> discount.
                             </p>
                         </div>
                     </div>

@@ -105,13 +105,43 @@ function purchase_certificate_shortcode($atts) {
     
     // Get price from access plans
     $price = 0.00; // Default price    
+    $final_price=0.00;
     if (!empty($course_data['access_plans'])) {
        $price=(float)$course_data['access_plans']->price;
+       $final_price=$price;
     }
     
     $current_user = wp_get_current_user();
     $is_logged_in = is_user_logged_in();
     $state_list=get_llms_states_by_country();
+    $discount_ce=0;
+    $currency=get_currency_of_llms();    
+    
+     // If logged in, calculate CERewards discount
+    if($is_logged_in){        
+        $current_reward_info = calculate_ce_rewards_discount($current_user->ID);         
+        $discount_info=apply_ce_rewards_discount($price, $current_user->ID,0);        
+        //apply to discount and calculate final price
+        if($discount_info )
+        {            
+            $discount_ce_amount=$discount_info['discount_amount'];            
+            $final_price=$discount_info['final_price'];       
+        }
+    }
+
+    //test code coupon
+    $discount_code_single_id=11234;
+    $check_plan_id=13584;
+    $single_coupon = new LLMS_Coupon( $discount_code_single_id );
+    $validation_coupon = $single_coupon->is_valid( $discount_code_single_id );
+    if ( $validation_coupon === true ) {
+        echo 'coupon is valid';
+    }
+    else
+    {
+        echo 'ko xai dc giam gia';
+    }
+    //end test
     ob_start();
     ?>
     
@@ -159,10 +189,19 @@ function purchase_certificate_shortcode($atts) {
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <span>Your <strong>CERewards™</strong> discount</span>
-                                            <span class="badge bg-success ms-2">Member</span>
+                                            <span class="badge bg-success ms-2">Member</span>                                        
                                         </div>
+                                                                                     
+                                            <?php if(isset($current_reward_info)): ?>    
+                                                 <div class="d-flex" style="color:#000000;">                                                                                       
+                                                <span>  You have completed <strong><?php echo number_format($current_reward_info['total_hours'], 0); ?> hours</strong> of courses.                                
+                                                You are receiving an automatic <strong><?php echo $current_reward_info['discount']; ?>%</strong> 
+                                                on your courses.</span>
+                                               </div>   
+                                            <?php endif; ?>
+                                        
                                     </td>
-                                    <td class="text-end text-success">-$0.00</td>
+                                    <td class="text-end" style="color:#000000;"><?php echo $currency['sign']; echo ($discount_ce_amount > 0) ? '-' : ''; echo number_format($discount_ce_amount,2); ?></td>
                                 </tr>
                                 <?php else: ?>
                                 <tr class="discount-row">
@@ -178,15 +217,15 @@ function purchase_certificate_shortcode($atts) {
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <label for="discount-code" class="mb-0 me-2">Discount code:</label>
-                                            <input type="text" id="discount-code" class="form-control form-control-sm" style="max-width: 200px;">
+                                            <input type="text" id="discount-code" name="discount_code" placeholder="Enter code" class="form-control form-control-sm" style="max-width: 200px;">
                                         </div>
                                     </td>
-                                    <td class="text-end">$0.00</td>
+                                    <td class="text-end" id="discount-code-amount">$0.00</td>
                                 </tr>
                                 <tr>
                                     <td>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" id="mail-certificate">
+                                            <input class="form-check-input" type="checkbox" id="mail-certificate" name="mail_certificate" value="1">
                                             <label class="form-check-label" for="mail-certificate">
                                                 I can't ever print the certificate, mail it to me instead ($9)
                                             </label>
@@ -196,7 +235,7 @@ function purchase_certificate_shortcode($atts) {
                                 </tr>
                                 <tr class="total-row">
                                     <td><strong>Total:</strong></td>
-                                    <td class="text-end"><strong class="total-amount">$<?php echo number_format($price, 2); ?></strong></td>
+                                    <td class="text-end"><strong id="final-total-amount" class="total-amount"><?php echo $currency['sign'].number_format($final_price, 2); ?></strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -210,7 +249,7 @@ function purchase_certificate_shortcode($atts) {
             </div>
 
             <!-- Customer Details Card -->
-             <?php if(!is_user_logged_in()): ?>
+            <?php if(!is_user_logged_in()): ?>
             <div class="purchase-card">
                 <div class="card-header">
                     <h3><i class="bi bi-person-fill me-2"></i>Customer Details</h3>
@@ -511,10 +550,20 @@ function purchase_certificate_shortcode($atts) {
                                 <label for="card_cvv" class="form-label">CVV <span class="required">*</span></label>
                                 <input type="text" class="form-control" id="card_cvv" name="card_cvv" placeholder="123" maxlength="4" required>                                
                             </div>
+
+                            <!-- pass value from ajax -->
+                            <input type="hidden" id="base-price" value="<?php echo $price; ?>">
+                            <input type="hidden" id="ce-discount-amount" value="<?php echo isset($discount_ce_amount) ? $discount_ce_amount : 0; ?>">
+                            <input type="hidden" id="ce-discount-percent" value="<?php echo isset($current_reward_info['discount']) ? $current_reward_info['discount'] : 0; ?>">
+                            <input type="hidden" id="course-id" value="<?php echo $course_id; ?>">
+                            <input type="hidden" id="applied-coupon-id" value="">
+                            <input type="hidden" id="mail-fee-value" value="9.00">
+                            <input type="hidden" id="final-price-amount" name="final-price-amount" value="<?php echo $final_price; ?>">
+                            <!-- end passs value from ajax -->
                             
                             <div class="col-md-12 mt-4">
                                 <button type="submit" class="btn btn-success btn-lg" id="purchase-btn">
-                                    <i class="bi bi-lock-fill me-2"></i>Purchase Certificate - <span class="final-amount"><?php echo number_format($price, 2); ?></span>
+                                    <i class="bi bi-lock-fill me-2"></i>Purchase Certificate</span>
                                 </button>
                             </div>
                         </div>
@@ -523,7 +572,6 @@ function purchase_certificate_shortcode($atts) {
             </div>
         </div>
     </section>
-
     <style>
         .form-card-chooser
         {

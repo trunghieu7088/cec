@@ -54,8 +54,9 @@ class AuthorizeNet_Admin_Settings {
         $sanitized = array();
         
         // Sanitize mode
-        $sanitized['mode'] = isset($input['mode']) ? sanitize_text_field($input['mode']) : 'test';
-        
+        $sanitized['mode'] = (isset($input['mode']) && $input['mode'] === 'live') ? 'live' : 'test';
+        $sanitized['skip'] = (isset($input['skip']) && $input['skip'] === 'skip') ? 'skip' : 'no';
+
         // Sanitize test credentials
         $sanitized['test_api_login_id'] = isset($input['test_api_login_id']) ? sanitize_text_field($input['test_api_login_id']) : '';
         $sanitized['test_transaction_key'] = isset($input['test_transaction_key']) ? sanitize_text_field($input['test_transaction_key']) : '';
@@ -91,7 +92,9 @@ class AuthorizeNet_Admin_Settings {
         
         $options = get_option($this->option_name, array());
         $mode = isset($options['mode']) ? $options['mode'] : 'test';
-        
+        $skip = isset($options['skip']) ? $options['skip'] : 'no';
+
+        var_dump($options);
         ?>
         <style>
                  .authnet-wrap {
@@ -246,12 +249,12 @@ class AuthorizeNet_Admin_Settings {
         <div class="wrap authnet-wrap">
             <div class="authnet-header">
                 <h1>⚙️ Authorize.net Payment Gateway Settings</h1>
-                <p>Cấu hình thông tin API để tích hợp Authorize.net với LifterLMS</p>
+                <p>Config API to integrate Authorize.net</p>
             </div>
             
             <?php if (isset($_GET['settings-updated'])): ?>
                 <div class="notice notice-success is-dismissible">
-                    <p><strong>Cài đặt đã được lưu thành công!</strong></p>
+                    <p><strong>Save successfully !</strong></p>
                 </div>
             <?php endif; ?>
             
@@ -277,6 +280,26 @@ class AuthorizeNet_Admin_Settings {
                         </span>
                     </div>
                 </div>
+
+                    <!-- Skip Payment Toggle -->
+                <div class="authnet-mode-toggle">
+                    <div class="authnet-toggle-container">
+                        <span class="authnet-mode-label <?php echo $skip === 'skip' ? 'active' : ''; ?>">
+                           Requires Payment
+                        </span>
+                        <label class="authnet-toggle-switch">
+                            <input type="checkbox" 
+                                   name="<?php echo $this->option_name; ?>[skip]" 
+                                   value="skip" 
+                                   <?php checked($skip, 'skip'); ?>
+                                   id="skipPayment-mode-toggle">
+                            <span class="authnet-toggle-slider"></span>
+                        </label>
+                        <span class="authnet-mode-label <?php echo  $skip === 'skip' ? 'active' : ''; ?>">
+                            No Payment
+                        </span>
+                    </div>
+                </div>
                 
                 <!-- Test Credentials Panel -->
                 <div class="authnet-credentials-panel">
@@ -286,7 +309,7 @@ class AuthorizeNet_Admin_Settings {
                     </h2>
                     
                     <div class="authnet-notice">
-                        <p><strong>Lưu ý:</strong> Sử dụng thông tin từ Authorize.net Sandbox account để test.</p>
+                        <p><strong>Notice:</strong> Please use information from Sandbox account for testing.</p>
                     </div>
                     
                     <div class="authnet-form-row">
@@ -295,8 +318,8 @@ class AuthorizeNet_Admin_Settings {
                                id="test_api_login_id" 
                                name="<?php echo $this->option_name; ?>[test_api_login_id]" 
                                value="<?php echo esc_attr(isset($options['test_api_login_id']) ? $options['test_api_login_id'] : ''); ?>"
-                               placeholder="Nhập Test API Login ID">
-                        <p class="description">API Login ID từ Authorize.net sandbox account</p>
+                               placeholder="Enter Test API Login ID">
+                        <p class="description">API Login ID</p>
                     </div>
                     
                     <div class="authnet-form-row">
@@ -305,8 +328,8 @@ class AuthorizeNet_Admin_Settings {
                                id="test_transaction_key" 
                                name="<?php echo $this->option_name; ?>[test_transaction_key]" 
                                value="<?php echo esc_attr(isset($options['test_transaction_key']) ? $options['test_transaction_key'] : ''); ?>"
-                               placeholder="Nhập Test Transaction Key">
-                        <p class="description">Transaction Key từ Authorize.net sandbox account</p>
+                               placeholder="Enter Test Transaction Key">
+                        <p class="description">Transaction Key</p>
                     </div>
                     
                     <div class="authnet-form-row">
@@ -315,8 +338,8 @@ class AuthorizeNet_Admin_Settings {
                                id="test_client_key" 
                                name="<?php echo $this->option_name; ?>[test_client_key]" 
                                value="<?php echo esc_attr(isset($options['test_client_key']) ? $options['test_client_key'] : ''); ?>"
-                               placeholder="Nhập Test Client Key">
-                        <p class="description">Public Client Key cho Accept.js integration</p>
+                               placeholder="Enter Test Client Key">
+                        <p class="description">Public Client Key for Accept.js integration</p>
                     </div>
                 </div>
                 
@@ -328,7 +351,7 @@ class AuthorizeNet_Admin_Settings {
                     </h2>
                     
                     <div class="authnet-notice" style="background: #fef7e0; border-color: #f0b429;">
-                        <p><strong>⚠️ Cảnh báo:</strong> Đây là thông tin production thực tế. Hãy bảo mật cẩn thận!</p>
+                        <p><strong>⚠️ Warning:</strong> This is real information. Please secure it!</p>
                     </div>
                     
                     <div class="authnet-form-row">
@@ -337,8 +360,8 @@ class AuthorizeNet_Admin_Settings {
                                id="live_api_login_id" 
                                name="<?php echo $this->option_name; ?>[live_api_login_id]" 
                                value="<?php echo esc_attr(isset($options['live_api_login_id']) ? $options['live_api_login_id'] : ''); ?>"
-                               placeholder="Nhập Live API Login ID">
-                        <p class="description">API Login ID từ Authorize.net production account</p>
+                               placeholder="Enter Live API Login ID">
+                        <p class="description">API Login ID</p>
                     </div>
                     
                     <div class="authnet-form-row">
@@ -347,8 +370,8 @@ class AuthorizeNet_Admin_Settings {
                                id="live_transaction_key" 
                                name="<?php echo $this->option_name; ?>[live_transaction_key]" 
                                value="<?php echo esc_attr(isset($options['live_transaction_key']) ? $options['live_transaction_key'] : ''); ?>"
-                               placeholder="Nhập Live Transaction Key">
-                        <p class="description">Transaction Key từ Authorize.net production account</p>
+                               placeholder="Enter Live Transaction Key">
+                        <p class="description">Transaction Key</p>
                     </div>
                     
                     <div class="authnet-form-row">
@@ -357,14 +380,14 @@ class AuthorizeNet_Admin_Settings {
                                id="live_client_key" 
                                name="<?php echo $this->option_name; ?>[live_client_key]" 
                                value="<?php echo esc_attr(isset($options['live_client_key']) ? $options['live_client_key'] : ''); ?>"
-                               placeholder="Nhập Live Client Key">
-                        <p class="description">Public Client Key cho Accept.js integration</p>
+                               placeholder="Enter Live Client Key">
+                        <p class="description">Public Client Key for Accept.js integration</p>
                     </div>
                 </div>
                 
                 <!-- Submit Button -->
                 <div class="authnet-submit-container">
-                    <?php submit_button('💾 Lưu Cài Đặt', 'primary large'); ?>
+                    <?php submit_button('💾 Save Settings', 'primary large'); ?>
                 </div>
             </form>
         </div>
@@ -393,6 +416,7 @@ function authorizenet_get_credentials() {
     } else {
         return array(
             'mode' => 'test',
+            'skip' => isset($options['skip']) ? $options['skip'] : 'no',
             'api_login_id' => isset($options['test_api_login_id']) ? $options['test_api_login_id'] : '',
             'transaction_key' => isset($options['test_transaction_key']) ? $options['test_transaction_key'] : '',
             'client_key' => isset($options['test_client_key']) ? $options['test_client_key'] : '',

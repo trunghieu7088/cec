@@ -48,7 +48,8 @@ function astra_child_enqueue_assets() {
         $credentials = authorizenet_get_credentials();
         $api_login_id = isset($credentials['api_login_id']) ? $credentials['api_login_id'] : '';
         $client_key = isset($credentials['client_key']) ? $credentials['client_key'] : '';
-        $mode = isset($credentials['mode']) ? $credentials['mode'] : 'sandbox';
+        //$mode = isset($credentials['mode']) ? $credentials['mode'] : 'sandbox';
+        $mode='test';
         
         // Enqueue Authorize.Net Accept.js
         if ($mode === 'live') {
@@ -87,6 +88,7 @@ function astra_child_enqueue_assets() {
                 'payment_nonce' => wp_create_nonce('process_payment_nonce'),
                 'update_user_nonce' => wp_create_nonce('update_user_nonce'),
                 'update_password_nonce' => wp_create_nonce('update_password_nonce'),
+                'update_price_nonce' => wp_create_nonce('update_price_nonce'),
                 // Authorize.Net credentials
                 'authnet_api_login_id' => $api_login_id,
                 'authnet_client_key' => $client_key,

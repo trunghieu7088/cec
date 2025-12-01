@@ -10,7 +10,7 @@ jQuery(document).ready(function($) {
     
     // Configuration
     const config = {
-        basePrice: parseFloat($('.total-amount').text().replace('$', '')) || 74.00,
+        basePrice: 0.00,
         mailFee: 9.00
     };
     
@@ -42,17 +42,108 @@ jQuery(document).ready(function($) {
     }
     
     // Event listeners for price updates
-    $('#mail-certificate').on('change', updatePrice);
+    //$('#mail-certificate').on('change', updatePrice);
+
+    // Auto-update when mail certificate checkbox changes
+    $('#mail-certificate').on('change', function() {
+        const mailFee = $(this).is(':checked') ? parseFloat($('#mail-fee-value').val()) : 0;
+        $('#mail-fee').text('$' + mailFee.toFixed(2));
+        
+        // You can trigger auto-update here if desired
+         //$('#update-price-btn').click();
+    });
+
     $('#update-price-btn').on('click', function(e) {
         e.preventDefault();
-        updatePrice();
         
         const $btn = $(this);
         const originalHtml = $btn.html();
-        $btn.html('<i class="bi bi-check-circle-fill me-1"></i>Updated!');
-        setTimeout(function() {
-            $btn.html(originalHtml);
-        }, 1500);
+        
+        // Get values
+        const courseId = $('#course-id').val();
+        const discountCode = $('#discount-code').val().trim();
+        const mailCertificate = $('#mail-certificate').is(':checked') ? 1 : 0;
+        
+        if (!courseId) {
+            showFormError($('#paymentForm'), 'Invalid course information.');
+            return;
+        }
+        
+        // Show loading
+        $btn.addClass('loading').prop('disabled', true)
+            .html('<span class="spinner-border spinner-border-sm me-1"></span>Updating...');
+        
+        // Clear previous validation messages
+        $('#discount-validation-msg').html('').removeClass('text-success text-danger');
+        
+        $.ajax({
+            url: ajaxurl_global,
+            type: 'POST',
+            data: {
+                action: 'update_purchase_price',
+                course_id: courseId,
+                discount_code: discountCode,
+                mail_certificate: mailCertificate,
+                nonce: my_ajax_object.update_price_nonce || '<?php echo wp_create_nonce("update_price_nonce"); ?>'
+            },
+            success: function(response) {
+                 $btn.removeClass('loading').prop('disabled', false)
+                        .html('<i class="bi bi-check-circle-fill me-1"></i>Updated!');
+                    
+                    setTimeout(function() {
+                        $btn.html(originalHtml);
+                    }, 1000);
+                    
+                    if (response.success) {
+                        const data = response.data;
+                        
+                        // Decode HTML entities nếu cần
+                        const currencySign = $('<div/>').html(data.currency_sign).text();
+                        
+                        // Update discount code amount
+                        $('#discount-code-amount').text(data.formatted.coupon_discount);
+                        
+                        // Update mail fee
+                        $('#mail-fee').text(data.formatted.mail_fee);
+                        
+                        // Update total - CHỈ LẤY SỐ, bỏ ký hiệu $
+                        const finalPriceNumber = data.final_price.toFixed(2);
+                         //update for hidden
+                        $('#final-price-amount').val(finalPriceNumber);
+                        $('#final-total-amount').text(currencySign + finalPriceNumber);
+                        $('.final-amount').text(finalPriceNumber); // ← Chỉ số, không có $
+                        
+                        // Store coupon ID if valid
+                        if (data.coupon_valid) {
+                            $('#applied-coupon-id').val(data.coupon_id);
+                            $('#discount-validation-msg')
+                                .html('<i class="bi bi-check-circle-fill me-1"></i>' + data.coupon_message)
+                                .removeClass('text-danger').addClass('text-success');
+                        } else {
+                            $('#applied-coupon-id').val('');
+                            if (discountCode !== '') {
+                                $('#discount-validation-msg')
+                                    .html('<i class="bi bi-x-circle-fill me-1"></i>' + data.coupon_message)
+                                    .removeClass('text-success').addClass('text-danger');
+                            } else {
+                                $('#discount-validation-msg').html('').removeClass('text-success text-danger');
+                            }
+                        }
+                        
+                        // Update purchase button text
+                        //$('#purchase-btn .final-amount').text(finalPriceNumber);
+                       
+                        
+                    } else {
+                        showFormError($('#paymentForm'), response.data?.message || 'Failed to update price.');
+                    }
+            },
+            error: function(xhr) {
+                $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
+                showFormError($('#paymentForm'), 'Connection error. Please try again.');
+                console.error('Update price error:', xhr);
+            }
+        });
     });
     
     /**
@@ -423,8 +514,11 @@ jQuery(document).ready(function($) {
             completion_code: completionCode,
             payment_nonce: paymentNonce,
             payment_value: paymentValue,
+            ce_discount_amount: $("#ce-discount-amount").val(),
             mail_certificate: $('#mail-certificate').is(':checked') ? 1 : 0,
-            total_amount: parseFloat($('.total-amount').text()),
+            coupon_id: $('#applied-coupon-id').val() || 0,
+           // total_amount: parseFloat($('.total-amount').text()),
+           total_amount: parseFloat($('#final-price-amount').val()),
             nonce: $form.data('nonce')
         };
         
@@ -660,7 +754,9 @@ jQuery(document).ready(function($) {
      * Real-time validation on blur
      */
     $('input, select').on('blur', function() {
-        if ($(this).val()) {
+        // Chỉ validate nếu field thuộc form có validator
+        const $form = $(this).closest('form');
+        if ($form.length && $form.data('validator') && $(this).val()) {
             $(this).valid();
         }
     });
@@ -679,7 +775,7 @@ jQuery(document).ready(function($) {
     /**
      * Initialize
      */
-    updatePrice();
+   // updatePrice();
     
     console.log('✅ Purchase Certificate page initialized with Authorize.Net Accept.js');
     console.log('🔧 Mode:', AUTHNET_CREDENTIALS.mode);

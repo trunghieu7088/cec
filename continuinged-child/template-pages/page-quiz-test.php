@@ -3,7 +3,7 @@
 Template Name: Quiz Page
 */
 
-$course_slug = get_query_var('course_slug') ? get_query_var('course_slug') : '';
+$course_slug = get_query_var('course_quiz_slug') ? get_query_var('course_quiz_slug') : '';
 
 if (empty($course_slug)) {
     wp_die('Not found the course', 'Error', array('response' => 404));

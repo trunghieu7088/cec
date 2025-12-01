@@ -5,8 +5,17 @@ require_once 'authorize/vendor/autoload.php'; // Đảm bảo đã composer requ
 use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
 
-function create_order_for_exist_user( $plan_id, $gateway_id = 'manual') {
+function create_order_for_exist_user( $plan_id, $gateway_id = 'manual',$coupon_id=0 ) {
     
+     //xử lý coupon nếu có
+    $coupon_apply=false;
+    if ($coupon_id > 0) {
+        $coupon_info = get_post($coupon_id);
+        if ($coupon_info && $coupon_info->post_type === 'llms_coupon') {
+            $coupon_apply = $coupon_info->post_title;
+        }
+    }
+
     $custom_data=wp_get_current_user();    
     $data = array(
         'plan_id'         => $plan_id,
@@ -32,8 +41,14 @@ function create_order_for_exist_user( $plan_id, $gateway_id = 'manual') {
             'llms_billing_city'=>get_user_meta($custom_data->ID,'llms_billing_city',true),
             'llms_billing_state'=>get_user_meta($custom_data->ID,'llms_billing_state',true),
             'llms_billing_zip'=>get_user_meta($custom_data->ID,'llms_billing_zip',true),
-        )
+        ),        
     );
+
+    // add coupon code if has
+    if($coupon_apply)
+    {
+        $data['coupon_code']=$coupon_apply;
+    }
     
     // Setup pending order - Sẽ TỰ ĐỘNG TẠO USER
     $setup = llms_setup_pending_order($data);
@@ -48,6 +63,8 @@ function create_order_for_exist_user( $plan_id, $gateway_id = 'manual') {
     if (!$order->get('id')) {
         return new WP_Error('order_creation_failed', 'Failed to create order');
     }
+
+   
     
     // Init order
     $order->init(
@@ -92,10 +109,18 @@ function process_authorizenet_payment($payment_nonce, $payment_value, $amount, $
     $credentials = authorizenet_get_credentials();
     $api_login_id = $credentials['api_login_id'];
     $transaction_key = $credentials['transaction_key'];
-    $mode = $credentials['mode']; // 'sandbox' or 'production'
+    $mode = $credentials['mode'] ? $credentials['mode'] : 'test'; // 'test' or 'live'
     
-    // Set environment
-    $environment = ($mode === 'sandbox'); 
+    // Set environment    
+    if($mode==='test')
+    {
+        $environment = \net\authorize\api\constants\ANetEnvironment::SANDBOX;
+    }
+    else
+    {
+        $environment = \net\authorize\api\constants\ANetEnvironment::PRODUCTION;
+    }
+     
       
     // Merchant Authentication
     $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
@@ -247,6 +272,8 @@ function ajax_process_certificate_purchase() {
     $payment_nonce = isset($_POST['payment_nonce']) ? sanitize_text_field($_POST['payment_nonce']) : '';
     $payment_value = isset($_POST['payment_value']) ? sanitize_text_field($_POST['payment_value']) : '';
     $total_amount = isset($_POST['total_amount']) ? floatval($_POST['total_amount']) : 0;
+    $ce_discount_amount = isset($_POST['ce_discount_amount']) ? floatval($_POST['ce_discount_amount']) : 0;
+    $coupon_id = isset($_POST['coupon_id']) ? intval($_POST['coupon_id']) : 0;
     
     if (empty($payment_nonce) || empty($payment_value)) {
         wp_send_json_error(array(
@@ -263,19 +290,30 @@ function ajax_process_certificate_purchase() {
         'state' => get_user_meta($user_id, 'llms_billing_state', true) ?: 'NY',
         'zip' => get_user_meta($user_id, 'llms_billing_zip', true) ?: '10001'
     );
-    
-    // Process payment with Authorize.Net
-    $payment_result = process_authorizenet_payment($payment_nonce, $payment_value, $total_amount, $user_data);
 
-     if (!$payment_result['success']) {
+    $credentials = authorizenet_get_credentials();
+
+     if (empty($credentials['api_login_id']) || 
+        empty($credentials['transaction_key']) || 
+        empty($credentials['client_key'])) {
+        
         wp_send_json_error(array(
-            'message' => $payment_result['message']
+            'message' => 'Payment gateway not configured properly. Please check Authorize.net settings.'
         ));
     }
     
+    // Process payment with Authorize.Net
+    //$payment_result = process_authorizenet_payment($payment_nonce, $payment_value, $total_amount, $user_data);
+
+     /*if (!$payment_result['success']) {
+        wp_send_json_error(array(
+            'message' => $payment_result['message']
+        ));
+    } */
+    
     
     // Create order using existing function
-    $order_result = create_order_for_exist_user($plan_id, 'manual');
+    $order_result = create_order_for_exist_user($plan_id, 'manual', $coupon_id);
     
     if (is_wp_error($order_result)) {
         wp_send_json_error(array(
@@ -292,8 +330,18 @@ function ajax_process_certificate_purchase() {
         'amount'         => $total_amount,
         'status'         => 'llms-txn-succeeded',
         'payment_type'   => 'single',
-        'transaction_id' => 'manual-' . $completion_code . '-' . time(),
-        'gateway_source' => 'Manual Purchase Certificate',
+        'transaction_id' => 'manual-' . $completion_code . '-' . time(), //comment dòng này khi thực hiện transaction với authorize trên live.
+        'gateway_source' => 'Manual Purchase Certificate', //comment dòng này khi thực hiện transaction với authorize trên live.
+        
+        // khi test thì trên site thì commment out cái này
+        /* 'transaction_id' => $payment_result['transactionId'],  // ✅ TRANSACTION ID THẬT
+        'gateway_source' => 'Authorize.Net',
+        'gateway_source_description' => sprintf(
+            'Auth: %s | Account: %s (%s)',
+            $payment_result['authCode'],
+            $payment_result['accountNumber'],
+            $payment_result['accountType']
+        ) */
     ));
     
     // Start access and set order status
@@ -306,9 +354,20 @@ function ajax_process_certificate_purchase() {
         $completion_code,
         number_format($total_amount, 2)
     ));
+
+    //update payment gateway manually
+    update_post_meta($order->get('id'), '_llms_payment_gateway', 'Authorize.net');
+    //update ce hours
+    update_post_meta($order->get('id'), 'ce_discount_amount', $ce_discount_amount);
+
           
     // Award Certificate
-    $certificate_id = 159; // Certificate template ID
+    $certificate_id = cec_get_latest_certificate_id(); // Certificate template ID
+    if(!$certificate_id) {
+        wp_send_json_error(array(
+            'message' => 'Certificate template not found.'
+        ));
+    }
     $certificate_awarded = false;
     $completion_code_instance=get_completion_code($completion_code);
     if (class_exists('LLMS_Engagement_Handler')) {
@@ -413,3 +472,198 @@ add_action('llms_user_enrolled_in_course', function($user_id, $course_id) {
     
 }, 90, 2);
 
+
+
+// AJAX handler for updating price with discount code
+add_action('wp_ajax_update_purchase_price', 'handle_update_purchase_price');
+add_action('wp_ajax_nopriv_update_purchase_price', 'handle_update_purchase_price');
+
+function handle_update_purchase_price() {
+    // Verify nonce
+    check_ajax_referer('update_price_nonce', 'nonce');
+    
+    // Get parameters
+    $course_id = isset($_POST['course_id']) ? intval($_POST['course_id']) : 0;
+    $discount_code = isset($_POST['discount_code']) ? sanitize_text_field(trim($_POST['discount_code'])) : '';
+    $mail_certificate = isset($_POST['mail_certificate']) ? intval($_POST['mail_certificate']) : 0;
+    $user_id = get_current_user_id();
+    
+    // Validate course ID
+    if (!$course_id) {
+        wp_send_json_error(array(
+            'message' => 'Invalid course ID.'
+        ));
+    }
+    
+    // Get course and price info
+    $product = new LLMS_Product($course_id);
+    $plans = $product->get_access_plans();
+    
+    if (empty($plans)) {
+        wp_send_json_error(array(
+            'message' => 'No access plan found for this course.'
+        ));
+    }
+    
+    $plan = $plans[0];
+    $plan_id = $plan->get('id');
+    $base_price = floatval($plan->get('price'));
+    
+    // Initialize calculation variables
+    $ce_discount_percent = 0;
+    $ce_discount_amount = 0;
+    $coupon_discount_percent = 0;
+    $coupon_discount_amount = 0;
+    $coupon_id = 0;
+    $coupon_info = null;
+    
+    // Calculate CE Rewards discount (if user is logged in)
+    if ($user_id > 0) {
+        $ce_info = calculate_ce_rewards_discount($user_id);
+        $ce_discount_percent = $ce_info['discount'];
+        $ce_discount_amount = ($base_price * $ce_discount_percent) / 100;
+    }
+    
+    // Validate and calculate discount code
+    $coupon_validation_message = '';
+    if (!empty($discount_code)) {
+        $validation_result = validate_and_calculate_coupon(
+            $discount_code, 
+            $course_id, 
+            $plan_id, 
+            $base_price
+        );
+        
+        if ($validation_result['valid']) {
+            $coupon_id = $validation_result['coupon_id'];
+            $coupon_info = $validation_result['coupon_info'];
+            $coupon_discount_percent = $validation_result['discount_percent'];
+            $coupon_discount_amount = $validation_result['discount_amount'];
+            $coupon_validation_message = 'Coupon applied successfully!';
+        } else {
+            $coupon_validation_message = $validation_result['message'];
+        }
+    }
+    
+    // Calculate mail fee
+    $mail_fee = $mail_certificate ? 9.00 : 0.00;
+    
+    // Calculate final price
+    $total_discount_amount = $ce_discount_amount + $coupon_discount_amount;
+    $subtotal = $base_price - $total_discount_amount;
+    $final_price = max(0, $subtotal + $mail_fee);
+    
+    // Get currency
+    $currency = get_currency_of_llms();
+    $currency_sign = html_entity_decode($currency['sign']); // ← Thêm decode
+
+    
+    // Prepare response
+    wp_send_json_success(array(
+        'base_price' => $base_price,
+        'ce_discount_percent' => $ce_discount_percent,
+        'ce_discount_amount' => $ce_discount_amount,
+        'coupon_discount_percent' => $coupon_discount_percent,
+        'coupon_discount_amount' => $coupon_discount_amount,
+        'coupon_id' => $coupon_id,
+        'coupon_code' => $discount_code,
+        'coupon_valid' => !empty($coupon_id),
+        'coupon_message' => $coupon_validation_message,
+        'mail_fee' => $mail_fee,
+        'total_discount_amount' => $total_discount_amount,
+        'subtotal' => $subtotal,
+        'final_price' => $final_price,
+        'currency_sign' => $currency_sign,
+        'currency_code' => $currency['code'],
+        'formatted' => array(
+            'base_price' => $currency_sign . number_format($base_price, 2),
+            'ce_discount' => $currency_sign . number_format($ce_discount_amount, 2),
+            'coupon_discount' => $currency_sign .'-'. number_format($coupon_discount_amount, 2),
+            'mail_fee' => $currency_sign . number_format($mail_fee, 2),
+            'final_price' => $currency_sign . number_format($final_price, 2)
+        )
+    ));
+}
+
+function validate_and_calculate_coupon($coupon_code, $course_id, $plan_id, $base_price) {
+    // Get coupon by exact title
+    $coupon_post = get_llms_coupon_by_title_exact($coupon_code);
+    
+    if (!$coupon_post) {
+        return array(
+            'valid' => false,
+            'message' => 'Invalid coupon code.',
+            'coupon_id' => 0,
+            'discount_percent' => 0,
+            'discount_amount' => 0
+        );
+    }
+    
+    // Create LLMS_Coupon object
+    $coupon = new LLMS_Coupon($coupon_post->ID);
+    
+    // Validate coupon for this plan
+    $is_valid = $coupon->is_valid($plan_id);
+    
+    if ($is_valid !== true) {
+        // Get error message from validation
+        $error_message = 'This coupon cannot be used for this course.';
+        
+        if (is_string($is_valid)) {
+            $error_message = $is_valid;
+        } elseif (is_wp_error($is_valid)) {
+            $error_message = $is_valid->get_error_message();
+        }
+        
+        return array(
+            'valid' => false,
+            'message' => $error_message,
+            'coupon_id' => 0,
+            'discount_percent' => 0,
+            'discount_amount' => 0
+        );
+    }
+    
+    // Calculate discount
+    $discount_type = $coupon->get('discount_type'); // 'percent' or 'dollar'
+    $coupon_amount = floatval($coupon->get('coupon_amount'));
+    
+    $discount_amount = 0;
+    $discount_percent = 0;
+    
+    if ($discount_type === 'percent') {
+        $discount_percent = $coupon_amount;
+        $discount_amount = ($base_price * $coupon_amount) / 100;
+    } else {
+        // Dollar amount
+        $discount_amount = min($coupon_amount, $base_price);
+        $discount_percent = ($discount_amount / $base_price) * 100;
+    }
+    
+    return array(
+        'valid' => true,
+        'message' => 'Coupon applied successfully!',
+        'coupon_id' => $coupon_post->ID,
+        'coupon_info' => $coupon,
+        'discount_type' => $discount_type,
+        'discount_percent' => $discount_percent,
+        'discount_amount' => $discount_amount,
+        'coupon_amount' => $coupon_amount
+    );
+}
+
+
+//display custom fields for admin panel
+
+add_action('lifterlms_order_meta_box_after_payment_information', function($order) {
+   
+    $currency = get_currency_of_llms();
+    $ce_hours_discount = get_post_meta($order->get('id'), 'ce_discount_amount', true);
+    $final_total = floatval($order->get('total')) - floatval($ce_hours_discount);
+    if ($ce_hours_discount) {
+        echo '<div class="llms-order-meta-box-section">';     
+        echo '<p><strong>CE Hours Discount:</strong> ' . '-'. $currency['sign'].$ce_hours_discount . '</p>';
+        echo '<h4>Final Total: '. $currency['sign'].$final_total.'</h4>';
+        echo '</div>';
+    }
+});

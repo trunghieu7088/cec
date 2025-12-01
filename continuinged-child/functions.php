@@ -37,23 +37,23 @@ add_action( 'after_setup_theme', 'astra_child_setup' );
 
 //rewrite rule for quiz page
 function add_course_slug_query_var($vars) {
-    $vars[] = 'course_slug';
+    $vars[] = 'course_quiz_slug';
     return $vars;
 }
 add_filter('query_vars', 'add_course_slug_query_var');
 
-function add_course_slug_rewrite_rule() {    
+function add_course_quiz_slug_rewrite_rule() {    
     add_rewrite_rule(
-        '^quiz-page/([^/]+)/?$',
-        'index.php?pagename=quiz-page&course_slug=$matches[1]',
+        '^quiz-test/([^/]+)/?$',
+        'index.php?pagename=quiz-test&course_quiz_slug=$matches[1]',
         'top'
     );
 }
-add_action('init', 'add_course_slug_rewrite_rule');
+add_action('init', 'add_course_quiz_slug_rewrite_rule');
 
 
 function flush_rewrite_rules_on_theme_activation() {
-    add_course_slug_rewrite_rule();
+    add_course_quiz_slug_rewrite_rule();
     flush_rewrite_rules();
 }
 add_action('after_switch_theme', 'flush_rewrite_rules_on_theme_activation');
