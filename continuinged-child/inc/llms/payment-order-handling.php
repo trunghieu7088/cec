@@ -212,7 +212,7 @@ function ajax_process_certificate_purchase() {
         ));
     }
     
-       $user_id = get_current_user_id();
+    $user_id = get_current_user_id();
     $current_user = wp_get_current_user();
     
     // Get completion code from request
@@ -248,32 +248,113 @@ function ajax_process_certificate_purchase() {
     
     $course_id = intval($completion_record->course_id);
     
-    // Get course access plan
-    $course = llms_get_post($course_id);
-    if (!$course) {
-        wp_send_json_error(array(
-            'message' => 'Course not found.'
-        ));
-    }
+    // ========================================
+    // ✅ STEP 1: LẤY GIÁ GỐC TỪ DATABASE
+    // ========================================
     
-    // Get first access plan
-    $product = new LLMS_Product( $course_id );
+    $product = new LLMS_Product($course_id);
     $plans = $product->get_access_plans();
+    
     if (empty($plans)) {
         wp_send_json_error(array(
             'message' => 'No access plan found for this course.'
         ));
     }
     
-    $plan_id = $plans[0]->get('id'); // Get first plan ID
-
-
-       // Get payment data from Accept.js
+    $plan = $plans[0];
+    $plan_id = $plan->get('id');
+    $base_price = floatval($plan->get('price'));
+    
+    // ========================================
+    // ✅ STEP 2: TÍNH CE REWARDS DISCOUNT
+    // ========================================
+    
+    $ce_discount_amount = 0;
+    $ce_discount_percent = 0;
+    
+    $ce_info = calculate_ce_rewards_discount($user_id);
+    $ce_discount_percent = $ce_info['discount'];
+    $ce_discount_amount = ($base_price * $ce_discount_percent) / 100;
+    
+    // ========================================
+    // ✅ STEP 3: VALIDATE VÀ TÍNH COUPON DISCOUNT
+    // ========================================
+    
+    $coupon_id = isset($_POST['coupon_id']) ? intval($_POST['coupon_id']) : 0;
+    $discount_code = isset($_POST['discount_code']) ? sanitize_text_field(trim($_POST['discount_code'])) : '';
+    $coupon_discount_amount = 0;
+    $coupon_discount_percent = 0;
+    
+    if ($coupon_id > 0 && !empty($discount_code)) {
+        // Validate coupon ở server
+        $validation_result = validate_and_calculate_coupon(
+            $discount_code, 
+            $course_id, 
+            $plan_id, 
+            $base_price
+        );
+        
+        // Kiểm tra coupon_id có khớp không (tránh user gửi coupon_id khác)
+        if ($validation_result['valid'] && $validation_result['coupon_id'] == $coupon_id) {
+            $coupon_discount_amount = $validation_result['discount_amount'];
+            $coupon_discount_percent = $validation_result['discount_percent'];
+        } else {
+            wp_send_json_error(array(
+                'message' => 'Invalid or expired coupon code.'
+            ));
+        }
+    }
+    
+    // ========================================
+    // ✅ STEP 4: TÍNH MAIL FEE
+    // ========================================
+    
+    $mail_certificate = isset($_POST['mail_certificate']) ? intval($_POST['mail_certificate']) : 0;
+    $mail_fee = ($mail_certificate === 1) ? 9.00 : 0.00;
+    
+    // ========================================
+    // ✅ STEP 5: TÍNH TỔNG CUỐI CÙNG
+    // ========================================
+    
+    $total_discount_amount = $ce_discount_amount + $coupon_discount_amount;
+    $subtotal = $base_price - $total_discount_amount;
+    $final_amount = max(0, $subtotal + $mail_fee);
+    
+    // ========================================
+    // ⚠️ OPTIONAL: SO SÁNH VỚI GIÁ CLIENT GỬI
+    // ========================================
+    
+    $client_amount = isset($_POST['total_amount']) ? floatval($_POST['total_amount']) : 0;
+    if (abs($client_amount - $final_amount) > 0.01) {
+        error_log(sprintf(
+            "⚠️ PRICE MISMATCH - User ID: %d, Client: $%.2f, Server: $%.2f",
+            $user_id,
+            $client_amount,
+            $final_amount
+        ));
+        // Có thể gửi email cảnh báo cho admin hoặc block user
+    }
+    
+    // ========================================
+    // ✅ STEP 6: VALIDATE PAYMENT GATEWAY
+    // ========================================
+    
+    $credentials = authorizenet_get_credentials();
+    
+    if (empty($credentials['api_login_id']) || 
+        empty($credentials['transaction_key']) || 
+        empty($credentials['client_key'])) {
+        wp_send_json_error(array(
+            'message' => 'Payment gateway not configured properly. Please contact support.'
+        ));
+    }
+    
+    // ========================================
+    // ✅ STEP 7: PROCESS PAYMENT VỚI GIÁ SERVER
+    // ========================================
+    
     $payment_nonce = isset($_POST['payment_nonce']) ? sanitize_text_field($_POST['payment_nonce']) : '';
     $payment_value = isset($_POST['payment_value']) ? sanitize_text_field($_POST['payment_value']) : '';
-    $total_amount = isset($_POST['total_amount']) ? floatval($_POST['total_amount']) : 0;
-    $ce_discount_amount = isset($_POST['ce_discount_amount']) ? floatval($_POST['ce_discount_amount']) : 0;
-    $coupon_id = isset($_POST['coupon_id']) ? intval($_POST['coupon_id']) : 0;
     
     if (empty($payment_nonce) || empty($payment_value)) {
         wp_send_json_error(array(
@@ -290,29 +371,25 @@ function ajax_process_certificate_purchase() {
         'state' => get_user_meta($user_id, 'llms_billing_state', true) ?: 'NY',
         'zip' => get_user_meta($user_id, 'llms_billing_zip', true) ?: '10001'
     );
-
-    $credentials = authorizenet_get_credentials();
-
-     if (empty($credentials['api_login_id']) || 
-        empty($credentials['transaction_key']) || 
-        empty($credentials['client_key'])) {
-        
-        wp_send_json_error(array(
-            'message' => 'Payment gateway not configured properly. Please check Authorize.net settings.'
-        ));
-    }
     
-    // Process payment with Authorize.Net
-    //$payment_result = process_authorizenet_payment($payment_nonce, $payment_value, $total_amount, $user_data);
-
-     /*if (!$payment_result['success']) {
+    // ✅ CHARGE BẰNG GIÁ ĐÃ VALIDATE TỪ SERVER
+    $payment_result = process_authorizenet_payment(
+        $payment_nonce, 
+        $payment_value, 
+        $final_amount,  // ← Giá đã validate, không phải từ client
+        $user_data
+    );
+    
+    if (!$payment_result['success']) {
         wp_send_json_error(array(
             'message' => $payment_result['message']
         ));
-    } */
+    }
     
+    // ========================================
+    // ✅ STEP 8: CREATE ORDER
+    // ========================================
     
-    // Create order using existing function
     $order_result = create_order_for_exist_user($plan_id, 'manual', $coupon_id);
     
     if (is_wp_error($order_result)) {
@@ -323,80 +400,92 @@ function ajax_process_certificate_purchase() {
     
     $order = $order_result['order'];
     
-    // Record manual payment transaction
-    $total_amount = isset($_POST['total_amount']) ? floatval($_POST['total_amount']) : 0;
+    // ========================================
+    // ✅ STEP 9: RECORD TRANSACTION
+    // ========================================
     
     $order->record_transaction(array(
-        'amount'         => $total_amount,
+        'amount'         => $final_amount,  // ← Giá từ server
         'status'         => 'llms-txn-succeeded',
         'payment_type'   => 'single',
-        'transaction_id' => 'manual-' . $completion_code . '-' . time(), //comment dòng này khi thực hiện transaction với authorize trên live.
-        'gateway_source' => 'Manual Purchase Certificate', //comment dòng này khi thực hiện transaction với authorize trên live.
-        
-        // khi test thì trên site thì commment out cái này
-        /* 'transaction_id' => $payment_result['transactionId'],  // ✅ TRANSACTION ID THẬT
+        'transaction_id' => $payment_result['transactionId'],
         'gateway_source' => 'Authorize.Net',
         'gateway_source_description' => sprintf(
             'Auth: %s | Account: %s (%s)',
             $payment_result['authCode'],
             $payment_result['accountNumber'],
             $payment_result['accountType']
-        ) */
+        )
     ));
     
     // Start access and set order status
     $order->start_access();
     $order->set_status('active');
     
-    // Add order note
+    // ========================================
+    // ✅ STEP 10: ADD ORDER NOTES
+    // ========================================
+    
     $order->add_note(sprintf(
-        'Certificate purchased via completion code: %s. Amount: $%s',
+        'Certificate purchased via completion code: %s. Amount: $%s (Base: $%s, CE Discount: -%s%% = -$%s, Coupon: -%s%% = -$%s, Mail: $%s)',
         $completion_code,
-        number_format($total_amount, 2)
+        number_format($final_amount, 2),
+        number_format($base_price, 2),
+        $ce_discount_percent,
+        number_format($ce_discount_amount, 2),
+        $coupon_discount_percent,
+        number_format($coupon_discount_amount, 2),
+        number_format($mail_fee, 2)
     ));
-
-    //update payment gateway manually
+    
+    // Update payment gateway manually
     update_post_meta($order->get('id'), '_llms_payment_gateway', 'Authorize.net');
-    //update ce hours
+    
+    // Update CE hours discount for display in admin
     update_post_meta($order->get('id'), 'ce_discount_amount', $ce_discount_amount);
-
-          
-    // Award Certificate
-    $certificate_id = cec_get_latest_certificate_id(); // Certificate template ID
-    if(!$certificate_id) {
+    
+    // ========================================
+    // ✅ STEP 11: AWARD CERTIFICATE
+    // ========================================
+    
+    $certificate_id = cec_get_latest_certificate_id();
+    if (!$certificate_id) {
         wp_send_json_error(array(
             'message' => 'Certificate template not found.'
         ));
     }
+    
     $certificate_awarded = false;
-    $completion_code_instance=get_completion_code($completion_code);
+    $completion_code_instance = get_completion_code($completion_code);
+    
     if (class_exists('LLMS_Engagement_Handler')) {
         try {
-            $earned_certificate= LLMS_Engagement_Handler::handle_certificate(array(
+            $earned_certificate = LLMS_Engagement_Handler::handle_certificate(array(
                 $user_id,
                 $certificate_id,
                 $course_id,
                 null
             ));
-            $certificate_awarded = true;        
+            $certificate_awarded = true;
             
             if ($earned_certificate) {
                 update_post_meta($earned_certificate->get('id'), '_custom_completion_code', $completion_code);
                 update_post_meta($earned_certificate->get('id'), 'score_test', $completion_code_instance->score_test);
-             }
+            }
         } catch (Exception $e) {
             error_log('Certificate award error: ' . $e->getMessage());
         }
     }
     
-    // Mark completion code as converted
+    // ========================================
+    // ✅ STEP 12: MARK COMPLETION CODE AS USED
+    // ========================================
+    
     $wpdb->update(
         $table_name,
-        array(
-            'is_convert' => 1,           
-        ),
+        array('is_convert' => 1),
         array('completion_code' => $completion_code),
-        array('%d', '%d'),
+        array('%d'),
         array('%s')
     );
     
@@ -404,10 +493,12 @@ function ajax_process_certificate_purchase() {
     $cookie_name = 'completion_code_ck_' . $completion_code;
     setcookie($cookie_name, '', time() - 3600, '/');
     
-    // Get certificate URL (if available)
+    // ========================================
+    // ✅ STEP 13: GET CERTIFICATE URL
+    // ========================================
+    
     $certificate_url = '';
     if ($certificate_awarded) {
-        // Try to get the awarded certificate
         $earned_certificates = llms_get_certificate(array(
             'user_id' => $user_id,
             'post_id' => $course_id,
@@ -418,16 +509,27 @@ function ajax_process_certificate_purchase() {
         }
     }
     
-    // remove course from meta user for unpaid course list.
+    // Remove course from unpaid list
     remove_course_from_complete_not_paid($user_id, $completion_code);
-
-    // Send success response
+    
+    // ========================================
+    // ✅ STEP 14: SEND SUCCESS RESPONSE
+    // ========================================
+    
     wp_send_json_success(array(
         'message' => 'Certificate purchased successfully!',
         'order_id' => $order->get('id'),
+        'transaction_id' => $payment_result['transactionId'],
+        'amount_charged' => $final_amount,
+        'breakdown' => array(
+            'base_price' => $base_price,
+            'ce_discount' => $ce_discount_amount,
+            'coupon_discount' => $coupon_discount_amount,
+            'mail_fee' => $mail_fee,
+            'final_amount' => $final_amount
+        ),
         'certificate_awarded' => $certificate_awarded,
         'certificate_url' => $certificate_url,
-       // 'redirect_url' => $certificate_url ? $certificate_url : get_permalink(get_option('lifterlms_myaccount_page_id'))
         'redirect_url' => site_url('customer-account'),
     ));
 }
