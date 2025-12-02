@@ -48,8 +48,7 @@ function astra_child_enqueue_assets() {
         $credentials = authorizenet_get_credentials();
         $api_login_id = isset($credentials['api_login_id']) ? $credentials['api_login_id'] : '';
         $client_key = isset($credentials['client_key']) ? $credentials['client_key'] : '';
-        //$mode = isset($credentials['mode']) ? $credentials['mode'] : 'sandbox';
-        $mode='test';
+        $mode = isset($credentials['mode']) ? $credentials['mode'] : 'test';       
         
         // Enqueue Authorize.Net Accept.js
         if ($mode === 'live') {

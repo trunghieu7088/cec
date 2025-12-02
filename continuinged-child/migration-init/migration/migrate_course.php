@@ -9,8 +9,26 @@
 function migrate_courses_to_lifterlms() {
     global $wpdb;
     
+        $allowed_ids = [
+        163, 161, 50, 116, 149, 66, 130, 129, 160, 40,
+        145, 143, 142, 134, 133, 118, 117, 132, 110, 141,
+        89, 151, 162, 108, 90, 159, 82, 147, 144, 152,
+        83, 79, 155, 148, 146, 153, 154, 102, 97, 150,
+        76, 77, 84, 107, 114, 115, 78, 124, 101, 71
+    ];
+
+        $placeholders = str_repeat('%d,', count($allowed_ids));     // tạo chuỗi %d,%d,%d,...
+        $placeholders = rtrim($placeholders, ',');                 // bỏ dấu phẩy cuối
+
+        $sql = "SELECT * FROM courses WHERE `CourseId` IN ($placeholders) ORDER BY FIELD(`CourseId`, " . implode(',', $allowed_ids) . ")";
+
+        $old_courses = $wpdb->get_results( 
+            $wpdb->prepare( $sql, $allowed_ids ),   // truyền mảng $allowed_ids vào prepare
+            ARRAY_A 
+        );
+
     // Lấy tất cả courses từ bảng cũ
-    $old_courses = $wpdb->get_results("SELECT * FROM courses", ARRAY_A);
+    //$old_courses = $wpdb->get_results("SELECT * FROM courses", ARRAY_A);
     
     if (empty($old_courses)) {
         echo "Không tìm thấy course nào để migrate.\n";
@@ -22,6 +40,7 @@ function migrate_courses_to_lifterlms() {
     
     foreach ($old_courses as $course) {
         try {
+            WP_CLI::log("Bắt đầu migration.".$course['CourseId']);
             // Xác định post_status
             $post_status = (isset($course['real_status']) && strtolower($course['real_status']) === 'publish') 
                 ? 'publish' 
@@ -131,7 +150,7 @@ function migrate_courses_to_lifterlms() {
 
             //xử lý course plan
             create_course_access_plan( $post_id, $course['CoursePrice'], $course['CourseName'] );
-
+            
             $content_instance=create_content_course($post_id);
             import_create_single_choice_question( $content_instance['quiz_id'], $course['CourseId'] );
             
