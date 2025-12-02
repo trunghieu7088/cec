@@ -346,7 +346,7 @@ function ajax_process_certificate_purchase() {
     
     $credentials = authorizenet_get_credentials();
     
-    $skip_payment = isset($credentials['skip']) && $credentials['skip'] === 'skip';
+    $skip_payment = isset($credentials['skip']) && $credentials['skip'] == '1';
 
 
     if (!$skip_payment) {

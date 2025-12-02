@@ -390,6 +390,7 @@ jQuery(document).ready(function($) {
      * jQuery Validation Setup for Payment Form with Accept.js
      */
     if ($('#paymentForm').length) {
+
         $('#paymentForm').validate({
             rules: {
                 card_number: { required: true, creditcard: true },
@@ -414,7 +415,7 @@ jQuery(document).ready(function($) {
             errorPlacement: function(error, element) {
                 error.insertAfter(element);
             },
-            submitHandler: function(form) {
+            submitHandler: function(form) {                
                 processPaymentWithAcceptJs(form);
             }
         });

@@ -128,20 +128,6 @@ function purchase_certificate_shortcode($atts) {
             $final_price=$discount_info['final_price'];       
         }
     }
-
-    //test code coupon
-    $discount_code_single_id=11234;
-    $check_plan_id=13584;
-    $single_coupon = new LLMS_Coupon( $discount_code_single_id );
-    $validation_coupon = $single_coupon->is_valid( $discount_code_single_id );
-    if ( $validation_coupon === true ) {
-        echo 'coupon is valid';
-    }
-    else
-    {
-        echo 'ko xai dc giam gia';
-    }
-    //end test
     ob_start();
     ?>
     
@@ -505,6 +491,7 @@ function purchase_certificate_shortcode($atts) {
                     <h3><i class="bi bi-credit-card-fill me-2"></i>Payment Details</h3>
                 </div>
                 <div class="card-body">
+
                     <div class="payment-cards mb-3">
                         <span class="me-2">Credit/Debit cards accepted:</span>                       
                         <i class="bi bi-credit-card-fill text-primary" style="font-size: 1.5rem;"></i>
@@ -516,16 +503,17 @@ function purchase_certificate_shortcode($atts) {
                                 class="payment-form" 
                                 data-nonce="<?php echo wp_create_nonce('process_payment_nonce'); ?>"
                                 data-completion-code="<?php echo esc_attr($completion_code); ?>"
-                                data-course-id="<?php echo esc_attr($course_id); ?>">
+                                data-course-id="<?php echo esc_attr($course_id); ?>"
+                                data-logged-in="<?php echo is_user_logged_in() ? '1' : '0'; ?>">
                         <div class="row">
                             <div class="col-md-8 mb-3">
                                 <label for="card_number" class="form-label">Card Number <span class="required">*</span></label>
-                                <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                                <input <?php if(!is_user_logged_in()) echo 'disabled="disabled"' ?> type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" maxlength="19" required>
                             </div>
                             
                             <div class="col-md-2 mb-3">
                                 <label for="card_month" class="form-label">Expires <span class="required">*</span></label>
-                                <select class="form-select form-card-chooser" id="card_month" name="card_month" required>
+                                <select <?php if(!is_user_logged_in()) echo 'disabled="disabled"' ?> class="form-select form-card-chooser" id="card_month" name="card_month" required>
                                     <option value="">MM</option>
                                     <?php for($i = 1; $i <= 12; $i++): ?>
                                         <option value="<?php echo sprintf('%02d', $i); ?>"><?php echo sprintf('%02d', $i); ?></option>
@@ -535,7 +523,7 @@ function purchase_certificate_shortcode($atts) {
                             
                             <div class="col-md-2 mb-3">
                                 <label for="card_year" class="form-label">&nbsp;</label>
-                                <select class="form-select form-card-chooser" id="card_year" name="card_year" required>
+                                <select <?php if(!is_user_logged_in()) echo 'disabled="disabled"' ?> class="form-select form-card-chooser" id="card_year" name="card_year" required>
                                     <option value="">YYYY</option>
                                     <?php 
                                     $current_year = date('Y');
@@ -548,7 +536,7 @@ function purchase_certificate_shortcode($atts) {
 
                               <div class="col-md-4 mb-3">
                                 <label for="card_cvv" class="form-label">CVV <span class="required">*</span></label>
-                                <input type="text" class="form-control" id="card_cvv" name="card_cvv" placeholder="123" maxlength="4" required>                                
+                                <input <?php if(!is_user_logged_in()) echo 'disabled="disabled"' ?> type="text" class="form-control" id="card_cvv" name="card_cvv" placeholder="123" maxlength="4" required>                                
                             </div>
 
                             <!-- pass value from ajax -->
@@ -562,10 +550,13 @@ function purchase_certificate_shortcode($atts) {
                             <!-- end passs value from ajax -->
                             
                             <div class="col-md-12 mt-4">
-                                <button type="submit" class="btn btn-success btn-lg" id="purchase-btn">
+                                <button <?php if(!is_user_logged_in()) echo 'disabled="disabled"' ?> type="submit" class="btn btn-success btn-lg" id="purchase-btn">
                                     <i class="bi bi-lock-fill me-2"></i>Purchase Certificate</span>
                                 </button>
                             </div>
+                             <div class="col-md-12 mt-4">
+                                <?php if(!is_user_logged_in()) echo '<p class="text-default">* Please sign in or create an account to proceed the payment.</p>'; ?>
+                             </div>
                         </div>
                     </form>
                 </div>
@@ -823,6 +814,7 @@ function purchase_certificate_shortcode($atts) {
         .invalid-feedback.d-block {
             display: block;
         }
+    
     </style>
 
    
