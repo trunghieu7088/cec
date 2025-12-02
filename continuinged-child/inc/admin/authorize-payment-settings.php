@@ -54,7 +54,8 @@ class AuthorizeNet_Admin_Settings {
         $sanitized = array();
         
         // Sanitize mode
-        $sanitized['mode'] = (isset($input['mode']) && $input['mode'] === 'live') ? 'live' : 'test';        
+        $sanitized['mode'] = (isset($input['mode']) && $input['mode'] === 'live') ? 'live' : 'test';
+        $sanitized['skip'] = (isset($input['skip']) && $input['skip'] === 'skip') ? 'skip' : 'no';
 
         // Sanitize test credentials
         $sanitized['test_api_login_id'] = isset($input['test_api_login_id']) ? sanitize_text_field($input['test_api_login_id']) : '';
@@ -91,9 +92,9 @@ class AuthorizeNet_Admin_Settings {
         
         $options = get_option($this->option_name, array());
         $mode = isset($options['mode']) ? $options['mode'] : 'test';
-        
+        $skip = isset($options['skip']) ? $options['skip'] : 'no';
 
-        
+        var_dump($options);
         ?>
         <style>
                  .authnet-wrap {
@@ -279,7 +280,26 @@ class AuthorizeNet_Admin_Settings {
                         </span>
                     </div>
                 </div>
-               
+
+                    <!-- Skip Payment Toggle -->
+                <div class="authnet-mode-toggle">
+                    <div class="authnet-toggle-container">
+                        <span class="authnet-mode-label <?php echo $skip === 'skip' ? 'active' : ''; ?>">
+                           Requires Payment
+                        </span>
+                        <label class="authnet-toggle-switch">
+                            <input type="checkbox" 
+                                   name="<?php echo $this->option_name; ?>[skip]" 
+                                   value="skip" 
+                                   <?php checked($skip, 'skip'); ?>
+                                   id="skipPayment-mode-toggle">
+                            <span class="authnet-toggle-slider"></span>
+                        </label>
+                        <span class="authnet-mode-label <?php echo  $skip === 'skip' ? 'active' : ''; ?>">
+                            No Payment
+                        </span>
+                    </div>
+                </div>
                 
                 <!-- Test Credentials Panel -->
                 <div class="authnet-credentials-panel">
@@ -395,7 +415,8 @@ function authorizenet_get_credentials() {
         );
     } else {
         return array(
-            'mode' => 'test',            
+            'mode' => 'test',
+            'skip' => isset($options['skip']) ? $options['skip'] : 'no',
             'api_login_id' => isset($options['test_api_login_id']) ? $options['test_api_login_id'] : '',
             'transaction_key' => isset($options['test_transaction_key']) ? $options['test_transaction_key'] : '',
             'client_key' => isset($options['test_client_key']) ? $options['test_client_key'] : '',
