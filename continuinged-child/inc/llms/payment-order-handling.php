@@ -335,6 +335,9 @@ function ajax_process_certificate_purchase() {
             $final_amount
         ));
         // Có thể gửi email cảnh báo cho admin hoặc block user
+        wp_send_json_error(array(
+            'message' => 'Price validation failed. Please refresh the page and try again.'
+        ));
     }
     
     // ========================================
