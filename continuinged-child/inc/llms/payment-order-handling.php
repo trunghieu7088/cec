@@ -341,12 +341,17 @@ function ajax_process_certificate_purchase() {
     
     $credentials = authorizenet_get_credentials();
     
-    if (empty($credentials['api_login_id']) || 
-        empty($credentials['transaction_key']) || 
-        empty($credentials['client_key'])) {
-        wp_send_json_error(array(
-            'message' => 'Payment gateway not configured properly. Please contact support.'
-        ));
+    $skip_payment = isset($credentials['skip']) && $credentials['skip'] === 'skip';
+
+
+    if (!$skip_payment) {
+        if (empty($credentials['api_login_id']) || 
+            empty($credentials['transaction_key']) || 
+            empty($credentials['client_key'])) {
+            wp_send_json_error(array(
+                'message' => 'Payment gateway not configured properly. Please contact support.'
+            ));
+        }
     }
     
     // ========================================
@@ -356,34 +361,48 @@ function ajax_process_certificate_purchase() {
     $payment_nonce = isset($_POST['payment_nonce']) ? sanitize_text_field($_POST['payment_nonce']) : '';
     $payment_value = isset($_POST['payment_value']) ? sanitize_text_field($_POST['payment_value']) : '';
     
-    if (empty($payment_nonce) || empty($payment_value)) {
-        wp_send_json_error(array(
-            'message' => 'Payment information is missing.'
-        ));
-    }
-    
-    // Prepare user data for payment
-    $user_data = array(
-        'first_name' => $current_user->first_name ?: $current_user->display_name,
-        'last_name' => $current_user->last_name ?: '',
-        'address' => get_user_meta($user_id, 'llms_billing_address_1', true) ?: 'N/A',
-        'city' => get_user_meta($user_id, 'llms_billing_city', true) ?: 'N/A',
-        'state' => get_user_meta($user_id, 'llms_billing_state', true) ?: 'NY',
-        'zip' => get_user_meta($user_id, 'llms_billing_zip', true) ?: '10001'
-    );
-    
-    // ✅ CHARGE BẰNG GIÁ ĐÃ VALIDATE TỪ SERVER
-    $payment_result = process_authorizenet_payment(
-        $payment_nonce, 
-        $payment_value, 
-        $final_amount,  // ← Giá đã validate, không phải từ client
-        $user_data
-    );
-    
-    if (!$payment_result['success']) {
-        wp_send_json_error(array(
-            'message' => $payment_result['message']
-        ));
+    if (!$skip_payment) {
+
+            if (empty($payment_nonce) || empty($payment_value)) {
+                wp_send_json_error(array(
+                    'message' => 'Payment information is missing.'
+                ));
+            }
+            
+            // Prepare user data for payment
+            $user_data = array(
+                'first_name' => $current_user->first_name ?: $current_user->display_name,
+                'last_name' => $current_user->last_name ?: '',
+                'address' => get_user_meta($user_id, 'llms_billing_address_1', true) ?: 'N/A',
+                'city' => get_user_meta($user_id, 'llms_billing_city', true) ?: 'N/A',
+                'state' => get_user_meta($user_id, 'llms_billing_state', true) ?: 'NY',
+                'zip' => get_user_meta($user_id, 'llms_billing_zip', true) ?: '10001'
+            );
+            
+            // ✅ CHARGE BẰNG GIÁ ĐÃ VALIDATE TỪ SERVER
+            $payment_result = process_authorizenet_payment(
+                $payment_nonce, 
+                $payment_value, 
+                $final_amount,  // ← Giá đã validate, không phải từ client
+                $user_data
+            );
+            
+            if (!$payment_result['success']) {
+                wp_send_json_error(array(
+                    'message' => $payment_result['message']
+                ));
+            }
+    }else
+    {
+          $payment_result = array(
+            'success' => true,
+            'transactionId' => 'TEST-' . time() . '-' . $completion_code,
+            'authCode' => 'SKIP-AUTH',
+            'accountNumber' => 'XXXX',
+            'accountType' => 'TEST'
+        );
+        
+        error_log("⚠️ SKIP PAYMENT MODE - Order created without real payment for completion code: {$completion_code}");
     }
     
     // ========================================
@@ -403,19 +422,22 @@ function ajax_process_certificate_purchase() {
     // ========================================
     // ✅ STEP 9: RECORD TRANSACTION
     // ========================================
+
+      $transaction_note = $skip_payment 
+        ? '[TEST MODE - NO REAL PAYMENT]' 
+        : sprintf('Auth: %s | Account: %s (%s)',
+            $payment_result['authCode'],
+            $payment_result['accountNumber'],
+            $payment_result['accountType']
+        );
     
     $order->record_transaction(array(
         'amount'         => $final_amount,  // ← Giá từ server
         'status'         => 'llms-txn-succeeded',
         'payment_type'   => 'single',
         'transaction_id' => $payment_result['transactionId'],
-        'gateway_source' => 'Authorize.Net',
-        'gateway_source_description' => sprintf(
-            'Auth: %s | Account: %s (%s)',
-            $payment_result['authCode'],
-            $payment_result['accountNumber'],
-            $payment_result['accountType']
-        )
+        'gateway_source' => $skip_payment ? 'Test Mode (Skip Payment)' : 'Authorize.Net',
+        'gateway_source_description' => $transaction_note
     ));
     
     // Start access and set order status

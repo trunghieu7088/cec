@@ -55,7 +55,7 @@ class AuthorizeNet_Admin_Settings {
         
         // Sanitize mode
         $sanitized['mode'] = (isset($input['mode']) && $input['mode'] === 'live') ? 'live' : 'test';
-        $sanitized['skip'] = (isset($input['skip']) && $input['skip'] === 'skip') ? 'skip' : 'no';
+        $sanitized['skip'] = (isset($input['skip']) && $input['skip'] == '1') ? 1 : 0;
 
         // Sanitize test credentials
         $sanitized['test_api_login_id'] = isset($input['test_api_login_id']) ? sanitize_text_field($input['test_api_login_id']) : '';
@@ -92,9 +92,9 @@ class AuthorizeNet_Admin_Settings {
         
         $options = get_option($this->option_name, array());
         $mode = isset($options['mode']) ? $options['mode'] : 'test';
-        $skip = isset($options['skip']) ? $options['skip'] : 'no';
+        $skip = isset($options['skip']) ? $options['skip'] : 0;
 
-        var_dump($options);
+        //var_dump($options);        
         ?>
         <style>
                  .authnet-wrap {
@@ -284,21 +284,26 @@ class AuthorizeNet_Admin_Settings {
                     <!-- Skip Payment Toggle -->
                 <div class="authnet-mode-toggle">
                     <div class="authnet-toggle-container">
-                        <span class="authnet-mode-label <?php echo $skip === 'skip' ? 'active' : ''; ?>">
+                        <span class="authnet-mode-label <?php echo $skip == 0 ? 'active' : ''; ?>">
                            Requires Payment
                         </span>
                         <label class="authnet-toggle-switch">
                             <input type="checkbox" 
                                    name="<?php echo $this->option_name; ?>[skip]" 
-                                   value="skip" 
-                                   <?php checked($skip, 'skip'); ?>
+                                   value="1" 
+                                   <?php checked($skip, 1); ?>
                                    id="skipPayment-mode-toggle">
                             <span class="authnet-toggle-slider"></span>
                         </label>
-                        <span class="authnet-mode-label <?php echo  $skip === 'skip' ? 'active' : ''; ?>">
-                            No Payment
+                        <span class="authnet-mode-label <?php echo  $skip == 1 ? 'active' : ''; ?>">
+                            No Payment (only for testing)
                         </span>
                     </div>
+                    <?php if ($skip == 1): ?>
+                    <div class="authnet-notice" style="background: #fff3cd; border-color: #ffc107; margin-top: 15px;">
+                        <p><strong>⚠️ WARNING:</strong> Skip Payment mode is ENABLED. All orders will be created WITHOUT real payment processing. This should ONLY be used for testing!</p>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 
                 <!-- Test Credentials Panel -->
@@ -409,6 +414,7 @@ function authorizenet_get_credentials() {
     if ($mode === 'live') {
         return array(
             'mode' => 'live',
+             'skip' => 0,
             'api_login_id' => isset($options['live_api_login_id']) ? $options['live_api_login_id'] : '',
             'transaction_key' => isset($options['live_transaction_key']) ? $options['live_transaction_key'] : '',
             'client_key' => isset($options['live_client_key']) ? $options['live_client_key'] : '',
@@ -416,7 +422,7 @@ function authorizenet_get_credentials() {
     } else {
         return array(
             'mode' => 'test',
-            'skip' => isset($options['skip']) ? $options['skip'] : 'no',
+            'skip' => isset($options['skip']) ? intval($options['skip']) : 0,
             'api_login_id' => isset($options['test_api_login_id']) ? $options['test_api_login_id'] : '',
             'transaction_key' => isset($options['test_transaction_key']) ? $options['test_transaction_key'] : '',
             'client_key' => isset($options['test_client_key']) ? $options['test_client_key'] : '',
