@@ -280,15 +280,17 @@ function ajax_process_certificate_purchase() {
     // ✅ STEP 3: VALIDATE VÀ TÍNH COUPON DISCOUNT
     // ========================================
     
-    $coupon_id = isset($_POST['coupon_id']) ? intval($_POST['coupon_id']) : 0;
-    $discount_code = isset($_POST['discount_code']) ? sanitize_text_field(trim($_POST['discount_code'])) : '';
+    $coupon_id = isset($_POST['coupon_id']) ? intval($_POST['coupon_id']) : 0;    
+
+    $discount_code=get_post($coupon_id);
+
     $coupon_discount_amount = 0;
     $coupon_discount_percent = 0;
     
-    if ($coupon_id > 0 && !empty($discount_code)) {
+    if ($coupon_id > 0 && $discount_code) {
         // Validate coupon ở server
         $validation_result = validate_and_calculate_coupon(
-            $discount_code, 
+            $discount_code->post_title, 
             $course_id, 
             $plan_id, 
             $base_price
@@ -316,7 +318,7 @@ function ajax_process_certificate_purchase() {
     // ✅ STEP 5: TÍNH TỔNG CUỐI CÙNG
     // ========================================
     
-    $total_discount_amount = $ce_discount_amount + $coupon_discount_amount;
+    $total_discount_amount = $ce_discount_amount + $coupon_discount_amount;  
     $subtotal = $base_price - $total_discount_amount;
     $final_amount = max(0, $subtotal + $mail_fee);
     
@@ -465,6 +467,8 @@ function ajax_process_certificate_purchase() {
     
     // Update CE hours discount for display in admin
     update_post_meta($order->get('id'), 'ce_discount_amount', $ce_discount_amount);
+
+    update_post_meta($order->get('id'), 'mail_certificate_fee', $mail_fee);
     
     // ========================================
     // ✅ STEP 11: AWARD CERTIFICATE
@@ -783,10 +787,12 @@ add_action('lifterlms_order_meta_box_after_payment_information', function($order
    
     $currency = get_currency_of_llms();
     $ce_hours_discount = get_post_meta($order->get('id'), 'ce_discount_amount', true);
-    $final_total = floatval($order->get('total')) - floatval($ce_hours_discount);
+    $mail_fee = get_post_meta($order->get('id'), 'mail_certificate_fee', true);
+    $final_total = floatval($order->get( 'total' )) - floatval( $ce_hours_discount) + floatval($mail_fee);
     if ($ce_hours_discount) {
         echo '<div class="llms-order-meta-box-section">';     
-        echo '<p><strong>CE Hours Discount:</strong> ' . '-'. $currency['sign'].$ce_hours_discount . '</p>';
+        echo '<p><strong>Mail Fee:</strong> ' . $currency['sign'].$mail_fee . '</p>';
+        echo '<p><strong>CE Hours Discount:</strong> ' . '-'. $currency['sign'].$ce_hours_discount . '</p>';        
         echo '<h4>Final Total: '. $currency['sign'].$final_total.'</h4>';
         echo '</div>';
     }
