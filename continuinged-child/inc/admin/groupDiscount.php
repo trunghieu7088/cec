@@ -239,7 +239,7 @@ function llms_group_discount_meta_box_callback($post) {
                    step="0.01"
                    required
                    style="width: 150px;">
-            <span class="llms-gd-help">Maximum discount amount per code (e.g., 50.00)</span>
+            <span class="llms-gd-help">Maximum discount amount per code (e.g., 20.00)</span>
         </div>
         
         <div class="llms-gd-field">

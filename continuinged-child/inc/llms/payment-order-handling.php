@@ -719,6 +719,15 @@ function handle_update_purchase_price() {
 function validate_and_calculate_coupon($coupon_code, $course_id, $plan_id, $base_price) {
     // Get coupon by exact title
     $coupon_post = get_llms_coupon_by_title_exact($coupon_code);
+
+    if (!$coupon_post && function_exists('llms_auto_generate_discount_code')) {
+        // Thử auto-generate từ Group Discount template
+        $generated_coupon_id = llms_auto_generate_discount_code($coupon_code);
+        
+        if ($generated_coupon_id) {
+            $coupon_post = get_post($generated_coupon_id);
+        }
+    }
     
     if (!$coupon_post) {
         return array(
