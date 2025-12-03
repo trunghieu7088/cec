@@ -9,3 +9,4 @@ require('email_notification.php');
 require('rewards.php');
 require('authorize-payment-settings.php');
 require('control-course-transient.php');
+require('init-header-menu.php');
