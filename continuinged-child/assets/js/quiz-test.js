@@ -41,8 +41,11 @@ jQuery(document).ready(function($) {
         }
         
         // Disable tất cả radio buttons và nút submit
-$('input[type="radio"]').prop('disabled', true);
-$(this).find('button[type="submit"]').prop('disabled', true).text('Submitting...');
+        //$('input[type="radio"]').prop('disabled', true);
+        //$(this).find('button[type="submit"]').prop('disabled', true).text('Submitting...');
+
+        let $submitBtn = $(this).find('button[type="submit"]');
+        $submitBtn.prop('disabled', true).text('Submitting...');
         
 // Collect answers
 let answers = {};
@@ -138,14 +141,16 @@ $.ajax({
             
             // Show results
             $('#quiz-results').slideDown(500);
-            
+            $submitBtn.prop('disabled', false).html('<i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i>Submit Test');
+
+
             // Scroll to results
             $('html, body').animate({
                 scrollTop: $('#quiz-results').offset().top - 100
             }, 800);
             
             // Hide submit button
-            $("#submit-test-btn").hide();
+           /* $("#submit-test-btn").hide();
             
             // Add Retake button
             if (!$('.retake-button').length) {
@@ -153,7 +158,7 @@ $.ajax({
                     '<i class="bi bi-arrow-clockwise" style="margin-right: 0.5rem;"></i>Retake Test' +
                     '</button>';
                 $('.quiz-actions').append(retakeButton);
-            }
+            } */
             
         } else {
             alert('Error: ' + response.data.message);
@@ -173,6 +178,8 @@ $.ajax({
     });
     
     // Xử lý nút Retake Test
+    /* comment for not use anymore */
+    /*
     $(document).on('click', '.retake-button', function() {
         // Enable lại tất cả radio buttons
         $('input[type="radio"]').prop('disabled', false).prop('checked', false);
@@ -205,12 +212,24 @@ $.ajax({
             scrollTop: $('#quiz-form').offset().top - 100
         }, 500);
     });
+    */
+    /* comment for not use anymore */
+
     
-    // Hiệu ứng khi chọn đáp án (trước khi submit)
-    $('input[type="radio"]').on('change', function() {
+   $('input[type="radio"]').on('change', function() {
         let $question = $(this).closest('.quiz-question');
         // Reset border color khi đã chọn đáp án
         $question.css('border-color', '');
+        
+        // Reset feedback và border style khi thay đổi đáp án
+        $question.find('.question-feedback').slideUp().empty();
+        $question.css({
+            'border': '',
+            'border-radius': ''
+        });
+        
+        // Ẩn kết quả cũ khi user thay đổi đáp án
+        $('#quiz-results').slideUp();
     });
 
 });
