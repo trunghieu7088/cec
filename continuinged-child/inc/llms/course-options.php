@@ -177,14 +177,17 @@ function render_course_details_metabox($post) {
 }
 
 // Save data
-add_action('save_post_course', 'save_course_details_meta', 10, 2);
-function save_course_details_meta($post_id, $post) {
+//add_action('save_post_course', 'save_course_details_meta', 10, 3);
+function save_course_details_meta($post_id, $post,$update) {
     // Security checks
     if (!isset($_POST['course_details_nonce_field'])) return;
+    if (!$update) return;
     if (!wp_verify_nonce($_POST['course_details_nonce_field'], 'course_details_nonce')) return;
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
     
+    remove_action('save_post_course', 'save_course_details_meta', 10);
+
     // Save fields
     $fields = array(
         'course_introduction',
