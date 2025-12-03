@@ -100,6 +100,19 @@ function render_course_details_metabox($post) {
             <p class="description">Enter the update status</p>
         </div>
 
+        <!-- Category Order -->
+        <div class="editor-wrapper">
+            <label class="editor-label">Category Order:</label>
+            <input type="number" 
+                name="category_order" 
+                id="category_order" 
+                value="<?php echo esc_attr(get_post_meta($post->ID, '_category_order', true)); ?>" 
+                step="1" 
+                min="0"
+                style="width: 150px; padding: 8px; font-size: 14px;" />
+            <p class="description">Enter the order number for this course in category listing.</p>
+        </div>
+
         <!-- Introduction -->
         <div class="editor-wrapper">
             <label class="editor-label">Introduction:</label>
@@ -171,13 +184,16 @@ function render_course_details_metabox($post) {
             )); 
             ?>
         </div>
+
+
+          
     </div>
     
     <?php
 }
 
 // Save data
-//add_action('save_post_course', 'save_course_details_meta', 10, 3);
+add_action('save_post_course', 'save_course_details_meta', 10, 3);
 function save_course_details_meta($post_id, $post,$update) {
     // Security checks
     if (!isset($_POST['course_details_nonce_field'])) return;
@@ -197,7 +213,8 @@ function save_course_details_meta($post_id, $post,$update) {
         'llms_ce_hours',
         'course_copyright',
         'course_last_revised',
-        'status_update_label'
+        'status_update_label',
+        'category_order'
     );
     
     foreach($fields as $field) {
@@ -224,7 +241,7 @@ function display_course_custom_content() {
     $copyright = get_post_meta($course_id, '_course_copyright', true);    
     $last_revised = get_post_meta($course_id, '_course_last_revised', true);
     $update_status=get_post_meta($course_id, '_status_update_label', true);
-    
+    $category_order = get_post_meta($course_id, '_category_order', true);
 
     if (!$intro && !$objectives && !$outline && !$main) {
         return;
@@ -257,6 +274,13 @@ function display_course_custom_content() {
         echo '<div class="content-section">';
         echo '<h2>Update Status</h2>';
         echo '<p>' . esc_html($update_status) . '</p>';
+        echo '</div>';
+    }
+
+      if($category_order) {
+        echo '<div class="content-section">';
+        echo '<h2>Category Order</h2>';
+        echo '<p>' . esc_html($category_order) . '</p>';
         echo '</div>';
     }
     

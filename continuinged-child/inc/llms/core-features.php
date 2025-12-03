@@ -85,6 +85,27 @@ class MyLifterLMS_Courses {
             unset( $args['category_id'] ); // Remove from main args to avoid conflict
         }
 
+        //hanlde order category
+          if ( isset( $args['meta_key'] ) && $args['meta_key'] === '_category_order' ) {
+            $args['meta_query'] = array(
+                'relation' => 'OR',
+                array(
+                    'key'     => '_category_order',
+                    'compare' => 'EXISTS',
+                ),
+                array(
+                    'key'     => '_category_order',
+                    'compare' => 'NOT EXISTS',
+                ),
+            );
+            // Set orderby cho meta_query
+            $args['orderby'] = array(
+                'meta_value_num' => 'ASC',
+                'title'          => 'ASC', // Fallback nếu không có meta
+            );
+            unset($args['meta_key']); // Xóa để tránh conflict
+        }
+
         $course_ids = get_posts( $args );
         $courses    = array();
 
@@ -132,6 +153,7 @@ class MyLifterLMS_Courses {
             '_course_copyright',
             '_status_update_label',
             '_course_main_content',
+            '_category_order',
         );
 
         foreach ( $meta_keys as $key ) {

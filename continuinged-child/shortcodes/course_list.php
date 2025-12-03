@@ -50,6 +50,7 @@ function llms_custom_course_list_shortcode($atts) {
                     'posts_per_page' => 10,     
                     'orderby'        => 'title',  
                     'order'          => 'ASC', 
+                    'meta_key'       => '_category_order',
                 ) );
                     
                     if (! empty( $filtered_courses ) ) {
