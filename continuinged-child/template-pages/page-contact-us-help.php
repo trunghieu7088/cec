@@ -10,7 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 ?>
-
   <!-- Contact Section -->
     <section class="contact-section">
         <div class="container">

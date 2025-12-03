@@ -74,3 +74,4 @@ function get_llms_coupon_by_title_exact( $coupon_title ) {
 
     return $post ? $post : false;
 }
+
