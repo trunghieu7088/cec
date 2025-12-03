@@ -155,3 +155,102 @@ function rewards_custom_column_data( $column, $post_id ) {
     }
 }
 add_action( 'manage_rewards_posts_custom_column', 'rewards_custom_column_data', 10, 2 );
+
+
+// 6. Add submenu "Generate CE Rewards" under Rewards CPT
+function cer_add_generate_rewards_menu() {
+    add_submenu_page(
+        'edit.php?post_type=rewards',          // Parent menu slug
+        'Generate CE Rewards',                  // Page title
+        'Generate CE Rewards',                  // Menu title
+        'manage_options',                       // Capability
+        'generate-ce-rewards',                  // Menu slug
+        'cer_generate_rewards_page_callback'    // Callback function
+    );
+}
+add_action('admin_menu', 'cer_add_generate_rewards_menu');
+
+// 7. Page content + form
+function cer_generate_rewards_page_callback() {
+    // Only admins can access
+    if (!current_user_can('manage_options')) {
+        wp_die('You do not have sufficient permissions to access this page.');
+    }
+
+    // Handle form submission
+    if (isset($_POST['generate_ce_rewards']) && wp_verify_nonce($_POST['cer_nonce'], 'generate_ce_rewards')) {
+        cer_create_all_rewards();
+        echo '<div class="updated"><p>All 8 CE Rewards have been created/updated successfully!</p></div>';
+    }
+
+    ?>
+    <div class="wrap">
+        <h1>Generate CE Rewards™ Levels</h1>
+        <p>This tool will create (or update if titles match) all 8 reward tiers according to the official discount table.</p>
+
+        <form method="post">
+            <?php wp_nonce_field('generate_ce_rewards', 'cer_nonce'); ?>
+            <p>
+                <input type="submit" name="generate_ce_rewards" class="button button-primary button-large" value="Generate All 8 Reward Levels Now" />
+            </p>
+        </form>
+
+        <h2>Preview of what will be created:</h2>
+        <table class="widefat fixed" style="max-width:600px;">
+            <thead><tr><th>Title</th><th>From Hours</th><th>To Hours</th><th>Discount</th></tr></thead>
+            <tbody>
+                <tr><td>First Rank</td><td>1</td><td>10</td><td>0</td></tr>
+                <tr><td>Second Rank</td><td>11</td><td>20</td><td>5</td></tr>
+                <tr><td>Third Rank</td><td>21</td><td>40</td><td>10</td></tr>
+                <tr><td>Fourth Rank</td><td>41</td><td>80</td><td>15</td></tr>
+                <tr><td>Fifth Rank</td><td>81</td><td>150</td><td>20</td></tr>
+                <tr><td>Sixth Rank</td><td>151</td><td>300</td><td>25</td></tr>
+                <tr><td>Seventh Rank</td><td>301</td><td>500</td><td>30</td></tr>
+                <tr><td>Eighth Rank</td><td>501</td><td>999999</td><td>35</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <?php
+}
+
+// 8. Main function to create/update all rewards
+function cer_create_all_rewards() {
+    $levels = array(
+        array('title' => 'First Rank',   'from' => 1,    'to' => 10,   'discount' => 0),
+        array('title' => 'Second Rank',  'from' => 11,   'to' => 20,   'discount' => 5),
+        array('title' => 'Third Rank',   'from' => 21,   'to' => 40,   'discount' => 10),
+        array('title' => 'Fourth Rank',  'from' => 41,   'to' => 80,   'discount' => 15),
+        array('title' => 'Fifth Rank',   'from' => 81,   'to' => 150,  'discount' => 20),
+        array('title' => 'Sixth Rank',   'from' => 151,  'to' => 300,  'discount' => 25),
+        array('title' => 'Seventh Rank', 'from' => 301,  'to' => 500,  'discount' => 30),
+        array('title' => 'Eighth Rank',  'from' => 501,  'to' => 999999, 'discount' => 35),
+    );
+
+    foreach ($levels as $level) {
+        // Check if reward with this title already exists
+        $existing = get_page_by_title($level['title'], OBJECT, 'rewards');
+
+        $post_data = array(
+            'post_title'   => $level['title'],
+            'post_status'  => 'publish',
+            'post_type'    => 'rewards',
+        );
+
+        if ($existing) {
+            // Update existing
+            $post_data['ID'] = $existing->ID;
+            wp_update_post($post_data);
+            $post_id = $existing->ID;
+        } else {
+            // Create new
+            $post_id = wp_insert_post($post_data);
+        }
+
+        // Save meta fields (only numbers, no %)
+        if ($post_id && !is_wp_error($post_id)) {
+            update_post_meta($post_id, '_from_hours', $level['from']);
+            update_post_meta($post_id, '_to_hours',   $level['to']);
+            update_post_meta($post_id, '_discount',   $level['discount']);
+        }
+    }
+}
