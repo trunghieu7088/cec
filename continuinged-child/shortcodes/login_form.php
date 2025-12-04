@@ -21,75 +21,86 @@ function custom_login_form_shortcode($atts) {
     ob_start();
     ?>
     
-    <section class="contact-section">
+    <section class="login-section">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-lg-6">
-                    <div class="contact-form-card">
-                        <h3><i class="bi bi-person-circle me-2"></i>Customer Account</h3>
+                <div class="col-lg-6 col-md-8">
+                    <!-- Sử dụng 'content-card' để lấy style khung trắng đổ bóng -->
+                    <!-- Thêm 'fade-in visible' để có hiệu ứng xuất hiện -->
+                    <div class="content-card login-card-wrapper fade-in visible">
                         
-                        <div class="info-box mb-4">
-                            <p><i class="bi bi-info-circle-fill me-2"></i>
-                                Note: you don't need to create an account until after you have completed a course. 
+                        <!-- Tiêu đề sử dụng màu primary-blue -->
+                        <h3 class="login-title">
+                            <i class="bi bi-person-circle me-2"></i>Customer Account
+                        </h3>
+                        
+                        <!-- Sử dụng 'note-box' từ CSS Index Page cho phần lưu ý -->
+                        <div class="note-box mb-4">
+                            <p class="m-0">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                <strong>Note:</strong> You don't need to create an account until after you have completed a course. 
                                 <a href="<?php echo esc_url(home_url('/#course')); ?>">Click here</a> to begin taking a course.
                             </p>
                         </div>
 
                         <!-- Alert message container -->
-                        <div id="login-alert" class="alert" style="display: none;"></div>
+                        <div id="login-alert" class="alert alert-danger" style="display: none;"></div>
 
                         <form id="customLoginForm">
                             
                             <div class="mb-3">
                                 <label for="user_login" class="form-label">Username <span class="required">*</span></label>
                                 <input type="text" 
-                                       class="form-control" 
-                                       id="user_login" 
-                                       name="username" 
-                                       autocomplete="username"
-                                       placeholder="Enter your username">
+                                    class="form-control" 
+                                    id="user_login" 
+                                    name="username" 
+                                    autocomplete="username"
+                                    placeholder="Enter your username">
                                 <div class="invalid-feedback">Please enter your username.</div>
                             </div>
 
                             <div class="mb-3">
                                 <label for="user_pass" class="form-label">Password <span class="required">*</span></label>
                                 <input type="password" 
-                                       class="form-control" 
-                                       id="user_pass" 
-                                       name="password" 
-                                       autocomplete="current-password"
-                                       placeholder="Enter your password">
+                                    class="form-control" 
+                                    id="user_pass" 
+                                    name="password" 
+                                    autocomplete="current-password"
+                                    placeholder="Enter your password">
                                 <div class="invalid-feedback">Please enter your password.</div>
                             </div>
 
-                            <div class="mb-3 form-check">
+                            <div class="mb-4 form-check">
                                 <input type="checkbox" 
-                                       class="form-check-input" 
-                                       id="rememberme" 
-                                       name="rememberme" 
-                                       value="1">
+                                    class="form-check-input" 
+                                    id="rememberme" 
+                                    name="rememberme" 
+                                    value="1">
                                 <label class="form-check-label" for="rememberme">
                                     Remember Me
                                 </label>
                             </div>
 
+                            <!-- Sử dụng class 'btn-submit' từ CSS Contact Page -->
                             <div class="d-grid gap-2 mb-3">
-                                <button type="submit" class="btn btn-primary" id="loginBtn">
+                                <button type="submit" class="btn-submit" id="loginBtn">
                                     <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
                                 </button>
                             </div>
 
-                            <div class="text-center">
-                                <p class="mb-2 mt-4">
-                                    <a href="<?php echo get_custom_page_url_by_template('page-forgot-password.php'); ?>" class="text-decoration-none">
-                                        <i class="bi bi-key-fill me-1"></i>I have forgotten my username or password, help me retrieve it
+                            <div class="login-footer text-center">
+                                <p class="mb-3 mt-4">
+                                    <a href="<?php echo get_custom_page_url_by_template('page-forgot-password.php'); ?>" class="forgot-link">
+                                        <i class="bi bi-key-fill me-1"></i>I have forgotten my username or password
                                     </a>
                                 </p>
-                                <p class="text-muted small mt-4">
-                                    For additional help email 
-                                    <a href="mailto:CustomerService@ContinuingEdCourses.Net">CustomerService@ContinuingEdCourses.Net</a> 
-                                    or call 858-484-4304.
-                                </p>
+                                <div class="conflict-notice mt-4 text-start small-help">
+                                    <p class="mb-0">
+                                        For additional help email 
+                                        <a href="mailto:CustomerService@ContinuingEdCourses.Net">CustomerService@ContinuingEdCourses.Net</a> 
+                                        or call <strong>858-484-4304</strong>.
+                                    </p>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -98,7 +109,8 @@ function custom_login_form_shortcode($atts) {
         </div>
     </section>
 
-    <style>
+   <!--
+     <style>
         /* Additional styles for login form */
         #customLoginForm .form-check-input:checked {
             background-color: var(--primary-color);
@@ -174,7 +186,7 @@ function custom_login_form_shortcode($atts) {
             to { transform: rotate(360deg); }
         }
     </style>
-
+    -->
     <script type="text/javascript">
     jQuery(document).ready(function($) {
         'use strict';
@@ -241,7 +253,7 @@ function custom_login_form_shortcode($atts) {
         $('#customLoginForm').on('submit', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Form submitted');
+          //  console.log('Form submitted');
             // Validate form
             if (!validateForm()) {
                 showAlert('Please fill in all required fields.', 'warning');
@@ -255,7 +267,7 @@ function custom_login_form_shortcode($atts) {
             
             // Disable button and show loading
             var $btn = $('#loginBtn');
-            $btn.prop('disabled', true).addClass('loading');
+            $btn.prop('disabled', true).addClass('loading').html('<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>');
             $('#login-alert').fadeOut();
             
             // Ajax request
@@ -279,10 +291,11 @@ function custom_login_form_shortcode($atts) {
                         }, 1000);
                     } else {
                         showAlert(response.data.message, 'danger');
-                        $btn.prop('disabled', false).removeClass('loading');
+                        $btn.prop('disabled', false).removeClass('loading').html('<i class="bi bi-box-arrow-in-right me-2"></i>Sign In');
                         
                         // Mark fields as invalid
-                        $('#user_login, #user_pass').addClass('is-invalid');
+                       // $('#user_login, #user_pass').addClass('is-invalid');
+                       $('#user_login, #user_pass').removeClass('is-valid');
                     }
                 },
                 error: function(xhr, status, error) {

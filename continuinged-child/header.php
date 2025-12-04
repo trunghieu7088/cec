@@ -30,13 +30,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 <?php astra_body_top(); ?>
 <?php wp_body_open(); ?>
 
-<div id="page" class="hfeed site">
+<div id="page" class="hfeed site top-div-page">
 	<a class="skip-link screen-reader-text" href="#content"><?php echo esc_html__( 'Skip to content', 'astra-child' ); ?></a>
 
 	<?php astra_header_before(); ?>
 
+	  <!-- Top Bar Header -->
+    <div class="top-bar-header">
+        Courses for Mental Health Professionals
+    </div>
+
+
 	<!-- Custom Navigation -->
-	<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+	<nav class="navbar navbar-expand-lg navbar-dark top-navbar">
 		<div class="container">
 			<a class="navbar-brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
 				<?php 
@@ -44,12 +50,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				if($custom_logo_id)		
 				{
 					$logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
+					if($logo_url): ?>
+						<img src="<?php echo esc_url( $logo_url ); ?>" alt="<?php bloginfo( 'name' ); ?>">
+					<?php endif;
 				}
+				bloginfo( 'name' ); 
 				?>
-				<?php if($logo_url): ?>
-					<img src="<?php echo esc_url( $logo_url ); ?>">
-				<?php endif; ?>
-				<?php bloginfo( 'name' ); ?>
 			</a>
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
@@ -103,7 +109,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					)
 				);
 				?>
-				<!-- Search Icon -->
+				<!-- search icon -->
 				<li class="nav-item search-icon-wrapper">
 					<span class="search-icon" data-bs-toggle="modal" data-bs-target="#searchModal">
 						<i class="bi bi-search"></i>

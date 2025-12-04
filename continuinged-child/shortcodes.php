@@ -14,3 +14,8 @@ require('shortcodes/static-shortcodes/links.php');
 require('shortcodes/static-shortcodes/linkstous.php');
 require('shortcodes/static-shortcodes/policies.php');
 require('shortcodes/static-shortcodes/rewards.php');
+
+//other sections
+require('shortcodes/accreditation.php');
+require('shortcodes/contact_us_section.php');
+require('shortcodes/rewards_section.php');

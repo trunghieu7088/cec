@@ -1,6 +1,7 @@
 <?php
 require('hero-section.php');
-require('testimonial-section.php');
+require('accreditation-section.php');
+//require('testimonial-section.php');
 require('commons.php');
 require('user-extra-fields-handling.php');
 require('color-settings.php');

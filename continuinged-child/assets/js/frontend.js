@@ -42,6 +42,45 @@
 			$(this).find('.course-title').css('color', 'var(--primary-color)');
 		}
 	);
+
+	//effect code
+	            // Fade in animation on scroll
+            function checkFadeIn() {
+                $('.fade-in').each(function() {
+                    const elementTop = $(this).offset().top;
+                    const windowBottom = $(window).scrollTop() + $(window).height();
+                    
+                    if (windowBottom > elementTop + 50) {
+                        $(this).addClass('visible');
+                    }
+                });
+            }
+
+            // Initial check
+            checkFadeIn();
+
+            // Check on scroll
+            $(window).on('scroll', function() {
+                checkFadeIn();
+            });
+
+            // Step item click animation
+            $('.step-item').on('click', function() {
+                $(this).animate({
+                    opacity: 0.7
+                }, 100).animate({
+                    opacity: 1
+                }, 100);
+            });
+
+            // Accreditation item click animation
+            $('.accreditation-item').on('click', function() {
+                $(this).addClass('shadow-lg');
+                setTimeout(() => {
+                    $(this).removeClass('shadow-lg');
+                }, 300);
+            });
+
       
     });
 })(jQuery);

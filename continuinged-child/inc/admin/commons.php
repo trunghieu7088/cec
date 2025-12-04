@@ -15,6 +15,7 @@ function astra_child_footer_customizer( $wp_customize ) {
     ) );
     
     // Accreditation Title
+    /*
     $wp_customize->add_setting( 'accreditation_title', array(
         'default'           => 'Our Accreditations',
         'sanitize_callback' => 'sanitize_text_field',
@@ -200,14 +201,14 @@ $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'accr
         'label'   => __( 'Card 4 - Small Text', 'astra-child' ),
         'section' => 'footer_accreditation_section',
         'type'    => 'text',
-    ) );
+    ) ); */
     
     // ========================================
     // CONTACT SECTION
     // ========================================
     
     $wp_customize->add_section( 'footer_contact_section', array(
-        'title'    => __( 'Footer Contact Section', 'astra-child' ),
+        'title'    => __( 'Footer Section', 'astra-child' ),
         'priority' => 121,
     ) );
     
@@ -254,12 +255,23 @@ $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'accr
         'section' => 'footer_contact_section',
         'type'    => 'email',
     ) );
+
+        // Site Name for Copyright
+    $wp_customize->add_setting( 'footer_site_name', array(
+        'default'           => '© Copyright 2004-2025 by ContinuingEdCourses.Net, Inc. All rights reserved.',
+        'sanitize_callback' => 'sanitize_text_field',
+    ) );
+    $wp_customize->add_control( 'footer_site_name', array(
+        'label'   => __( 'Copyright Text', 'astra-child' ),
+        'section' => 'footer_contact_section',
+        'type'    => 'text',
+    ) );
     
     // ========================================
     // FOOTER COPYRIGHT
     // ========================================
     
-    $wp_customize->add_section( 'footer_copyright_section', array(
+ /*   $wp_customize->add_section( 'footer_copyright_section', array(
         'title'    => __( 'Footer Copyright', 'astra-child' ),
         'priority' => 122,
     ) );
@@ -270,13 +282,13 @@ $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'accr
         'sanitize_callback' => 'sanitize_text_field',
     ) );
     $wp_customize->add_control( 'footer_site_name', array(
-        'label'   => __( 'Site Name', 'astra-child' ),
+        'label'   => __( 'Copyright Text', 'astra-child' ),
         'section' => 'footer_copyright_section',
         'type'    => 'text',
-    ) );
+    ) ); */
     
     // Copyright Text
-    $wp_customize->add_setting( 'footer_copyright_text', array(
+  /*  $wp_customize->add_setting( 'footer_copyright_text', array(
         'default'           => 'All rights reserved.',
         'sanitize_callback' => 'sanitize_text_field',
     ) );
@@ -291,11 +303,11 @@ $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'accr
         'default'           => 'Regulatory boards are the final authority on courses accepted for continuing education credit.',
         'sanitize_callback' => 'sanitize_textarea_field',
     ) );
-    $wp_customize->add_control( 'footer_regulatory_text', array(
+   $wp_customize->add_control( 'footer_regulatory_text', array(
         'label'   => __( 'Regulatory Disclaimer', 'astra-child' ),
         'section' => 'footer_copyright_section',
         'type'    => 'textarea',
-    ) );
+    ) ); */
 
 
 }

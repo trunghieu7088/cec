@@ -49,11 +49,11 @@ function create_custom_static_pages() {
     // template_file_name là tên file trong thư mục templates-page, ví dụ: page-quiz.php
     $pages = array(
         // Các page cũ (giữ nguyên, không có template đặc biệt)
-        array('Links',          'links',        'custom_static_links',      null),
-        array('Links to Us',    'links-to-us',  'custom_static_linktous',   null),
-        array('Policies',       'policies',     'custom_static_policies',   null),
-        array('Rewards',        'rewards',      'custom_static_rewards',    null),
-        array('Approvals',      'approvals',    'custom_static_approvals',  null),
+        array('Links',          'links',        '[custom_static_links]',      null),
+        array('Links to Us',    'links-to-us',  '[custom_static_linktous]',   null),
+        array('Policies',       'policies',     '[custom_static_policies]',   null),
+        array('Rewards',        'rewards',      '[custom_static_rewards]',    null),
+        array('Approvals',      'approvals',    '[custom_static_approvals]',  null),
 
         // ================== CÁC PAGE MỚI YÊU CẦU THÊM ==================
         array('Quiz',                   'quiz',                 '',                     'page-quiz.php'),                    // Quiz page
@@ -66,6 +66,7 @@ function create_custom_static_pages() {
         array('Forgot Password',         'forgot-password',      '',                     'page-forgot-password.php'),         // Forgot password
         array('Quiz Test',               'quiz-test',            '',                     'page-quiz-test.php'),               // Bonus nếu bạn có
         array('Reset Password',          'reset-password',       '',                     'page-reset-password.php'),          // Reset password (nếu cần)        
+        array('Course List',            'course-list',       '',                     'page-course-listing.php'),              // Course Listing Page
     );
 
     $created = 0;
@@ -109,7 +110,7 @@ function create_custom_static_pages() {
             // Nếu page đã tồn tại, vẫn cố gắng cập nhật template (phòng trường hợp quên gán trước đó)
             $existing_page = get_page_by_path($slug);
             if ($existing_page && $template) {
-                update_post_meta($existing_page->ID, '_wp_page_template', $template);
+                update_post_meta($existing_page->ID, '_wp_page_template','template-pages/'. $template);
             }
             // Cũng cập nhật làm trang chủ nếu là home (an toàn khi chạy lại)
             if ($slug === 'home') {
