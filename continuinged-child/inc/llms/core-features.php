@@ -67,8 +67,8 @@ class MyLifterLMS_Courses {
         $default_args = array(
             'post_type'      => 'course',
             'post_status'    => 'publish',
-            'posts_per_page' => -1, // Get all courses by default
-            'fields'         => 'ids', // Get only IDs first for better performance, then fetch full data
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
         );
 
         $args = wp_parse_args( $args, $default_args );
@@ -82,12 +82,37 @@ class MyLifterLMS_Courses {
                     'terms'    => (array) $args['category_id'],
                 ),
             );
-            unset( $args['category_id'] ); // Remove from main args to avoid conflict
+            unset( $args['category_id'] );
         }
 
-        //hanlde order category
-          if ( isset( $args['meta_key'] ) && $args['meta_key'] === '_category_order' ) {
-            $args['meta_query'] = array(
+        // Initialize meta_query array
+        $meta_queries = array();
+
+        // Handle course_type filter for North Carolina courses
+        if ( isset( $args['course_type'] ) ) {
+            $course_type = $args['course_type'];
+            unset( $args['course_type'] );
+            
+            if ( $course_type === 'ncourse' ) {
+                // Filter for North Carolina courses
+                $meta_queries[] = array(
+                    'key'     => '_north_carolina_course',
+                    'value'   => '1',
+                    'compare' => '='
+                );
+            } elseif ( $course_type === 'course' ) {
+                // Filter for regular courses
+                $meta_queries[] = array(
+                    'key'     => '_north_carolina_course',
+                    'compare' => 'NOT EXISTS',
+                );
+            }
+        }
+
+        // Handle order category
+        if ( isset( $args['meta_key'] ) && $args['meta_key'] === '_category_order' ) {
+            // Thêm category_order query
+            $meta_queries[] = array(
                 'relation' => 'OR',
                 array(
                     'key'     => '_category_order',
@@ -98,16 +123,25 @@ class MyLifterLMS_Courses {
                     'compare' => 'NOT EXISTS',
                 ),
             );
-            // Set orderby cho meta_query
+            
             $args['orderby'] = array(
                 'meta_value_num' => 'ASC',
-                'title'          => 'ASC', // Fallback nếu không có meta
+                'title'          => 'ASC',
             );
-            unset($args['meta_key']); // Xóa để tránh conflict
+            unset($args['meta_key']);
+        }
+
+        // Set meta_query nếu có
+        if ( ! empty( $meta_queries ) ) {
+            $args['meta_query'] = $meta_queries;
+            // Chỉ set relation nếu có nhiều hơn 1 meta query
+            if ( count( $meta_queries ) > 1 ) {
+                $args['meta_query']['relation'] = 'AND';
+            }
         }
 
         $course_ids = get_posts( $args );
-        $courses    = array();
+        $courses = array();
 
         if ( ! empty( $course_ids ) ) {
             foreach ( $course_ids as $course_id ) {

@@ -14,8 +14,13 @@ function migrate_courses_to_lifterlms() {
         145, 143, 142, 134, 133, 118, 117, 132, 110, 141,
         89, 151, 162, 108, 90, 159, 82, 147, 144, 152,
         83, 79, 155, 148, 146, 153, 154, 102, 97, 150,
-        76, 77, 84, 107, 114, 115, 78, 124, 101, 71
+        76, 77, 84, 107, 114, 115, 78, 124, 101, 71, 156,157,158
     ];
+
+        //north carolina course ids
+        //$allowed_ids = [ 156,157,158]; 
+        
+
 
         $placeholders = str_repeat('%d,', count($allowed_ids));     // tạo chuỗi %d,%d,%d,...
         $placeholders = rtrim($placeholders, ',');                 // bỏ dấu phẩy cuối
@@ -108,6 +113,11 @@ function migrate_courses_to_lifterlms() {
                     $category_term = get_term_by('name', $cat_name, 'course_cat');
                     if ($category_term) {
                         $category_ids[] = $category_term->term_id;
+                    }
+                    //xử lý riêng cho nccourse ( north carolina course)
+                    if($cat_name=='ncourse')
+                    {
+                        update_post_meta($post_id,'_north_carolina_course',true);
                     }
                 }
                 

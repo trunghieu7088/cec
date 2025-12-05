@@ -12,7 +12,7 @@ function render_instructors_section() {
     
     <div class="container">
         <!-- Page Title -->
-        <div class="page-title-section fade-in">
+        <div class="page-title-section">
             <h1 class="page-title">Authors</h1>
         </div>
 
@@ -23,7 +23,7 @@ function render_instructors_section() {
             $current++;
         ?>
             <!-- Author Card -->
-            <div class="author-card fade-in clearfix">
+            <div class="author-card clearfix">
                 <h2 class="author-name" id="<?php echo esc_attr($instructor['user_login']); ?>">
                     <?php echo esc_html($instructor['display_name']); ?>
                     <?php if (!empty($instructor['degrees_certs'])): ?>

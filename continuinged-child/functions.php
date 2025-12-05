@@ -57,5 +57,3 @@ function flush_rewrite_rules_on_theme_activation() {
     flush_rewrite_rules();
 }
 add_action('after_switch_theme', 'flush_rewrite_rules_on_theme_activation');
-
-
