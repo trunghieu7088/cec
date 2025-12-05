@@ -55,45 +55,30 @@ function create_main_header_menu() {
 
         // Danh sách các page cần tạo/thêm
         $pages = array(
-            'Home'          => home_url('/'),
-            'Courses'       => '',
+          //  'Home'          => home_url('/'),
+            'Courses List'       => '',
             'Approvals'     => '',
+            'Author List'        => '',
             'Contact Us & Help' => '',
+            'Rewards' => '',
+            'Customer Account'=> '',
         );
 
         foreach ($pages as $title => $url) {
             // Kiểm tra page đã tồn tại chưa (theo title)
             $page = get_page_by_title_safe($title);
 
-            if (!$page) {
-                // Tạo page mới
-                $page_data = array(
-                    'post_title'   => $title,
-                    'post_status'  => 'publish',
-                    'post_type'    => 'page',
-                    'post_name'    => sanitize_title($title),
-                    'post_content' => '',
-                );
-                $page_id = wp_insert_post($page_data);
-
-                // Nếu là Home thì set làm trang chủ (static front page)
-                if ($title === 'Home') {
-                    update_option('show_on_front', 'page');
-                    update_option('page_on_front', $page_id);
-                }
-            } else {
-                $page_id = $page->ID;
-            }
-
-            // Thêm vào menu
-            wp_update_nav_menu_item($menu_id, 0, array(
+            if ($page) {
+                wp_update_nav_menu_item($menu_id, 0, array(
                 'menu-item-title'   => $title,
-                'menu-item-url'     => $url ? $url : get_permalink($page_id),
+                'menu-item-url'     => $url ? $url : get_permalink($page->ID),
                 'menu-item-status'  => 'publish',
                 'menu-item-type'    => 'post_type',
                 'menu-item-object'  => 'page',
-                'menu-item-object-id' => $page_id,
-            ));
+                'menu-item-object-id' => $page->ID,
+                ));
+            }            
+           
         }
 
         // Gán menu vào location "primary"

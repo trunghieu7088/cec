@@ -55,18 +55,18 @@ function create_custom_static_pages() {
         array('Rewards',        'rewards',      '[custom_static_rewards]',    null),
         array('Approvals',      'approvals',    '[custom_static_approvals]',  null),
 
-        // ================== CÁC PAGE MỚI YÊU CẦU THÊM ==================
-        array('Quiz',                   'quiz',                 '',                     'page-quiz.php'),                    // Quiz page
+        // ================== CÁC PAGE MỚI YÊU CẦU THÊM ==================       
         array('Contact Us & Help',       'contact-us-help',      '',                     'page-contact-us-help.php'),         // Contact us & help
         array('Home',                    'home',                 '',                     'page-home-custom.php'),             // Home page - full width custom
         array('Login',                   'login',                '',                     'page-login.php'),                   // Login page
         array('Purchase Certificate',    'purchase-certificate', '',                     'page-purchase-certificate.php'),    // Purchase certificate
         array('Author List',             'author-list',          '',                     'page-author-list.php'),             // Author list
-        array('Customer Account',         'customer-account',              '',             'page-account.php'),                 // Account customer
+        array('Customer Account',        'customer-account',              '',            'page-account.php'),                 // Account customer
         array('Forgot Password',         'forgot-password',      '',                     'page-forgot-password.php'),         // Forgot password
-        array('Quiz Test',               'quiz-test',            '',                     'page-quiz-test.php'),               // Bonus nếu bạn có
+        array('Quiz Test',               'quiz-test',            '',                     'page-quiz-test.php'),               // Quiz page
         array('Reset Password',          'reset-password',       '',                     'page-reset-password.php'),          // Reset password (nếu cần)        
-        array('Course List',            'course-list',       '',                     'page-course-listing.php'),              // Course Listing Page
+        array('Courses List',             'courses-list',       '',                     'page-course-listing.php'),              // Course Listing Page
+        array('NCourses List',             'ncourses-list',       '',                     'page-ncourse-listing.php'),              // Course Listing Page
     );
 
     $created = 0;
