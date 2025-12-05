@@ -34,7 +34,7 @@ function accreditation_section_shortcode($atts) {
     // Build the HTML output
     $output = '
     <div class="container mt-4">
-    <div class="content-card fade-in">
+    <div class="content-card">
         <h2 class="section-title">' . esc_html($section_title) . '</h2>
         <div class="accreditation-item">
             <p><strong>' . esc_html($apa_title) . '</strong> ' . esc_html($apa_description) . '</p>

@@ -108,7 +108,7 @@ function rewards_section_shortcode($atts) {
     // Build the HTML output
     $output = '
     <div class="container mt-2">
-    <div class="rewards-section fade-in">
+    <div class="rewards-section">
         <h2>' . esc_html($title) . '</h2>
         <p>' . esc_html($description_1) . '</p>
         <p>' . $paragraph_2 . '</p>

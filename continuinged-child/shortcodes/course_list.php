@@ -17,12 +17,12 @@ function llms_custom_course_list_shortcode($atts) {
         <h1 class="main-title mt-4">Courses</h1>
 
         <!-- Intro Box -->
-        <div class="intro-box fade-in">
+        <div class="intro-box">
             <p>ContinuingEdCourses.Net, Inc. is approved by the <a href="../accreditation.php">APA, ASWB, NBCC, and NYSED</a> as a provider of continuing education. Feel free to contact us if you have any questions at 858-484-4304 or <a href="mailto:Contact@ContinuingEdCourses.Net">Contact@ContinuingEdCourses.Net</a>. Although we may provide guidance, it is your responsibility to verify your continuing education requirements with your licensing board.</p>
         </div>
 
         <!-- Info Banner -->
-        <div class="info-banner fade-in">
+        <div class="info-banner">
             <h3>Click on a course to view it for free. You pay only after you pass the test.</h3>
         </div>
 
@@ -65,7 +65,7 @@ function llms_custom_course_list_shortcode($atts) {
                 if (!empty($filtered_courses)) {
                     ?>
                     <!-- <?php echo esc_html($category->name); ?> Category -->
-                    <div class="category-section fade-in">
+                    <div class="category-section">
                         <h2 class="category-header"><?php echo esc_html($category->name); ?></h2>
                         <div class="course-list">
                             <?php foreach($filtered_courses as $course_item): ?>

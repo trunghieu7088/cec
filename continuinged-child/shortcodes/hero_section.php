@@ -27,7 +27,7 @@ function hero_section_shortcode($atts) {
     $output = '
     <section id="home" class="hero">
         <div class="container">
-            <div class="header-section fade-in">
+            <div class="header-section">
                 <h1 class="main-title">' . esc_html($main_title) . '</h1>
                 
                 <div class="testimonial-box">
@@ -36,7 +36,7 @@ function hero_section_shortcode($atts) {
                 </div>
             </div>
             
-            <div class="content-card fade-in">
+            <div class="content-card">
                 <div class="intro-text">
                     <p>' . wp_kses_post($intro_text) . '</p>
                 </div>
