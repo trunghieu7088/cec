@@ -224,69 +224,164 @@ function cecontact_save_meta_data($post_id) {
 }
 add_action('save_post', 'cecontact_save_meta_data');
 
+
+/**
+ * Add "Settings" submenu under CE Contacts
+ */
+function cecontact_add_settings_submenu() {
+    add_submenu_page(
+        'edit.php?post_type=cecontact',
+        'CE Contact Settings',
+        'Settings',
+        'manage_options',
+        'cecontact-settings',
+        'cecontact_settings_page_callback'
+    );
+}
+add_action('admin_menu', 'cecontact_add_settings_submenu');
+
+/**
+ * Settings page - Form to enter up to 5 additional recipient emails
+ */
+function cecontact_settings_page_callback() {
+    // Save emails when form is submitted
+    if (isset($_POST['cecontact_save_emails']) && current_user_can('manage_options')) {
+        check_admin_referer('cecontact_save_emails_nonce');
+
+        $emails = array();
+        for ($i = 1; $i <= 5; $i++) {
+            $email = isset($_POST["additional_email_{$i}"]) ? sanitize_email($_POST["additional_email_{$i}"]) : '';
+            if ($email && is_email($email)) {
+                $emails[] = $email;
+            }
+        }
+        update_option('cecontact_additional_emails', $emails);
+
+        echo '<div class="updated notice is-dismissible"><p>Additional email addresses saved successfully!</p></div>';
+    }
+
+    $saved_emails = get_option('cecontact_additional_emails', array());
+    // Make sure we always have 5 fields (fill empty ones)
+    $saved_emails = array_pad((array)$saved_emails, 5, '');
+
+    ?>
+    <div class="wrap">
+        <h1>CE Contact Form – Notification Settings</h1>
+
+        <form method="post" action="">
+            <?php wp_nonce_field('cecontact_save_emails_nonce'); ?>
+
+            <table class="form-table" role="presentation">
+                <tr>
+                    <th scope="row">Main Admin Email</th>
+                    <td>
+                        <code><?php echo esc_html(get_option('admin_email')); ?></code>
+                        <p class="description">This email will <strong>always</strong> receive notifications (cannot be disabled).</p>
+                    </td>
+                </tr>
+
+                <?php for ($i = 1; $i <= 5; $i++): ?>
+                <tr>
+                    <th scope="row"><label for="additional_email_<?php echo $i; ?>">Additional Recipient <?php echo $i; ?></label></th>
+                    <td>
+                        <input 
+                            name="additional_email_<?php echo $i; ?>" 
+                            type="email" 
+                            id="additional_email_<?php echo $i; ?>" 
+                            value="<?php echo esc_attr($saved_emails[$i - 1] ?? ''); ?>" 
+                            class="regular-text" 
+                            placeholder="example<?php echo $i; ?>@yourdomain.com"
+                        >
+                    </td>
+                </tr>
+                <?php endfor; ?>
+            </table>
+
+            <p class="description">
+                Leave any field empty if you don't want to use it. Only valid email addresses will be saved.
+            </p>
+
+            <p class="submit">
+                <input type="submit" name="submit" id="submit" class="button button-primary" value="Save Additional Emails">
+                <input type="hidden" name="cecontact_save_emails" value="1">
+            </p>
+        </form>
+    </div>
+    <?php
+}
+
+
 /**
  * Handle AJAX contact form submission
  */
 function handle_contact_form_submission() {
-    // Verify nonce
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'contact_form_nonce')) {
         wp_send_json_error(array('message' => 'Security check failed.'));
         wp_die();
     }
 
-    // Sanitize and validate input
+    // Sanitize inputs
     $first_name = sanitize_text_field($_POST['firstName']);
-    $last_name = sanitize_text_field($_POST['lastName']);
-    $email = sanitize_email($_POST['email']);
-    $phone = sanitize_text_field($_POST['phone']);
-    $subject = sanitize_text_field($_POST['subject']);
-    $message = sanitize_textarea_field($_POST['message']);
+    $last_name  = sanitize_text_field($_POST['lastName']);
+    $email      = sanitize_email($_POST['email']);
+    $phone      = sanitize_text_field($_POST['phone']);
+    $subject    = sanitize_text_field($_POST['subject']);
+    $message    = sanitize_textarea_field($_POST['message']);
 
     // Validation
     if (empty($first_name) || empty($last_name) || empty($email) || empty($subject) || empty($message)) {
         wp_send_json_error(array('message' => 'Please fill in all required fields.'));
         wp_die();
     }
-
     if (!is_email($email)) {
         wp_send_json_error(array('message' => 'Please enter a valid email address.'));
         wp_die();
     }
 
-    // Create post
-    $post_data = array(
-        'post_title'    => $subject . ' - ' . $first_name . ' ' . $last_name,
-        'post_type'     => 'cecontact',
-        'post_status'   => 'publish',
-    );
-
-    $post_id = wp_insert_post($post_data);
+    // Create custom post
+    $post_id = wp_insert_post(array(
+        'post_title'  => $subject . ' - ' . $first_name . ' ' . $last_name,
+        'post_type'   => 'cecontact',
+        'post_status' => 'publish',
+    ));
 
     if ($post_id) {
-        // Save meta data
         update_post_meta($post_id, '_cecontact_first_name', $first_name);
-        update_post_meta($post_id, '_cecontact_last_name', $last_name);
-        update_post_meta($post_id, '_cecontact_email', $email);
-        update_post_meta($post_id, '_cecontact_phone', $phone);
-        update_post_meta($post_id, '_cecontact_subject', $subject);
-        update_post_meta($post_id, '_cecontact_message', $message);
-        update_post_meta($post_id,'_cecontact_status','pending');
+        update_post_meta($post_id, '_cecontact_last_name',  $last_name);
+        update_post_meta($post_id, '_cecontact_email',      $email);
+        update_post_meta($post_id, '_cecontact_phone',      $phone);
+        update_post_meta($post_id, '_cecontact_subject',    $subject);
+        update_post_meta($post_id, '_cecontact_message',    $message);
+        update_post_meta($post_id, '_cecontact_status',     'pending');
 
-        // Send notification email to admin (optional)
-        $admin_email = get_option('admin_email');
+        // === Send email to main admin + additional recipients ===
+        $main_admin_email = get_option('admin_email');
+        $additional_emails = get_option('cecontact_additional_emails', array());
+
+        $recipients = array($main_admin_email);
+        foreach ((array)$additional_emails as $e) {
+            if (is_email($e)) {
+                $recipients[] = $e;
+            }
+        }
+        $recipients = array_unique($recipients);
+
         $email_subject = 'New Contact Form Submission: ' . $subject;
-        $email_message = "New contact form submission:\n\n";
-        $email_message .= "Name: {$first_name} {$last_name}\n";
-        $email_message .= "Email: {$email}\n";
-        $email_message .= "Phone: {$phone}\n";
-        $email_message .= "Subject: {$subject}\n\n";
-        $email_message .= "Message:\n{$message}";
+        $email_body = "You have a new contact form message:\n\n";
+        $email_body .= "Name: {$first_name} {$last_name}\n";
+        $email_body .= "Email: {$email}\n";
+        $email_body .= "Phone: {$phone}\n";
+        $email_body .= "Subject: {$subject}\n\n";
+        $email_body .= "Message:\n{$message}\n\n";
+        //$email_body .= "View all messages: " . admin_url('edit.php?post_type=cecontact');
 
-        wp_mail($admin_email, $email_subject, $email_message);
+        $headers = array('Content-Type: text/plain; charset=UTF-8');
 
-        wp_send_json_success(array('message' => 'Thank you for your message! We will get back to you soon.'));
+        wp_mail($recipients, $email_subject, $email_body, $headers);
+
+        wp_send_json_success(array('message' => 'Thank you! Your message has been sent successfully.'));
     } else {
-        wp_send_json_error(array('message' => 'There was an error submitting your message. Please try again.'));
+        wp_send_json_error(array('message' => 'Something went wrong. Please try again.'));
     }
 
     wp_die();
