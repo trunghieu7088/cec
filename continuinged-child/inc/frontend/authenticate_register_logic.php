@@ -48,8 +48,7 @@ function purchase_signup_handler() {
     $city=$_POST['city'];
     $state=$_POST['state'];
     $phone=$_POST['phone'];
-    $newsletter=$_POST['newsletter'];
-    
+    $newsletter=$_POST['newsletter'];    
     // Validate
     if (username_exists($username)) {
         wp_send_json_error(array(
@@ -221,3 +220,19 @@ function update_user_password_handler() {
     ));
 }
 add_action('wp_ajax_update_user_password', 'update_user_password_handler');
+
+
+/**
+ * Force LifterLMS use custom username từ POST data
+ */
+function force_custom_username_for_llms($custom_username, $email) {
+    // Lấy username từ POST (chỉ trong context AJAX signup)
+    if (isset($_POST['username']) && !empty($_POST['username'])) {
+        $username = sanitize_user($_POST['username']);
+        if (!empty($username)) {
+            return $username;
+        }
+    }
+    return $custom_username;
+}
+add_filter('lifterlms_generate_username', 'force_custom_username_for_llms', 999, 2);

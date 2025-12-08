@@ -370,7 +370,7 @@ jQuery(document).ready(function($) {
                                     Reloading page...
                                 </div>
                             `);
-                            setTimeout(function() { location.reload(); }, 1500);
+                           // setTimeout(function() { location.reload(); }, 1500);
                         } else {
                             $btn.removeClass('loading').prop('disabled', false).html(originalHtml);
                             showFormError($form, response.data?.message || 'Registration failed. Please try again.');

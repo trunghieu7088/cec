@@ -615,7 +615,8 @@ function purchase_certificate_shortcode($atts) {
         }
 
         .purchase-card .card-header {
-            background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%);
+           /* background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%); */
+           background: var(--primary-blue);
             color: white;
             padding: 15px 20px;
         }
@@ -642,7 +643,7 @@ function purchase_certificate_shortcode($atts) {
         }
 
         .completion-code {
-            background: #4a90af;
+            background: var(--primary-blue);
             color: white;
             padding: 2px 8px;
             border-radius: 4px;
@@ -674,13 +675,14 @@ function purchase_certificate_shortcode($atts) {
 
         .price-breakdown .total-row td {
             padding: 15px 5px;
-            border-top: 2px solid #2c5f7c;
+            /*border-top: 2px solid #2c5f7c; */
+            border-top: 2px solid var(--primary-hover);
             border-bottom: none;
         }
 
         .section-title {
             font-size: 1.1rem;
-            color: #2c5f7c;
+            color: var(--primary-blue);
             margin-bottom: 20px;
             padding-bottom: 10px;            
         }
@@ -736,21 +738,23 @@ function purchase_certificate_shortcode($atts) {
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%);
+          /*  background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%); */
+            background: var(--primary-blue);
             border: none;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #3d7a94 0%, #234d65 100%);
+          /*  background: linear-gradient(135deg, #3d7a94 0%, #234d65 100%); */
+          background: var(--primary-hover);
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); 
             border: none;
         }
 
         .btn-success:hover {
-            background: linear-gradient(135deg, #218838 0%, #19692c 100%);
+            background: linear-gradient(135deg, #218838 0%, #19692c 100%); 
         }
 
         .alert {
