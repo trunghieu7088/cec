@@ -25,13 +25,32 @@ body {
 }
 /* Top Bar Header */
 .top-bar-header {
-    background-color: #ccffff;
-    padding: 12px 0;
-    text-align: center;
+    background-color: #ccffff;        
     color: #000000;
-    font-weight: 500;
-    font-size: 1.5rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.top-bar-header-component
+{
+    padding:5px 0px;
+}
+.top-bar-header-component p
+{
+    margin:0px;
+    font-size: 1.3rem;
+    font-weight: 500;
+}
+.cec-main-logo
+{
+    width:300px !important;
+}
+@media (max-width: 576px) {
+    .top-bar-header-component
+    {
+        flex-direction: column;
+        gap:10px;
+        text-align: center;
+    }
+    
 }
 
 /* Header Menu / Navigation */
@@ -599,10 +618,24 @@ body {
           border-radius: 50%;
           object-fit: cover;
           border: 4px solid var(--primary-blue);
-          margin: 0 auto 20px;
+         /* margin: 0 auto 20px; */
           display: block;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
+        .instructor-images-course-detail
+        {
+            display: flex;
+            justify-content:center;
+            align-items: center;            
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+@media screen and (max-width: 480px) {
+    .instructor-images-course-detail
+    {
+        flex-wrap: wrap;
+    }
+}
 
 /* Action Buttons - Course Detail */
 .action-buttons {

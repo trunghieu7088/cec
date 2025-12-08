@@ -37,14 +37,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	  <!-- Top Bar Header -->
     <div class="top-bar-header">
-        Courses for Mental Health Professionals
+		<div class="top-bar-header-component container d-flex align-items-center justify-content-between">
+			<div class="main-logo-wrapper">
+			<img src="<?php echo get_stylesheet_directory_uri().'/assets/images/true-site-logo.png'; ?>" class="cec-main-logo" alt="Main Logo">
+			</div>
+        	<p>Courses for Mental Health Professionals</p>
+		</div>		
     </div>
 
 
 	<!-- Custom Navigation -->
 	<nav class="navbar navbar-expand-lg navbar-dark top-navbar">
 		<div class="container">
-			<a class="navbar-brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
+			<!--<a class="navbar-brand" href="<?php echo esc_url( home_url( '/' ) ); ?>">
 				<?php 
 				$custom_logo_id = get_theme_mod( 'custom_logo' );		
 				if($custom_logo_id)		
@@ -56,17 +61,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 				}
 				bloginfo( 'name' ); 
 				?>
-			</a>
+			</a> -->
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-			<div class="collapse navbar-collapse" id="navbarNav">
+			<div class="collapse navbar-collapse justify-content-center" id="navbarNav">
 				<?php
 				wp_nav_menu(
 					array(
 						'theme_location' => 'primary',
 						'container'      => false,
-						'menu_class'     => 'navbar-nav ms-auto',
+						'menu_class'     => 'navbar-nav',
 						'fallback_cb'    => '__return_false',
 						'items_wrap'     => '<ul id="%1$s" class="%2$s">%3$s</ul>',
 						'depth'          => 2,
