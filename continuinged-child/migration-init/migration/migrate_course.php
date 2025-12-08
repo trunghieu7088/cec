@@ -56,12 +56,13 @@ function migrate_courses_to_lifterlms() {
                 : current_time('mysql');
             
             // Tạo course post
-            $post_data = array(
+            $post_data = array(                
                 'post_title'    => $course['CourseName'],
                 'post_type'     => 'course',
                 'post_status'   => $post_status,
                 'post_date'     => $post_date,
                 'post_date_gmt' => get_gmt_from_date($post_date),
+                'post_author' =>1,
             );
             
             $post_id = wp_insert_post($post_data, true);
