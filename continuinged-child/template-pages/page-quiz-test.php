@@ -33,6 +33,15 @@ if (!$course_data) {
 $course_title = $course_data['post_title'];
 $copyright_info = $course_data['coursecopyright'] ?? '';
 $instructors = $course_data['instructors'] ?? array();
+$ce_hours = $course_data['ce_hours'] ?? '';
+$price = $course_data['price'] ?? '';
+$last_revised = $course_data['last_revised'] ?? '';
+
+// Get author list page URL
+$author_list_page_url = get_custom_page_url_by_template('page-author-list.php');
+
+// Get quiz page URL
+$quiz_page = get_custom_page_url_by_template('page-quiz-test.php');
 
 // Get quiz questions
 $course_data_manager = CourseLessonData::get_instance();
@@ -44,47 +53,54 @@ if (!$question_list) {
 $quiz_nonce = wp_create_nonce('quiz_submit_nonce');
 
 get_header();
+
 ?>
 
 <!-- Course Header -->
-<section class="course-header">
+<section class="container course-header" style="padding:20px;">
     <div class="container">
-        <h1><?php echo esc_html($course_title); ?> - Test</h1>
-        <div class="course-meta">
-            <?php if (!empty($instructors)): ?>
-            <div class="meta-item">
-                <i class="bi bi-person"></i>
-                <span>
-                    <?php 
-                    $instructor_names = array();
-                    foreach ($instructors as $instructor) {
-                        $degrees = !empty($instructor['llms_degrees_certs']) ? ', ' . $instructor['llms_degrees_certs'] : '';
-                        $instructor_names[] = $instructor['display_name'] . $degrees;
-                    }
-                    echo esc_html(implode(' & ', $instructor_names));
-                    ?>
-                </span>
+        <h1 class="course-title"><?php echo esc_html($course_title); ?> - Test</h1>
+        
+        <?php if (!empty($instructors)): ?>
+            <p class="course-author">
+                by 
+                <?php 
+                $instructor_links = array();
+                foreach ($instructors as $instructor) {
+                    $degrees = !empty($instructor['llms_degrees_certs']) ? ', ' . $instructor['llms_degrees_certs'] : '';
+                    $instructor_links[] = '<strong><a style="text-decoration:underline;" href="' . esc_url($author_list_page_url . '#' . $instructor['user_login']) . '">' . 
+                                         esc_html($instructor['display_name'] . $degrees) . '</a></strong>';
+                }
+                echo implode(' & ', $instructor_links);
+                ?>
+            </p>
+        <?php endif; ?>
+        
+        <?php if (!empty($instructors)): ?>
+            <div class="instructor-images-course-detail">
+            <?php foreach ($instructors as $instructor): ?>
+                <img src="<?php echo esc_url($instructor['avatar']); ?>" 
+                     alt="<?php echo esc_attr($instructor['display_name']); ?>" 
+                     class="author-image-course-detail">
+            <?php endforeach; ?>
             </div>
-            <?php endif; ?>
-            
-            <div class="meta-item">
-                <i class="bi bi-question-circle"></i>
-                <span><?php echo count($question_list); ?> Questions</span>
-            </div>
+        <?php endif; ?>
+        
+        <div class="course-info-box">
+            <h3>Test Information</h3>
+            <p><?php echo count($question_list). ' Questions, No Time Limit, Can Retake '; ?></p>           
+        </div>    
+    </div>
+     <div class="action-buttons">
+            <a href="<?php echo get_permalink($course_id); ?>" class="btn-custom">Back to Course</a>
+            <a href="#start-course-test" class="btn-custom">Start the Test</a>
+            <a href="#" class="btn-custom">Print Certificate</a>
         </div>
-    </div>
-</section>
-
-<!-- Breadcrumb -->
-<section class="breadcrumb-section">
-    <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="<?php echo esc_url(home_url('/')); ?>">Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page"><?php echo esc_html($course_title); ?></li>                
-            </ol>
-        </nav>
-    </div>
+         <?php if ($copyright_info): ?>
+        <p style="text-align: center; font-size: 0.9rem; color: #666; margin-top: 10px;">
+            <?php echo wp_kses_post($copyright_info); ?>
+        </p>
+        <?php endif; ?>
 </section>
 
 <!-- Quiz Content -->
@@ -92,10 +108,10 @@ get_header();
     <div class="container">
         <div class="row">
             <!-- Main Content -->
-            <div class="col-lg-8">
+            <div class="col-lg-12">
                 <!-- Important Notice -->
-                <div class="content-section" style="background: #fff3cd; border-left: 4px solid #ffc107;">
-                    <p style="margin-bottom: 0; color: #856404;">
+                <div class="content-section note-section">
+                    <p>
                         <i class="bi bi-info-circle" style="margin-right: 0.5rem;"></i>
                         <strong>Please note:</strong> Printing this page does not constitute proof of completion of the course. After successfully completing this test, you may purchase the course and print your Certificate of Completion immediately, print it later, or have it mailed to you.
                     </p>
@@ -105,7 +121,7 @@ get_header();
                 <form id="quiz-form" class="content-section">
                     <input type="hidden" id="course-id" value="<?php echo esc_attr($course_id); ?>">
                     <input type="hidden" id="quiz-nonce" value="<?php echo esc_attr($quiz_nonce); ?>">
-                    <h2><i class="bi bi-pencil-square" style="margin-right: 0.5rem;"></i>Course Test</h2>
+                    <h2 id="start-course-test" class="mb-4"><i class="bi bi-pencil-square" style="margin-right: 0.5rem;"></i>Course Test</h2>
                     
                     <?php foreach ($question_list as $index => $question): ?>
                     <div class="quiz-question" data-question-id="<?php echo esc_attr($question['question_id']); ?>">
@@ -143,10 +159,10 @@ get_header();
                     </div>
                     <?php endforeach; ?>
                     
-                    <div class="quiz-actions">
-                        <button type="submit" id="submit-test-btn" class="btn-enroll" style="max-width: 300px;">
+                    <div class="quiz-actions mb-4">
+                        <button type="submit" id="submit-test-btn" class="btn-custom" style="max-width: 300px;">
                             <i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i>
-                            Submit Test
+                            Score the Test
                         </button>
                     </div>
                     
@@ -167,84 +183,6 @@ get_header();
                         </div>
                     </div>
                 </form>
-
-                <?php if ($copyright_info): ?>
-                <!-- Copyright Section -->
-                <div class="content-section">
-                    <h2>Copyright Information</h2>
-                    <div class="references">
-                        <?php echo wp_kses_post($copyright_info); ?>
-                    </div>
-                </div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <div class="sidebar">
-                    <?php if (!empty($instructors)): ?>
-                    <!-- Authors -->
-                    <div class="sidebar-card">
-                        <h3>About the <?php echo count($instructors) > 1 ? 'Authors' : 'Author'; ?></h3>
-                        <?php foreach ($instructors as $index => $instructor): 
-                            $author_list_page_url = get_custom_page_url_by_template('page-author-list.php');
-                        ?>
-                        <div class="about-author-wrapper">
-                            <a href="<?php echo $author_list_page_url.'#'.$instructor['user_login']; ?>">     
-                                <div class="img-wrapper">                            
-                                    <img src="<?php echo esc_url($instructor['avatar']); ?>" 
-                                    alt="<?php echo esc_attr($instructor['display_name']); ?>">
-                                </div>                                                                                                                                         
-                            </a>
-                            <div class="author-info">
-                                <p>
-                                    <a href="<?php echo $author_list_page_url.'#'.$instructor['user_login']; ?>">
-                                        <strong>
-                                            <?php echo esc_html($instructor['display_name']); ?>
-                                            <?php if (!empty($instructor['llms_degrees_certs'])): ?>, 
-                                                <?php echo esc_html($instructor['llms_degrees_certs']); ?>
-                                            <?php endif; ?>
-                                        </strong>
-                                    </a>
-                                    <?php if (!empty($instructor['llms_instructor_bio'])): ?>
-                                     <?php echo wp_strip_all_tags(wp_trim_words($instructor['llms_instructor_bio'],30,'..')); ?>
-                                    <?php endif; ?>
-                                </p>
-                            </div>
-                        </div>
-                        <?php endforeach; ?>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Test Info -->
-                    <div class="sidebar-card">
-                        <h3><i class="bi bi-info-circle" style="margin-right: 0.5rem;"></i>Test Information</h3>
-                        <ul>
-                            <li><i class="bi bi-question-circle"></i> <?php echo count($question_list); ?> Questions</li>                            
-                            <li><i class="bi bi-clock"></i> No Time Limit</li>
-                            <li><i class="bi bi-arrow-clockwise"></i> Can Retake</li>
-                        </ul>
-                    </div>
-
-                    <!-- Quick Tips -->
-                    <div class="sidebar-card" style="background: #e3f2fd; border-left-color: var(--secondary-color);">
-                        <h3><i class="bi bi-lightbulb" style="margin-right: 0.5rem;"></i>Test Tips</h3>
-                        <ul style="list-style: none; padding: 0;">
-                            <li style="padding: 0.5rem 0; border: none;">
-                                <i class="bi bi-check2" style="color: var(--accent-color); margin-right: 0.5rem;"></i>
-                                Read each question carefully
-                            </li>
-                            <li style="padding: 0.5rem 0; border: none;">
-                                <i class="bi bi-check2" style="color: var(--accent-color); margin-right: 0.5rem;"></i>
-                                Select only one answer per question
-                            </li>
-                            <li style="padding: 0.5rem 0; border: none;">
-                                <i class="bi bi-check2" style="color: var(--accent-color); margin-right: 0.5rem;"></i>
-                                Review all answers before submitting
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
