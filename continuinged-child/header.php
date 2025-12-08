@@ -39,9 +39,28 @@ if ( ! defined( 'ABSPATH' ) ) {
     <div class="top-bar-header">
 		<div class="top-bar-header-component container d-flex align-items-center justify-content-between">
 			<div class="main-logo-wrapper">
-			<img src="<?php echo get_stylesheet_directory_uri().'/assets/images/true-site-logo.png'; ?>" class="cec-main-logo" alt="Main Logo">
+			<?php 
+			$custom_logo_id = get_theme_mod( 'custom_logo' );		
+			if($custom_logo_id)		
+			{
+					$logo_url = wp_get_attachment_image_url( $custom_logo_id, 'full' );
+					if($logo_url): ?>
+						<img src="<?php echo esc_url( $logo_url ); ?>" class="cec-main-logo" alt="<?php bloginfo( 'name' ); ?>">											
+					<?php endif;
+			}		
+			else
+			{
+				?>
+				 <img src="<?php echo get_stylesheet_directory_uri().'/assets/images/true-site-logo.png'; ?>" class="cec-main-logo" alt="<?php bloginfo( 'name' ); ?>"> 
+				<?php
+			}							
+			?>			
 			</div>
-        	<p>Courses for Mental Health Professionals</p>
+        	<p>
+				<?php  $site_tagline = get_bloginfo('description') ? get_bloginfo('name') : 'Courses for Mental Health Professionals'; 			
+						echo esc_html($site_tagline);
+				?>
+			</p>
 		</div>		
     </div>
 
