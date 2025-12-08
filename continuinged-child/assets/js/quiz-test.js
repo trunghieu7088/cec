@@ -113,10 +113,10 @@ $.ajax({
             let statusHtml = '';
             
             if (data.is_passed) {
-                statusHtml = '<div class="pass-status" style="background: rgba(40, 167, 69, 0.2); padding: 1.5rem; border-radius: 10px; margin-top: 1.5rem;">' +
-                    '<i class="bi bi-check-circle-fill" style="font-size: 3rem; color: #28a745; margin-bottom: 1rem; display: block;"></i>' +
-                    '<h4 style="color: #28a745; margin: 0;">PASSED!</h4>' +
-                    '<p style="margin: 0.5rem 0 0 0;">Congratulations! You have successfully passed this test.</p>';
+                statusHtml = '<div class="pass-status pass-status-quizTest">' +
+                    '<i class="bi bi-check-circle-fill"></i>' +
+                    '<h4>PASSED!</h4>' +
+                    '<p>Congratulations! You have successfully passed this test.</p>';
                 
                 if (data.completion_code && data.print_certificate_url) {
                     statusHtml += '<div class="completion-code-display" style="background: #d4edda; padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 2px solid #28a745;">' +
@@ -126,10 +126,10 @@ $.ajax({
                 
                 statusHtml += '</div>';
             } else {
-                statusHtml = '<div class="fail-status" style="background: rgba(220, 53, 69, 0.2); padding: 1.5rem; border-radius: 10px; margin-top: 1.5rem;">' +
-                    '<i class="bi bi-x-circle-fill" style="font-size: 3rem; color: #dc3545; margin-bottom: 1rem; display: block;"></i>' +
-                    '<h4 style="color: #dc3545; margin: 0;">NOT PASSED</h4>' +
-                    '<p style="margin: 0.5rem 0 0 0;">You need at least 75% to pass. Please review the material and try again.</p>' +
+                statusHtml = '<div class="fail-status fail-status-quizTest">' +
+                    '<i class="bi bi-x-circle-fill"></i>' +
+                    '<h4>NOT PASSED</h4>' +
+                    '<p>You need at least 75% to pass. Please review the material and try again.</p>' +
                     '</div>';
             }
             
@@ -141,7 +141,7 @@ $.ajax({
             
             // Show results
             $('#quiz-results').slideDown(500);
-            $submitBtn.prop('disabled', false).html('<i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i>Submit Test');
+            $submitBtn.prop('disabled', false).html('<i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i>Score the Test');
 
 
             // Scroll to results
@@ -164,7 +164,7 @@ $.ajax({
             alert('Error: ' + response.data.message);
             // Re-enable form
             $('input[type="radio"]').prop('disabled', false);
-            $('#quiz-form button[type="submit"]').prop('disabled', false).text('Submit Test');
+            $('#quiz-form button[type="submit"]').prop('disabled', false).text('<i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i>Score the Test');
         }
     },
     error: function(xhr, status, error) {
@@ -172,7 +172,7 @@ $.ajax({
         alert('An error occurred while submitting the quiz. Please try again.');
         // Re-enable form
         $('input[type="radio"]').prop('disabled', false);
-        $('#quiz-form button[type="submit"]').prop('disabled', false).text('Submit Test');
+        $('#quiz-form button[type="submit"]').prop('disabled', false).text('<i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i>Score the Test');
     }
 });
     });
@@ -230,6 +230,18 @@ $.ajax({
         
         // Ẩn kết quả cũ khi user thay đổi đáp án
         $('#quiz-results').slideUp();
+    });
+
+    $("#trigger-score-the-test").click(function(e){
+         $("#trigger-score-the-test").blur();
+        e.preventDefault();
+        e.stopImmediatePropagation();      
+
+        //auto click 
+        setTimeout(function() {                         
+            $('#submit-test-btn').trigger('click');                   
+        }, 500);
+
     });
 
 });
