@@ -10,178 +10,199 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 ?>
-  <!-- Contact Section -->
-    <section class="contact-section">
-        <div class="container">
-            <div class="row">
-                <!-- Contact Information -->
-                <div class="col-lg-4 mb-4">
-                    <div class="contact-info-card">
-                        <h3>Get in Touch</h3>
-                        
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bi bi-telephone-fill"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h5>Phone</h5>
-                                <p><a href="tel:858-842-4100">858-842-4100</a></p>
-                                <small class="text-muted">Monday - Friday, 9am - 5pm PST</small>
-                            </div>
-                        </div>
+<style>
+    
+    .accordion-button:hover {
+       color: var(--primary-blue);
+        background-color: #e6fcfc; 
+    }
+</style>
+<div class="container mb-5">
+    
+    <!-- Page Header -->
+    <div class="header-section text-center fade-in">
+        <h1 class="main-title">Contact Us</h1>
+        <p class="text-muted mt-2 mb-0">We are here to help you with any questions or suggestions.</p>
+    </div>
 
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bi bi-envelope-fill"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h5>Email</h5>
-                                <p><a href="mailto:Contact@SocialWorkCoursesOnline.com">Contact@SocialWorkCoursesOnline.com</a></p>
-                                <small class="text-muted">We typically respond within 24 hours</small>
-                            </div>
-                        </div>
-
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bi bi-clock-fill"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h5>Business Hours</h5>
-                                <p>Monday - Friday<br>9:00 AM - 5:00 PM PST</p>
-                            </div>
-                        </div>
-
-                        <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bi bi-question-circle-fill"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h5>Support</h5>
-                                <p>Have questions about our courses or need technical support? We're here to help!</p>
-                            </div>
-                        </div>
-                         <div class="contact-item">
-                            <div class="contact-icon">
-                                <i class="bi bi-question-circle-fill"></i>
-                            </div>
-                            <div class="contact-details">
-                                <h5>Other contact info</h5>
-                               <div class="d-flex flex-column">
-                                    <span>Gary Samad, Chief Executive Officer.</span>
-                                    <span>Rosalie Easton, Ph.D., Advisory Board Chair.</span>
-                                    <span>Randy Kasper, LCSW, BCD, Ph.D., Advisory Board Member.</span>
-                                    <span>Ruth Samad, Ph.D., Program Administrator.</span>
-                               </div>
-                                        
-                                   
-                            </div>
+    <div class="row g-4 fade-in">
+        
+        <!-- Left Column: Contact Info & Content -->
+        <!-- Left Column: Contact Info & Content -->
+            <div class="col-lg-6">
+                <div class="content-card">
+                    <h2 class="section-heading"><i class="bi bi-info-circle-fill"></i> Contact Information</h2>
+                    
+                    <!-- Address -->
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="bi bi-geo-alt-fill"></i></div>
+                        <div>
+                            <strong>ContinuingEdCourses.Net, Inc.</strong><br>
+                            12842 Francine Ct.<br>
+                            Poway, CA 92064
                         </div>
                     </div>
-                </div>
 
-                <!-- Contact Form -->
-                <div class="col-lg-8">
-                    <div class="contact-form-card">
-                        <h3>Send Us a Message</h3>
-                        
-                        <div class="info-box">
-                            <p><i class="bi bi-info-circle-fill me-2"></i>Please fill out the form below and we'll get back to you as soon as possible. Fields marked with <span class="required">*</span> are required.</p>
+                    <!-- Phone -->
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="bi bi-telephone-fill"></i></div>
+                        <div>
+                            <strong>Phone:</strong><br>
+                            858-484-4304
                         </div>
+                    </div>
 
-                        <form id="contactForm">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="firstName" class="form-label">First Name <span class="required">*</span></label>
-                                    <input type="text" class="form-control" id="firstName" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="lastName" class="form-label">Last Name <span class="required">*</span></label>
-                                    <input type="text" class="form-control" id="lastName" required>
-                                </div>
-                            </div>
+                    <!-- Email -->
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="bi bi-envelope-fill"></i></div>
+                        <div>
+                            <strong>General Inquiries:</strong><br>
+                            <a href="mailto:Contact@ContinuingEdCourses.Net" class="contact-link">Contact@ContinuingEdCourses.Net</a>
+                        </div>
+                    </div>
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="email" class="form-label">Email Address <span class="required">*</span></label>
-                                    <input type="email" class="form-control" id="email" required>
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone">
-                                </div>
-                            </div>
+                    <div class="contact-item">
+                        <div class="contact-icon"><i class="bi bi-pc-display"></i></div>
+                        <div>
+                            <strong>Website Problems:</strong><br>
+                            <span class="text-muted">Found a bug?</span> <a href="mailto:Contact@ContinuingEdCourses.Net" class="contact-link">Email our Webmaster</a>
+                        </div>
+                    </div>
 
-                            <div class="mb-3">
-                                <label for="subject" class="form-label">Subject <span class="required">*</span></label>
-                                <input type="text" class="form-control" id="subject" name="subject" required>
-                            </div>
+                    <hr class="my-4" style="opacity: 0.1">
 
-                            <div class="mb-3">
-                                <label for="message" class="form-label">Message <span class="required">*</span></label>
-                                <textarea class="form-control" id="message" rows="6" required></textarea>
-                            </div>
+                    <!-- Opportunities Section -->
+                    <h2 class="section-heading"><i class="bi bi-lightbulb-fill"></i> Opportunities</h2>
+                    
+                    <div class="highlight-box">
+                        <span class="highlight-title">Prospective Authors</span>
+                        <p class="small mb-2">Interested in publishing a course? Please email us with your CV, phone number, and proposal. Courses must be post-doctoral level.</p>
+                        <a href="mailto:Contact@ContinuingEdCourses.Net" class="small contact-link"><i class="bi bi-file-earmark-arrow-up"></i> Submit Proposal</a> &nbsp;|&nbsp; 
+                        <a href="CourseProposal.docx" class="small contact-link"><i class="bi bi-download"></i> Download Form</a>
+                    </div>
 
+                    <div class="highlight-box" style="background-color: #fff9e6; border-color: #ffcc00;">
+                        <span class="highlight-title" style="color: #997a00;">Course Suggestions</span>
+                        <p class="small mb-1">Have a topic request? Take our survey to provide suggestions.</p>
+                        <a href="survey.php" class="small" style="color: #997a00; font-weight:600;">Take Survey &rarr;</a>
+                    </div>
 
-                            <div class="d-grid gap-2 d-md-block">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="bi bi-send-fill me-2"></i>Send Message
+                    <!-- Accordion for Secondary Info (Team & Policies) -->
+                    <div class="accordion mt-4" id="infoAccordion">
+                        <!-- Team -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTeam">
+                                    Our Team
                                 </button>
+                            </h2>
+                            <div id="collapseTeam" class="accordion-collapse collapse" data-bs-parent="#infoAccordion">
+                                <div class="accordion-body small">
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="mb-2"><strong>Gary Samad</strong>, Chief Executive Officer</li>
+                                        <li class="mb-2"><strong>Rosalie Easton, Ph.D.</strong>, Advisory Board Chair</li>
+                                        <li class="mb-2"><strong>Randy Kasper, LCSW, BCD, Ph.D.</strong>, Advisory Board Member</li>
+                                        <li><strong>Ruth Samad, Ph.D.</strong>, Program Administrator</li>
+                                    </ul>
+                                </div>
                             </div>
-
-                            <div id="formMessage" class="mt-3"></div>
-                        </form>
+                        </div>
+                        <!-- Policies -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePolicies">
+                                    Policies & Procedures
+                                </button>
+                            </h2>
+                            <div id="collapsePolicies" class="accordion-collapse collapse" data-bs-parent="#infoAccordion">
+                                <div class="accordion-body small">
+                                    <div class="d-flex flex-wrap gap-3">
+                                        <a href="<?php echo site_url('policies'); ?>#privacy-policy" class="contact-link">Privacy Policy</a>
+                                        <a href="<?php echo site_url('policies'); ?>#refund-policy" class="contact-link">Refund Policy</a>
+                                        <a href="<?php echo site_url('policies'); ?>#complaint-procedure" class="contact-link">Complaint Procedure</a>
+                                        <a href="<?php echo site_url('policies'); ?>#ada-accommodations" class="contact-link">ADA Accommodations</a>
+                                        <a href="<?php echo site_url('policies'); ?>#conflict-of-interest" class="contact-link">Conflict of Interest</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                         <!-- Other Links -->
+                         <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLinks">
+                                    Resources
+                                </button>
+                            </h2>
+                            <div id="collapseLinks" class="accordion-collapse collapse" data-bs-parent="#infoAccordion">
+                                <div class="accordion-body small">
+                                    <a href="<?php echo site_url('links'); ?>" class="contact-link">View useful links and resources</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
             </div>
 
-            <!-- Additional Information -->
-            <div class="row mt-5">
-                <div class="col-12">
-                    <div class="contact-info-card">
-                        <h3><i class="bi bi-lightbulb-fill text-warning me-2"></i>Frequently Asked Questions</h3>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <h5 class="text-default">What credit cards do you accept?</h5>
-                                <p class="text-muted">We accept Mastercard, Visa, American Express, and Discover. We also accept checks or money orders.</p>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <h5 class="text-default">How quickly can I get my certificate of completion?</h5>
-                                <p class="text-muted">After passing the test and paying with a credit card, you can print your certificate immediately. For an additional fee we will print your certificate and mail it to you.</p>
-                            </div>                          
-                            <div class="col-md-6 mb-3">
-                                <h5 class="text-default">Are your courses really free?</h5>
-                                <p class="text-muted">You may view our courses for free. After you have taken the test and received a score of 75% or better you may purchase the course and print your Certificate of Completion. We will maintain records of your course completion for at least five years.</p>
-                            </div>
-                             <div class="col-md-6 mb-3">
-                                <h5 class="text-default">Can I copy your courses and give them to my friends?</h5>
-                                <p class="text-muted">All of our courses are copyrighted. We encourage you to email links to our courses to your colleagues. You may not make copies of our courses for commercial purposes without prior written approval.</p>
-                            </div>
 
-                              <div class="col-md-12 mb-3">
-                                <h5 class="text-default">I don't want to provide my credit card number over the Internet. What should I do?</h5>
-                                <p class="text-muted">Our purchasing process is secure. We use encryption between your computer and our servers to keep your credit card information from prying eyes. We never permanently store your credit card number; after the transaction is complete, we erase your credit card number from our site.</p>
-                                <p class="text-muted">If you are still uneasy about submitting your credit card number over the Internet, you may fill out the form on the Purchase Certificate page, print it, and either call us or mail the form with your credit card information or a check. (See the ContactUs page for our mailing address and phone number.) Please be sure to include your name, address, phone number, course Completion Code, credit card number, and expiration date. We will email or call you back once your transaction is complete.</p>
+        <!-- Right Column: Contact Form -->
+        <div class="col-lg-6">
+            <div class="content-card">
+                <h2 class="section-heading"><i class="bi bi-send-fill"></i> Send us a Message</h2>
+                <p class="mb-4 text-muted">Please fill out the form below and we will get back to you as soon as possible. Fields marked with <span class="required">*</span> are required.</p>
+                
+                <form id="contactForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label fw-bold small">First Name <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="firstName" placeholder="John" required>
                             </div>
-                                                      
-                            <div class="col-md-12 mb-3">
-                                <h5 class="text-default">What is your privacy policy?</h5>
-                                <p class="text-muted">You may view our privacy policy and other policies and procedures on our Policies and Procedures page.</p>
-                                 <p class="text-muted">
-                                    <ul class="preference-links">
-                                        <li><a href="/policies/#privacy-policy">Privacy Policy</a></li>
-                                        <li><a href="/policies/#refund-policy">Refund Policy</a></li>
-                                        <li><a href="/policies/#complaint-procedure">Complaint Procedure</a></li>
-                                        <li><a href="/policies/#conflict-of-interest">Conflict of Interest</a></li>
-                                    </ul>
-                                </p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label fw-bold small">Last Name <span class="required">*</span></label>
+                                <input type="text" class="form-control" id="lastName" placeholder="Doe" required>
                             </div>
-                        
                         </div>
                     </div>
-                </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-bold small">Email Address <span class="required">*</span></label>
+                                <input type="email" class="form-control" id="email" placeholder="john@example.com" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label fw-bold small">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" placeholder="(555) 123-4567">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="subject" class="form-label fw-bold small">Subject <span class="required">*</span></label>
+                        <input type="text" class="form-control" id="subject" name="subject" placeholder="How can we help?" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="message" class="form-label fw-bold small">Message <span class="required">*</span></label>
+                        <textarea class="form-control" id="message" rows="5" placeholder="Your message here..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-submit">
+                        <i class="bi bi-send-fill me-2"></i>Send Message
+                    </button>
+
+                    <div id="formMessage" class="mt-3"></div>
+                </form>
             </div>
         </div>
-    </section>
+    </div>
+</div>
+
 <?php
 get_footer();
 ?>

@@ -30,12 +30,31 @@ function accreditation_section_shortcode($atts) {
     // Conflict Notice
     $conflict_title = get_theme_mod('accreditation_conflict_title', 'Transparency:');
     $conflict_description = get_theme_mod('accreditation_conflict_description', 'No conflicts of interest have been reported by the authors.');
+    $prefix_path=get_stylesheet_directory_uri().'/assets/accreditaion-img/';
+    
 
     // Build the HTML output
     $output = '
+    <style>
+    /* CSS cho Div Flexbox Hình ảnh Công nhận */
+.accreditation-logos-flex {
+    display: flex;
+    flex-wrap: wrap; /* Cho phép các mục tràn xuống dòng mới trên màn hình nhỏ */
+    justify-content: center; /* Căn giữa các logo */
+    gap: 20px; /* Khoảng cách giữa các logo */
+    margin-bottom: 30px; /* Khoảng cách bên dưới phần logo */
+}
+
+    </style>
     <div class="container mt-4">
     <div class="content-card">
         <h2 class="section-title">' . esc_html($section_title) . '</h2>
+        <div class="accreditation-logos-flex">
+             <img src="'. $prefix_path.'PsychLogo.gif'.'" alt="" class="accreditation-logo-img">
+             <img src="'. $prefix_path.'NYSEDLogo.gif'.'" alt="" class="accreditation-logo-img">
+             <img src="'. $prefix_path.'NBCCLogo.gif'.'" alt="" class="accreditation-logo-img">
+             <img src="'. $prefix_path.'ASWBLogo.gif'.'" alt="" class="accreditation-logo-img">
+        </div>
         <div class="accreditation-item">
             <p><strong>' . esc_html($apa_title) . '</strong> ' . esc_html($apa_description) . '</p>
         </div>
