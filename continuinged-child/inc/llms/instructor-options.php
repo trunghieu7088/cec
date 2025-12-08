@@ -107,6 +107,45 @@ function add_instructor_custom_fields( $user ) {
                 </span>
             </td>
         </tr>
+
+         <tr>
+            <th><label for="llms_instructor_hide">Hide author</label></th>
+            <td>
+                <?php 
+                $hide_author = get_the_author_meta( 'llms_instructor_hide', $user->ID );
+                ?>
+                <label>
+                    <input 
+                        type="checkbox" 
+                        name="llms_instructor_hide" 
+                        id="llms_instructor_hide" 
+                        value="1"
+                        <?php checked( '1', $hide_author ); ?>
+                    />
+                    Check this box to hide the instructor's details on the frontend.
+                </label>
+            </td>
+        </tr>
+
+        <tr>
+            <th><label for="author_list_order">Author List Order</label></th>
+            <td>
+                 <input 
+                    type="number" 
+                    name="author_list_order" 
+                    id="author_list_order" 
+                    value="<?php echo esc_attr( get_the_author_meta( 'author_list_order', $user->ID ) ); ?>" 
+                    class="regular-text code"
+                    min="1" 
+                    step="1"
+                    placeholder="e.g. 10" 
+                /><br>
+                <span class="description">
+                    Enter a number to control the display order (lower number means higher on the list). Default is 9999.
+                </span>
+            </td>
+        </tr>
+
     </table>
     <?php
 }
@@ -150,6 +189,58 @@ function save_instructor_custom_fields( $user_id ) {
         $img_name = sanitize_file_name( $_POST['llms_instructor_cover_img'] );
         update_user_meta( $user_id, 'llms_instructor_cover_img', $img_name );
     }
+
+     // --- START: Save Hide Author Checkbox ---
+    $hide_value = isset( $_POST['llms_instructor_hide'] ) ? '1' : '0';
+    update_user_meta( $user_id, 'llms_instructor_hide', $hide_value );
+    // --- END: Save Hide Author Checkbox ---
+
+    if ( isset( $_POST['author_list_order'] ) ) {
+        // Đảm bảo giá trị là số nguyên
+        $list_order = absint( $_POST['author_list_order'] ); 
+        update_user_meta( $user_id, 'author_list_order', $list_order );
+    }
+    else
+    {
+         update_user_meta( $user_id, 'author_list_order', 1 );
+    }
 }
 add_action( 'personal_options_update', 'save_instructor_custom_fields' );
 add_action( 'edit_user_profile_update', 'save_instructor_custom_fields' );
+
+function update_all_instructors_with_list_order() {
+    
+    // 1. Chỉ cho phép Admin chạy chức năng này
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return 'Permission denied.';
+    }
+
+    $args = array(
+        'role'    => 'instructor', // Thay đổi nếu tên vai trò của bạn khác (ví dụ: 'llms_instructor')
+        'fields'  => 'ID',         // Chỉ lấy ID để tiết kiệm tài nguyên
+        'number'  => -1,           // Lấy tất cả user
+    );
+
+    // Lấy danh sách ID của tất cả Instructor
+    $instructor_ids = get_users( $args );
+
+    $updated_count = 0;
+    $default_order = 9999; // Giá trị thứ tự mặc định
+
+    if ( ! empty( $instructor_ids ) ) {
+        foreach ( $instructor_ids as $user_id ) {
+            
+            // Lấy giá trị hiện tại của meta. Nếu không có, hàm get_user_meta sẽ trả về rỗng.
+            $current_order = get_user_meta( $user_id, 'author_list_order', true );
+
+            // Chỉ thêm/cập nhật nếu meta chưa tồn tại hoặc rỗng.
+            if ( empty( $current_order ) ) {
+                // Thêm meta mới. set_user_meta là hàm an toàn để thêm hoặc cập nhật.
+                update_user_meta( $user_id, 'author_list_order', $default_order );
+                $updated_count++;
+            }
+        }
+    }
+
+    return "✅ Hoàn thành cập nhật! Đã thêm meta 'author_list_order' cho $updated_count instructor.";
+}

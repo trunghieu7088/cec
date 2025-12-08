@@ -14,7 +14,6 @@ get_header();
 <?php echo do_shortcode('[custom_hero_section]'); ?>
 <?php echo do_shortcode('[rewards_section]'); ?>
 <?php echo do_shortcode('[accreditation_section]'); ?>
-
 <?php
 get_footer();
 ?>

@@ -253,7 +253,8 @@ class MyLifterLMS_Courses {
                         );
 
                         
-                        $instructor_info['avatar']                   = get_avatar_url( $user_id ); 
+                       // $instructor_info['avatar']                   = get_avatar_url( $user_id ); 
+                        $instructor_info['avatar']                   = get_stylesheet_directory_uri().'/assets/author-image/'. get_user_meta( $user_id,'llms_instructor_cover_img',true ); 
                         $instructor_info['llms_instructor_website']  = get_user_meta( $user_id, 'llms_instructor_website', true );
                         $instructor_info['llms_instructor_bio']      = get_user_meta( $user_id, 'llms_instructor_bio', true );
                         $instructor_info['llms_degrees_certs']       = get_user_meta( $user_id, 'llms_degrees_certs', true );
@@ -290,8 +291,28 @@ class MyLifterLMS_Courses {
   
         $args = array(
             'role'    => 'instructor',
-            'orderby' => 'display_name', 
-            'order'   => 'ASC',
+            
+            // Meta Query để lọc ra những người không bị ẩn
+            'meta_query' => array(
+                'relation' => 'OR', // Quan hệ OR giữa hai điều kiện
+                // 1. Loại trừ người dùng có meta key 'llms_instructor_hide' bằng '1' (hoặc 'true')
+                // Thay vào đó, chúng ta chọn:
+                array(
+                    'key'     => 'llms_instructor_hide',
+                    'value'   => '1', // Giá trị meta key cần loại trừ
+                    'compare' => '!=', // So sánh KHÁC giá trị này
+                ),
+                // 2. Bao gồm những người dùng KHÔNG CÓ meta key 'llms_instructor_hide'
+                array(
+                    'key'     => 'llms_instructor_hide',
+                    'compare' => 'NOT EXISTS',
+                ),
+            ),
+            
+            // Sắp xếp theo meta key 'author_list_order' (thứ tự từ thấp đến cao)
+            'meta_key' => 'author_list_order',
+            'orderby'  => 'meta_value_num',
+            'order'    => 'ASC',
         );
         $user_query = new WP_User_Query( $args );
 
