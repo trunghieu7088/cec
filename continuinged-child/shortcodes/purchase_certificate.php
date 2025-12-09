@@ -470,9 +470,9 @@ function purchase_certificate_shortcode($atts) {
                                             <input type="text" class="form-control disabled" disabled="disabled" id="signup_username" value="<?php echo $current_user->user_login; ?>" name="username" required>
                                         </div>                                       
                                         
-                                        <div class="col-md-12">
-                                            <button type="submit" class="btn btn-primary w-100">
-                                                <i class="bi bi-person-lines-fill me-2"></i>Update Account
+                                        <div class="col-md-12 text-center">
+                                            <button type="submit" class="btn btn-primary btn-update-account">
+                                                <i class="bi bi-pencil-square me-2"></i>Update Account
                                             </button>
                                         </div>
                                     </div>
@@ -736,7 +736,10 @@ function purchase_certificate_shortcode($atts) {
             border-color: #4a90af;
             box-shadow: 0 0 0 0.25rem rgba(74, 144, 175, 0.25);
         }
-
+        .btn-update-account
+        {
+            padding:10px 20px;
+        }
         .btn-primary {
           /*  background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%); */
             background: var(--primary-blue);
@@ -749,12 +752,13 @@ function purchase_certificate_shortcode($atts) {
         }
 
         .btn-success {
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); 
+            /*background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); */
+            background: #28a745;
             border: none;
         }
 
         .btn-success:hover {
-            background: linear-gradient(135deg, #218838 0%, #19692c 100%); 
+            background: #1e7e34;
         }
 
         .alert {

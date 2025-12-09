@@ -24,7 +24,7 @@ function customer_account_shortcode($atts) {
     // Get user meta information
     $email = $current_user->user_email;
     $full_name = $current_user->display_name;
-    $license_number = get_user_meta($user_id, 'signup_license', true);
+    $license_number = get_user_meta($user_id, 'license_number', true);
     $license_state = get_user_meta($user_id, 'license_state', true);
     $phone = get_user_meta($user_id, 'llms_phone', true);
     $address = get_user_meta($user_id, 'llms_billing_address_1', true);
@@ -255,7 +255,7 @@ function customer_account_shortcode($atts) {
                 $state=get_user_meta($current_user->ID,'llms_billing_state',true);
                 $zip=get_user_meta($current_user->ID,'llms_billing_zip',true);                
                 $phone=get_user_meta($current_user->ID,'llms_phone',true);
-                $license_number= get_user_meta($current_user->ID,'license',true);
+                $license_number= get_user_meta($current_user->ID,'license_number',true);
                 $license_state=get_user_meta($current_user->ID,'license_state',true);
                
             
@@ -339,7 +339,7 @@ function customer_account_shortcode($atts) {
                                         
                                         <div class="account-actions">
                                               <a href="<?php echo wp_logout_url(home_url()); ?>" class="btn btn-outline-secondary">
-                                                    <i class="bi bi-box-arrow-right me-2"></i>Sign out
+                                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
                                                 </a>
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="bi bi-pencil-square me-2"></i>Update Account
@@ -415,7 +415,7 @@ function customer_account_shortcode($atts) {
         }
 
         .account-card .card-header {
-            background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%);
+             background: var(--primary-blue);
             color: white;
             padding: 15px 20px;
         }
@@ -455,8 +455,10 @@ function customer_account_shortcode($atts) {
         }
 
         .account-table thead th {
-            border-bottom: 2px solid #2c5f7c;
-            color: #2c5f7c;
+            /*border-bottom: 2px solid #2c5f7c; */
+            border-bottom: 2px solid #336666;
+           /* color: #2c5f7c; */
+           color: #000000;
             font-weight: 600;
             padding: 12px 15px;
         }
@@ -471,19 +473,20 @@ function customer_account_shortcode($atts) {
         }
 
         .course-link {
-            color: #2c5f7c;
+            color: #336666;
             text-decoration: none;
             font-weight: 500;
         }
 
         .course-link:hover {
-            color: #4a90af;
+            color: #336666;
             text-decoration: underline;
         }
 
         .certificate-link {
             font-size: 0.875rem;
             padding: 4px 12px;
+            color:#336666;
         }
 
         /* Account Information Grid */
@@ -532,21 +535,23 @@ function customer_account_shortcode($atts) {
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%);
+           /* background: linear-gradient(135deg, #4a90af 0%, #2c5f7c 100%); */
+           background:#336666;
             border: none;
             color: white;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #3d7a94 0%, #234d65 100%);
+            background:#264d4d;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .btn-outline-secondary {
-            background: white;
+            background: transparent;
             border: 1px solid #6c757d;
             color: #6c757d;
+            padding:5px 10px;
         }
 
         .btn-outline-secondary:hover {
@@ -556,13 +561,14 @@ function customer_account_shortcode($atts) {
         }
 
         .btn-outline-primary {
-            border-color: #4a90af;
-            color: #4a90af;
+            border-color: #336666;
+            color: #336666;
         }
 
         .btn-outline-primary:hover {
-            background: #4a90af;
+            background: #336666;
             color: white;
+            border:1px solid #336666;
         }
 
         /* Responsive */
