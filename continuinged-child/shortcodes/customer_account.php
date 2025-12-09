@@ -224,7 +224,7 @@ function customer_account_shortcode($atts) {
                                             </td>
                                             <td class="text-center">
                                                 <?php if ($course['certificate_number']): ?>
-                                                    <a href="<?php echo $course['certificate_link']; ?>" class="btn btn-sm btn-outline-primary certificate-link" 
+                                                    <a href="<?php echo get_custom_page_url_by_template('page-print-certificate.php').'?certificate_id='.$course['certificate_number']; ?>" class="btn btn-sm btn-outline-primary certificate-link" 
                                                        data-certificate="<?php echo esc_attr($course['certificate_number']); ?>">
                                                         #<?php echo esc_html($course['certificate_number']); ?>
                                                     </a>

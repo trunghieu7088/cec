@@ -21,9 +21,13 @@ if(isset($_GET['certificate_id']))
     }
 }
 
-get_header();
 
 $certificate = new LLMS_User_Certificate($certificate_id);
+//prevent other user from accessing the certificate page
+if($certificate->post->post_author != get_current_user_id())
+{
+     wp_redirect(site_url('home'));
+}
 $user_id=$certificate->post->post_author;
 //var_dump($certificate);
 $student = llms_get_student( $user_id ); 
@@ -43,6 +47,7 @@ if($course_id)
 }
 //user info
 $license_number=get_user_meta($user_id,'license_number',true);
+get_header();
 ?>
 <style>
         * {
