@@ -22,6 +22,7 @@ function cct_render_admin_page() {
     $execution_time = '';
 
     // Xử lý khi submit form
+     delete_transient( 'all_courses_search_data' );
     if ( isset( $_POST['cct_rebuild_transient'] ) && wp_verify_nonce( $_POST['cct_nonce'], 'cct_rebuild' ) ) {
         
         // Xóa transient cũ trước

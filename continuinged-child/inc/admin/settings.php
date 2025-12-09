@@ -12,3 +12,4 @@ require('authorize-payment-settings.php');
 require('control-course-transient.php');
 require('groupDiscount.php');
 require('init-header-menu.php');
+require('survey/survey.php');

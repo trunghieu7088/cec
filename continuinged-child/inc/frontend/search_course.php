@@ -8,7 +8,7 @@ function get_all_courses_for_search() {
     $data = get_transient( $transient_key );        
 
     if ( false === $data ) {
-        error_log('Building courses cache...');
+        //error_log('Building courses cache...');
         
         $courses = get_posts([
             'post_type'      => 'course',

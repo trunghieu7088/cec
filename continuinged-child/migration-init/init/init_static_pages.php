@@ -66,7 +66,9 @@ function create_custom_static_pages() {
         array('Quiz Test',               'quiz-test',            '',                     'page-quiz-test.php'),               // Quiz page
         array('Reset Password',          'reset-password',       '',                     'page-reset-password.php'),          // Reset password (nếu cần)        
         array('Courses List',            'courses-list',       '',                     'page-course-listing.php'),              // Course Listing Page
-        array('NCourses List',            'ncourses-list',       '',                     'page-ncourse-listing.php'),              // Course Listing Page
+        array('NCourses List',           'ncourses-list',       '',                     'page-ncourse-listing.php'),              // Course Listing Page
+        array('Website Survey',          'website-survey',       '',                     'page-survey.php'),              // General survery page
+        array('Print Certificate',        'print-certificate',       '',                 'page-print-certificate.php'),              // Print certificate
     );
 
     $created = 0;

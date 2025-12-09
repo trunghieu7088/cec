@@ -1256,3 +1256,10 @@ body {
     color: #856404;
 }
 /* end note */
+
+/* search modal */
+.search-result-item
+{
+    margin-bottom:10px;
+}
+/* end search modal */
