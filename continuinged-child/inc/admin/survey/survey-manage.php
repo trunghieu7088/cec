@@ -15,7 +15,7 @@
     <table id="survey-table" class="wp-list-table widefat fixed striped" style="width:100%">
         <thead>
             <tr>
-                <th></th>
+               <!-- <th></th> -->
                 <th>ID</th>
                 <th>Survey Type</th>
                 <th>Survey Date</th>
@@ -329,12 +329,12 @@ jQuery(document).ready(function($) {
             }
         },
         columns: [
-            {
+            /*{
                 className: 'expand-buttons',
                 orderable: false,
                 data: null,
                 defaultContent: '<i class="fa-solid fa-circle-chevron-right"></i>'
-            },
+            }, */
             { data: 'id',  orderable: false, },
             { data: 'survey_type',  orderable: false },
             { data: 'survey_date',  orderable: false },
@@ -368,7 +368,7 @@ jQuery(document).ready(function($) {
     });
     
     // Add event listener for opening and closing details
-    $('#survey-table tbody').on('click', 'td.expand-buttons', function() {
+    $('#survey-table tbody').on('click', 'tr', function() {
         var tr = $(this).closest('tr');
         var row = table.row(tr);
         
@@ -376,12 +376,12 @@ jQuery(document).ready(function($) {
             // Close this row
             row.child.hide();
             tr.removeClass('shown');        
-             $(this).html('<i class="fa-solid fa-circle-chevron-right"></i>');    
+             //$(this).html('<i class="fa-solid fa-circle-chevron-right"></i>');    
         } else {
             // Open this row
             row.child(format(row.data())).show();
             tr.addClass('shown');
-            $(this).html('<i class="fa-solid fa-circle-chevron-down"></i>');
+          //  $(this).html('<i class="fa-solid fa-circle-chevron-down"></i>');
         }
     });
     
