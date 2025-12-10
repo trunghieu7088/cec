@@ -112,6 +112,7 @@
     color: #333;
     margin-top: 5px;
 }
+
 </style>
 
 <script>
@@ -336,7 +337,7 @@ jQuery(document).ready(function($) {
                 defaultContent: '<i class="fa-solid fa-circle-chevron-right"></i>'
             }, */
             { data: 'id',  orderable: false, },
-            { data: 'survey_type',  orderable: false },
+            { data: 'survey_type',  orderable: true },
             { data: 'survey_date',  orderable: false },
             { data: 'user_name', orderable: false },
             { data: 'user_email' ,  orderable: false,},

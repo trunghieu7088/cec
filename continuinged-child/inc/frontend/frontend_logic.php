@@ -5,6 +5,7 @@ require('ce_hours_handler.php');
 require('search_course.php');
 require('discount_code_handler.php');
 require('print-certificate.php');
+require('proposal-author.php');
 
 add_action('wp_head','init_ajax_url_frontend',20);
 

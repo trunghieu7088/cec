@@ -1,10 +1,10 @@
 <?php
+//require('testimonial-section.php');
+//require('color-settings.php');
 require('hero-section.php');
 require('accreditation-section.php');
-//require('testimonial-section.php');
 require('commons.php');
 require('user-extra-fields-handling.php');
-//require('color-settings.php');
 require('custom-contact.php');
 require('email_notification.php');
 require('rewards.php');
@@ -13,3 +13,4 @@ require('control-course-transient.php');
 require('groupDiscount.php');
 require('init-header-menu.php');
 require('survey/survey.php');
+require('proposal-author-manage.php');
