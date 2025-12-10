@@ -77,14 +77,14 @@ get_header();
                     <div class="highlight-box">
                         <span class="highlight-title">Prospective Authors</span>
                         <p class="small mb-2">Interested in publishing a course? Please email us with your CV, phone number, and proposal. Courses must be post-doctoral level.</p>
-                        <a href="mailto:Contact@ContinuingEdCourses.Net" class="small contact-link"><i class="bi bi-file-earmark-arrow-up"></i> Submit Proposal</a> &nbsp;|&nbsp; 
-                        <a href="CourseProposal.docx" class="small contact-link"><i class="bi bi-download"></i> Download Form</a>
+                        <a href="<?php echo get_custom_page_url_by_template('page-proposal-author.php'); ?>" class="small contact-link"><i class="bi bi-file-earmark-arrow-up"></i> Submit Proposal</a> 
+                       <!-- &nbsp;|&nbsp;  <a href="CourseProposal.docx" class="small contact-link"><i class="bi bi-download"></i> Download Form</a> -->
                     </div>
 
                     <div class="highlight-box" style="background-color: #fff9e6; border-color: #ffcc00;">
                         <span class="highlight-title" style="color: #997a00;">Course Suggestions</span>
                         <p class="small mb-1">Have a topic request? Take our survey to provide suggestions.</p>
-                        <a href="survey.php" class="small" style="color: #997a00; font-weight:600;">Take Survey &rarr;</a>
+                        <a href="<?php echo get_custom_page_url_by_template('page-survey.php'); ?>" class="small" style="color: #997a00; font-weight:600;">Take Survey &rarr;</a>
                     </div>
 
                     <!-- Accordion for Secondary Info (Team & Policies) -->
