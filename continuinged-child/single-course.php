@@ -107,7 +107,7 @@ $category_name = !empty($categories) ? $categories[0]['name'] : 'General';
         <div class="action-buttons">
             <a href="#learning-objective-section" class="btn-custom">Take the Course</a>
             <a href="<?php echo esc_url($quiz_page . get_post_field('post_name', $course_id)); ?>" class="btn-custom">Take the Test</a>
-            <a href="#" class="btn-custom">Print Certificate</a>
+            <a href="<?php echo get_custom_page_url_by_template('page-account.php'); ?>" class="btn-custom">Print Certificate</a>
         </div>
 
         <?php if ($copyright_info): ?>

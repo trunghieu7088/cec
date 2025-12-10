@@ -500,6 +500,7 @@ function ajax_process_certificate_purchase() {
             if ($earned_certificate) {
                 update_post_meta($earned_certificate->get('id'), '_custom_completion_code', $completion_code);
                 update_post_meta($earned_certificate->get('id'), 'score_test', $completion_code_instance->score_test);
+                update_post_meta($earned_certificate->get('id'),'ce_hours',get_post_meta($course_id,'_llms_ce_hours',true));
             }
         } catch (Exception $e) {
             error_log('Certificate award error: ' . $e->getMessage());

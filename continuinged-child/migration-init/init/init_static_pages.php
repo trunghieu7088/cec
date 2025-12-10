@@ -70,6 +70,7 @@ function create_custom_static_pages() {
         array('Website Survey',          'website-survey',       '',                     'page-survey.php'),              // General survery page
         array('Print Certificate',        'print-certificate',       '',                 'page-print-certificate.php'),              // Print certificate
         array('Proposal Author',        'proposal-author',       '',                 'page-proposal-author.php'),              // Proposal author
+        array('Course Evaluation',        'course-evaluation',       '',                 'page-course-evaluation.php'),              // Proposal author
     );
 
     $created = 0;

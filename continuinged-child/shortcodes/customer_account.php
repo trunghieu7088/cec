@@ -228,6 +228,10 @@ function customer_account_shortcode($atts) {
                                                        data-certificate="<?php echo esc_attr($course['certificate_number']); ?>">
                                                         #<?php echo esc_html($course['certificate_number']); ?>
                                                     </a>
+                                                    <a href="<?php echo get_custom_page_url_by_template('page-course-evaluation.php').'?certificate_id='.$course['certificate_number']; ?>" class="btn btn-sm btn-outline-primary certificate-link" 
+                                                       data-certificate="<?php echo esc_attr($course['certificate_number']); ?>">
+                                                        Evaluation
+                                                    </a>
                                                 <?php else: ?>
                                                     <span class="text-muted">-</span>
                                                 <?php endif; ?>

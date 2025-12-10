@@ -20,7 +20,10 @@ if(isset($_GET['certificate_id']))
         wp_redirect(site_url('home'));
     }
 }
-
+else
+{
+     wp_redirect(site_url('home'));
+}
 
 $certificate = new LLMS_User_Certificate($certificate_id);
 //prevent other user from accessing the certificate page
@@ -47,6 +50,7 @@ if($course_id)
 }
 //user info
 $license_number=get_user_meta($user_id,'license_number',true);
+$ce_hour=get_post_meta($certificate_id,'ce_hours',true);
 get_header();
 ?>
 <style>
@@ -576,7 +580,7 @@ get_header();
                       
                     ?>
                 </div>
-                <div class="ce-hours"><?php echo $course_data['llmscehours']; ?> CE Hours</div>
+                <div class="ce-hours"><?php echo $ce_hour; ?> CE Hours</div>
             </div>
 
             <div class="accreditation-section">

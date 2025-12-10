@@ -435,10 +435,6 @@ class WP_Survey_System
 
          wp_enqueue_style('fontawesome-admin', get_stylesheet_directory_uri().'/assets/fontawesome6/css/all.min.css');
 
-        // DataTables CSS & JS
-       // wp_enqueue_style('datatables', 'https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css');
-        //wp_enqueue_script('datatables', 'https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js', array('jquery'), null, true);
-
         wp_enqueue_style('datatable-style', get_stylesheet_directory_uri().'/assets/datatables/datatables.min.css');
         wp_enqueue_script('datatables-js-script', get_stylesheet_directory_uri().'/assets/datatables/datatables.min.js', array('jquery'), null, true);
 

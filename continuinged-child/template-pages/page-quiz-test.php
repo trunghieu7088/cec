@@ -94,7 +94,7 @@ get_header();
      <div class="action-buttons">
             <a href="<?php echo get_permalink($course_id); ?>" class="btn-custom">Back to Course</a>
             <a href="javascript:void(0)" id="trigger-score-the-test" class="btn-custom"><i class="bi bi-check-circle" style="margin-right: 0.5rem;"></i> Score the Test</a>
-            <a href="#" class="btn-custom">Print Certificate</a>
+            <a href="<?php echo get_custom_page_url_by_template('page-account.php'); ?>" class="btn-custom">Print Certificate</a>
         </div>
          <?php if ($copyright_info): ?>
         <p style="text-align: center; font-size: 0.9rem; color: #666; margin-top: 10px;">
