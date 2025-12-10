@@ -58,6 +58,7 @@ function migrate_courses_to_lifterlms() {
             // Tạo course post
             $post_data = array(                
                 'post_title'    => $course['CourseName'],
+                'post_content' => $course['main_content'],
                 'post_type'     => 'course',
                 'post_status'   => $post_status,
                 'post_date'     => $post_date,
@@ -349,7 +350,9 @@ function create_course_access_plan( $course_id, $price, $title ) {
         return false;
     }  
   
-    
+    //ép tác giả để fix bug
+    wp_update_post(array('ID'=>$access_plan_id,'post_author'=>1));
+
     return $access_plan_id;
 }
 
@@ -430,6 +433,7 @@ function create_content_course( $course_id, $section_title = 'Section mới', $l
 
     $section_data = array(
         'post_title'  => wp_strip_all_tags( $section_title ),
+        'post_author' =>1,
         'post_type'   => 'section',
         'post_status' => 'publish',
       //  'menu_order'  => $next_order,
@@ -448,6 +452,7 @@ function create_content_course( $course_id, $section_title = 'Section mới', $l
     // 2. TẠO LESSON
     $lesson_data = array(
         'post_title'  => wp_strip_all_tags( $lesson_title ),
+        'post_author' =>1,
         'post_type'   => 'lesson',
         'post_status' => 'publish',
        // 'menu_order'  => 1,
@@ -476,6 +481,7 @@ function create_content_course( $course_id, $section_title = 'Section mới', $l
     $quiz_data = array(
         'post_title'  => wp_strip_all_tags( $quiz_title ),
         'post_type'   => 'llms_quiz',
+        'post_author' =>1,
         'post_status' => 'publish',
         //'menu_order'  => 0,
         'meta_input'  => array(
