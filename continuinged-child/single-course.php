@@ -20,7 +20,8 @@ if (!$course_data) {
 // Extract course data
 $course_title = $course_data['post_title'];
 $course_content = $course_data['post_content'];
-$course_main_content = $course_data['coursemaincontent'];
+//$course_main_content = $course_data['coursemaincontent'];
+$course_main_content = $course_data['post_content'];
 $course_excerpt = $course_data['post_excerpt'];
 $ce_hours = $course_data['llmscehours'] ?? '';
 $course_objectives = $course_data['courseobjectives'] ?? '';
@@ -117,8 +118,10 @@ $category_name = !empty($categories) ? $categories[0]['name'] : 'General';
         <?php endif; ?>
     </div>
 
+
     <!-- Accreditation Section -->
      <!-- xem xet xai shortcode co san -->       
+      <?php echo do_shortcode('[accreditation_section]'); ?>
 
     <?php if ($course_objectives): ?>
     <!-- Learning Objectives -->

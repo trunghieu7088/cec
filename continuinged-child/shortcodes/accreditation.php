@@ -35,8 +35,7 @@ function accreditation_section_shortcode($atts) {
 
     // Build the HTML output
     $output = '
-    <style>
-    /* CSS cho Div Flexbox Hình ảnh Công nhận */
+    <style>    
 .accreditation-logos-flex {
     display: flex;
     flex-wrap: wrap; 

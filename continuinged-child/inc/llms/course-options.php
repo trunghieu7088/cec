@@ -52,6 +52,20 @@ function render_course_details_metabox($post) {
    
     
     <div class="course-details-fields">
+
+        <!-- North Carolina Course -->
+        <div class="editor-wrapper">
+            <label class="editor-label">
+                <input type="checkbox" 
+                    name="north_carolina_course" 
+                    id="north_carolina_course" 
+                    value="1"
+                    <?php checked(get_post_meta($post->ID, '_north_carolina_course', true), '1'); ?> />
+                North Carolina Course
+            </label>
+            <p class="description">Check this if this is a North Carolina specific course.</p>
+        </div>
+
          <!-- CE Hours -->
         <div class="editor-wrapper">
             <label class="editor-label">CE Hours:</label>
@@ -227,6 +241,12 @@ function save_course_details_meta($post_id, $post,$update) {
             delete_post_meta($post_id, '_' . $field);
         }
     }
+
+    if (isset($_POST['north_carolina_course']) && $_POST['north_carolina_course'] == '1') {
+    update_post_meta($post_id, '_north_carolina_course', '1');
+    } else {
+        delete_post_meta($post_id, '_north_carolina_course');
+    }
 }
 
 // Display function
@@ -242,12 +262,20 @@ function display_course_custom_content() {
     $last_revised = get_post_meta($course_id, '_course_last_revised', true);
     $update_status=get_post_meta($course_id, '_status_update_label', true);
     $category_order = get_post_meta($course_id, '_category_order', true);
+    $north_carolina = get_post_meta($course_id, '_north_carolina_course', true);
 
     if (!$intro && !$objectives && !$outline && !$main) {
         return;
     }
     
     echo '<div class="course-custom-content">';
+
+    if($north_carolina) {
+        echo '<div class="content-section">';
+        echo '<h2>North Carolina Course</h2>';
+        echo '<p>✓ This is a North Carolina specific course</p>';
+        echo '</div>';
+    }
 
     if($ce_hours) {
         echo '<div class="content-section">';

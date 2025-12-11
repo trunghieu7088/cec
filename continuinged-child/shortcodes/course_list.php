@@ -34,8 +34,8 @@ function llms_custom_course_list_shortcode($atts) {
         </div>
 
         <!-- Info Banner -->
-        <div class="info-banner">
-            <h3>Be sure to choose the appropriate exam for your license type. You pay for your certificate only after you pass the exam.</h3>
+        <div class="note-box mt-4">                   
+            <strong>Note:</strong> Be sure to choose the appropriate exam for your license type. You pay for your certificate only after you pass the exam.
         </div>
         <?php endif; ?>
 

@@ -112,11 +112,16 @@ function cec_render_import_page() {
 
                     // 4. Bio (Description HTML)
                     if (!empty($author->description_html)) {
-                        update_user_meta($user_id, 'llms_instructor_bio', $author->description_html);
+                        
+                        update_user_meta($user_id, 'llms_instructor_bio', clean_html_whitespace($author->description_html));
                     }
 
                     //update author stable Id để migrate bảng khác cần author id
                     update_user_meta($user_id,'author_stable_id',$author_stable_id);
+
+                    update_user_meta($user_id,'author_list_order',1);
+
+                    update_user_meta($user_id,'llms_instructor_hide',0);
                                         
                     // Lưu ID cũ để đối chiếu nếu cần
                     update_user_meta($user_id, '_original_author_id', $author->id);
@@ -170,4 +175,33 @@ function cec_render_import_page() {
         </div>
     </div>
     <?php
+}
+
+function clean_html_whitespace($html_content) {
+    // 1. Loại bỏ các ký tự xuống dòng (new lines), ký tự tab, và ký tự xuống dòng kiểu Windows (\r)
+    // Thay thế chúng bằng một khoảng trắng đơn để không làm dính các từ lại với nhau
+    $cleaned_content = str_replace(array("\n", "\t", "\r"), ' ', $html_content);
+
+    // 2. Loại bỏ các ký tự khoảng trắng không ngắt (non-breaking space - &nbsp; hoặc ký tự Unicode \xA0)
+    // Tùy thuộc vào nguồn dữ liệu của bạn, các khoảng trắng thừa có thể là ký tự &nbsp;
+    // Chúng ta sẽ thay thế nó bằng một khoảng trắng thông thường.
+    $cleaned_content = str_replace('&nbsp;', ' ', $cleaned_content);
+    $cleaned_content = preg_replace('/\xC2\xA0/', ' ', $cleaned_content); // Ký tự non-breaking space Unicode
+
+    // 3. Loại bỏ nhiều khoảng trắng liên tiếp (bao gồm cả khoảng trắng thừa từ bước 1 và 2)
+    // Giữ lại một khoảng trắng duy nhất.
+    // Biểu thức chính quy: /\s+/ tìm 1 hoặc nhiều ký tự khoảng trắng (bao gồm cả space, tab, new line)
+    $cleaned_content = preg_replace('/\s+/', ' ', $cleaned_content);
+
+    // 4. Loại bỏ khoảng trắng thừa ngay trước hoặc sau các thẻ HTML
+    // (Ví dụ: " <b> " thành "<b>" hoặc "</b> " thành "</b>")
+    // Tuy nhiên, việc loại bỏ này cần cẩn thận để không làm mất khoảng trắng cần thiết giữa chữ và thẻ.
+    // Ví dụ cơ bản: Loại bỏ khoảng trắng trước dấu < và sau dấu >
+    $cleaned_content = preg_replace('/(\s*<\s*)/', '<', $cleaned_content);
+    $cleaned_content = preg_replace('/(\s*>\s*)/', '>', $cleaned_content);
+    
+    // Đôi khi, việc loại bỏ khoảng trắng trước dấu < và sau dấu > có thể gây lỗi hiển thị trong trình duyệt
+    // Nếu gặp lỗi hiển thị, bạn có thể chỉ cần dừng lại ở bước 3.
+
+    return trim($cleaned_content); // Loại bỏ khoảng trắng ở đầu và cuối chuỗi
 }

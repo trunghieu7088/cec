@@ -328,17 +328,57 @@ function create_course_access_plan( $course_id, $price, $title ) {
         return false;
     }
     
-    // Chuẩn bị dữ liệu cho access plan
+    // Chuẩn bị dữ liệu cho access plan với TẤT CẢ parameters cần thiết
     $access_plan_data = array(
-        'title'   => sanitize_text_field('Access Plan for: '. $title ),
-        'product_id'=> $course_id,
-        'access_expiration'=>'lifetime',
-        'availability'=>'open',
-        'enroll_text'=>'Take the course',
-        'frequency'=>0,
-        'is_free'=>'no',
-        'on_sale'=>'no',
-        'price'=>floatval( $price ),
+        // REQUIRED
+        'product_id'           => absint( $course_id ),
+        
+        // Basic Info
+        'title'                => sanitize_text_field( 'One Time' ),
+        'content'              => '', // Plan description (optional)
+        
+        // Pricing - CHÚ Ý: price phải > 0 nếu is_free = 'no'
+        'is_free'              => 'no',
+        'price'                => floatval( $price ),
+        
+        // Payment Schedule
+        'frequency'            => 0, // 0 = one-time payment
+        'period'               => 'year', // year|month|week|day
+        'length'               => 0, // 0 = không giới hạn (for recurring)
+        
+        // Access Settings
+        'access_expiration'    => 'lifetime', // lifetime|limited-period|limited-date
+        'access_length'        => 1, // Chỉ dùng khi access_expiration = 'limited-period'
+        'access_period'        => 'year', // year|month|week|day
+        
+        // Availability
+        'availability'         => 'open', // open|members
+        'availability_restrictions' => array(), // Array of membership IDs
+        
+        // Display
+        'visibility'           => 'visible', // visible|hidden|featured
+        'enroll_text'          => 'Take the course',
+        
+        // Trial (chỉ cho recurring plans)
+        'trial_offer'          => 'no', // yes|no
+        'trial_price'          => 0,
+        'trial_length'         => 1,
+        'trial_period'         => 'year',
+        
+        // Sale
+        'on_sale'              => 'no', // yes|no
+        'sale_price'           => 0,
+        'sale_start'           => '', // MM/DD/YYYY
+        'sale_end'             => '',
+        
+        // Redirect Settings
+        'checkout_redirect_type'   => 'self', // self|page|url
+        'checkout_redirect_page'   => '', // WP Page ID (nếu type = 'page')
+        'checkout_redirect_url'    => '', // URL (nếu type = 'url')
+        'checkout_redirect_forced' => 'no', // yes|no
+        
+        // Menu order
+        'menu_order'           => 1,
     );
     
     // Tạo access plan
@@ -352,6 +392,7 @@ function create_course_access_plan( $course_id, $price, $title ) {
   
     //ép tác giả để fix bug
     wp_update_post(array('ID'=>$access_plan_id,'post_author'=>1));
+  
 
     return $access_plan_id;
 }
@@ -685,3 +726,186 @@ function import_create_single_choice_question($quiz_id, $course_id) {
 
 // Cách sử dụng:
 // example_create_single_choice_question($quiz_id, $course_id);
+
+
+//migrate by url
+
+
+add_action('admin_init', 'handle_single_course_migration_url');
+
+function handle_single_course_migration_url() {
+    // Kiểm tra có param migrate_single_course không
+    if (!isset($_GET['migrate_single_course']) || $_GET['migrate_single_course'] != 1) {
+        return;
+    }
+    
+    // Kiểm tra quyền admin
+    if (!current_user_can('manage_options')) {
+        wp_die('Unauthorized');
+    }
+    
+    // Kiểm tra có old_courseid không
+    if (!isset($_GET['old_courseid']) || empty($_GET['old_courseid'])) {
+        wp_die('Thiếu tham số old_courseid. Ví dụ: ?migrate_single_course=1&old_courseid=157');
+    }
+    
+    $old_course_id = intval($_GET['old_courseid']);
+    
+    // Tăng timeout và memory
+    set_time_limit(0);
+    ini_set('memory_limit', '512M');
+    
+    echo '<h1>Migrate Single Course: ID = ' . $old_course_id . '</h1>';
+    echo '<pre>';
+    
+    // Gọi hàm migrate cho 1 course duy nhất
+    migrate_single_course_by_id($old_course_id);
+    
+    echo '</pre>';
+    echo '<p><a href="' . admin_url() . '">← Quay về Dashboard</a></p>';
+    
+    exit; // Dừng execution
+}
+
+/**
+ * Migrate 1 course duy nhất theo CourseId
+ * Copy logic từ migrate_courses_to_lifterlms() nhưng chỉ xử lý 1 ID
+ */
+function migrate_single_course_by_id($course_id) {
+    global $wpdb;
+    
+    // Lấy course từ bảng cũ
+    $course = $wpdb->get_row(
+        $wpdb->prepare("SELECT * FROM courses WHERE CourseId = %d", $course_id),
+        ARRAY_A
+    );
+    
+    if (!$course) {
+        echo "❌ Không tìm thấy course với ID: {$course_id}\n";
+        return false;
+    }
+    
+    try {
+        // Copy nguyên logic từ foreach loop trong migrate_courses_to_lifterlms()
+        $post_status = (isset($course['real_status']) && strtolower($course['real_status']) === 'publish') 
+            ? 'publish' 
+            : 'pending';
+        
+        $post_date = !empty($course['FirstPublished']) 
+            ? date('Y-m-d H:i:s', strtotime($course['FirstPublished'])) 
+            : current_time('mysql');
+        
+        $post_data = array(                
+            'post_title'    => $course['CourseName'],
+            'post_content'  => $course['main_content'],
+            'post_type'     => 'course',
+            'post_status'   => $post_status,
+            'post_date'     => $post_date,
+            'post_date_gmt' => get_gmt_from_date($post_date),
+            'post_author'   => 1,
+        );
+        
+        $post_id = wp_insert_post($post_data, true);
+        
+        if (is_wp_error($post_id)) {
+            throw new Exception($post_id->get_error_message());
+        }
+        
+        // Lưu post meta
+        update_post_meta($post_id, 'course_stable_id', $course['CourseId']);
+        update_post_meta($post_id, '_llms_ce_hours', $course['CreditHours']);
+        
+        if (!empty($course['LastRevised'])) {
+            update_post_meta($post_id, '_course_last_revised', $course['LastRevised']);
+        }
+        
+        if (!empty($course['copyright_text'])) {
+            update_post_meta($post_id, '_course_copyright', $course['copyright_text']);
+        }
+        
+        if (!empty($course['main_content'])) {
+            update_post_meta($post_id, '_course_main_content', $course['main_content']);
+        }
+        
+        if (!empty($course['learning_objectives'])) {
+            update_post_meta($post_id, '_course_objectives', $course['learning_objectives']);
+        }
+        
+        if (!empty($course['introduction'])) {
+            update_post_meta($post_id, '_course_introduction', $course['introduction']);
+        }
+        
+        if (!empty($course['outline'])) {
+            update_post_meta($post_id, '_course_outline', $course['outline']);
+        }
+        
+        // Xử lý Category
+        if (!empty($course['category'])) {
+            $categories = array_map('trim', explode(',', $course['category']));
+            $category_ids = array();
+            
+            foreach ($categories as $cat_name) {
+                if (empty($cat_name)) continue;
+                
+                $category_term = get_term_by('name', $cat_name, 'course_cat');
+                if ($category_term) {
+                    $category_ids[] = $category_term->term_id;
+                }
+                
+                if ($cat_name == 'ncourse') {
+                    update_post_meta($post_id, '_north_carolina_course', true);
+                }
+            }
+            
+            if (!empty($category_ids)) {
+                wp_set_object_terms($post_id, $category_ids, 'course_cat');
+            }
+        }
+        
+        // Xử lý Difficulty
+        if (!empty($course['difficulty'])) {
+            $difficulty_term = get_term_by('name', $course['difficulty'], 'course_difficulty');
+            if ($difficulty_term) {
+                wp_set_object_terms($post_id, $difficulty_term->term_id, 'course_difficulty');
+            }
+        }
+        
+        // Xử lý Author/Instructor
+        if (!empty($course['AuthorId']) || !empty($course['AndAuthorName']) || !empty($course['WithAuthorName'])) {
+            $author_ids = process_course_instructors(
+                $course['AuthorId'],
+                $course['AndAuthorName'] ?? '',
+                $course['WithAuthorName'] ?? ''
+            );
+            if (!empty($author_ids)) {
+                update_post_meta($post_id, '_llms_instructors', $author_ids);
+            }
+        }
+        
+        // Xử lý label highlight
+        if (!empty($course['Highlight'])) {
+            update_post_meta($post_id, '_status_update_label', $course['Highlight']);
+        }
+        
+        // Xử lý alternate copyright
+        if (!empty($course['AlternateCopyright'])) {
+            update_post_meta($post_id, '_alternate_copyright', $course['alternate_copyright']);
+        }
+        
+        // Xử lý course plan
+        create_course_access_plan($post_id, $course['CoursePrice'], $course['CourseName']);
+        
+        $content_instance = create_content_course($post_id);
+        import_create_single_choice_question($content_instance['quiz_id'], $course['CourseId']);
+        
+        echo "✅ Migrate thành công: {$course['CourseName']} (WordPress Post ID: {$post_id})\n";
+        echo "📝 Course ID cũ: {$course['CourseId']}\n";
+        echo "🔗 Xem course: " . get_permalink($post_id) . "\n";
+        
+        return $post_id;
+        
+    } catch (Exception $e) {
+        echo "❌ Lỗi khi migrate course {$course['CourseId']}: {$e->getMessage()}\n";
+        return false;
+    }
+}

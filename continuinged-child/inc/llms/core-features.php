@@ -287,59 +287,67 @@ class MyLifterLMS_Courses {
         return array();
     }
 
-    public function get_instructors_list() {
+   public function get_instructors_list() {
   
-        $args = array(
-            'role'    => 'instructor',
-            
-            // Meta Query để lọc ra những người không bị ẩn
-            'meta_query' => array(
-                'relation' => 'OR', // Quan hệ OR giữa hai điều kiện
-                // 1. Loại trừ người dùng có meta key 'llms_instructor_hide' bằng '1' (hoặc 'true')
-                // Thay vào đó, chúng ta chọn:
+    $args = array(
+        'role'    => 'instructor',
+        
+        'meta_query' => array(
+            'relation' => 'OR',
+            // 1. Meta key tồn tại NHƯNG khác '1'
+            array(
+                'relation' => 'AND',
                 array(
                     'key'     => 'llms_instructor_hide',
-                    'value'   => '1', // Giá trị meta key cần loại trừ
-                    'compare' => '!=', // So sánh KHÁC giá trị này
+                    'compare' => 'EXISTS',
                 ),
-                // 2. Bao gồm những người dùng KHÔNG CÓ meta key 'llms_instructor_hide'
                 array(
                     'key'     => 'llms_instructor_hide',
-                    'compare' => 'NOT EXISTS',
+                    'value'   => '1',
+                    'compare' => '!=',
                 ),
             ),
-            
-            // Sắp xếp theo meta key 'author_list_order' (thứ tự từ thấp đến cao)
-            'meta_key' => 'author_list_order',
-            'orderby'  => 'meta_value_num',
-            'order'    => 'ASC',
-        );
-        $user_query = new WP_User_Query( $args );
-
-        if ( ! empty( $user_query->get_results() ) ) {
-            $instructors = array();
+            // 2. Meta key không tồn tại
+            array(
+                'key'     => 'llms_instructor_hide',
+                'compare' => 'NOT EXISTS',
+            ),
+        ),
         
-            foreach ( $user_query->get_results() as $user ) {
-                $instructor_data = array(
-                    'user_id'         => $user->ID,
-                    'user_login'       =>$user->user_login,
-                    'display_name'    => $user->display_name,
-                    'email'           => $user->user_email,
-                    //'avatar_url'      => get_avatar_url( $user->ID ), 
-                    'avatar_url'      =>  get_stylesheet_directory_uri().'/assets/author-image/'.get_user_meta( $user->ID, 'llms_instructor_cover_img', true ),
-                    'website'         => get_user_meta( $user->ID, 'llms_instructor_website', true ),
-                    'degrees_certs'   => get_user_meta( $user->ID, 'llms_degrees_certs', true ), 
-                    'bio'             => get_user_meta( $user->ID, 'llms_instructor_bio', true ),
-                );
+        // Sắp xếp theo meta key 'author_list_order'
+        'meta_key' => 'author_list_order',  // BẮT BUỘC phải có khi dùng meta_value_num
+        'orderby'  => array(
+            'meta_value_num' => 'ASC',
+            'display_name'   => 'ASC',
+        ),
+        'meta_type' => 'NUMERIC',
+    );
+    
+    $user_query = new WP_User_Query( $args );
 
-                $instructors[] = $instructor_data;
-            }
+    if ( ! empty( $user_query->get_results() ) ) {
+        $instructors = array();
+    
+        foreach ( $user_query->get_results() as $user ) {
+            $instructor_data = array(
+                'user_id'         => $user->ID,
+                'user_login'      => $user->user_login,
+                'display_name'    => $user->display_name,
+                'email'           => $user->user_email,
+                'avatar_url'      => get_stylesheet_directory_uri().'/assets/author-image/'.get_user_meta( $user->ID, 'llms_instructor_cover_img', true ),
+                'website'         => get_user_meta( $user->ID, 'llms_instructor_website', true ),
+                'degrees_certs'   => get_user_meta( $user->ID, 'llms_degrees_certs', true ), 
+                'bio'             => get_user_meta( $user->ID, 'llms_instructor_bio', true ),
+            );
 
-            return $instructors;
-        } else {
-            return false; 
+            $instructors[] = $instructor_data;
         }
+
+        return $instructors;
+    } else {
+        return false; 
     }
+}
 
     public function get_courses_of_student($user_id,$limit=20,$status='any')
     {       

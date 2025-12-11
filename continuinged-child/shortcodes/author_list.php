@@ -39,7 +39,8 @@ function render_instructors_section() {
                 
                 <div class="author-content">
                     <?php if (!empty($instructor['bio'])): ?>
-                        <?php echo wpautop($instructor['bio']); ?>                        
+                        <?php echo wpautop($instructor['bio']); ?>         
+                                                    
                     <?php endif; ?>
                     
                     <?php if (!empty($instructor['website'])): ?>

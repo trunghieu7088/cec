@@ -9,7 +9,7 @@ function hero_section_shortcode($atts) {
     $testimonial_author = get_theme_mod('hero_testimonial_author', '— Linda Thole, M.Ed., LPC, NCC, Sunset Beach, NC');
     
     // Intro paragraph
-    $intro_text = get_theme_mod('hero_lead_text', 'We provide high quality, up-to-date continuing education courses online. As a <a href="accreditation.php">nationally accredited</a> provider, our courses are developed by <a href="authors.php">distinguished authors</a> who are experts in their respective fields. The course material is anchored in established theory and is highly relevant for today\'s mental health professional. These continuing education courses are designed specifically for licensed psychologists, social workers, professional counselors, and marriage and family therapists.');
+    $intro_text = get_theme_mod('hero_lead_text', 'We provide high quality, up-to-date continuing education courses online. As a <a href="/approvals/">nationally accredited</a> provider, our courses are developed by <a href="authors.php">distinguished authors</a> who are experts in their respective fields. The course material is anchored in established theory and is highly relevant for today\'s mental health professional. These continuing education courses are designed specifically for licensed psychologists, social workers, professional counselors, and marriage and family therapists.');
     
     // Steps section
     $steps_title = get_theme_mod('hero_step_title', 'How It Works');
