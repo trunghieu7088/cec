@@ -35,12 +35,8 @@ $user_id=$certificate->post->post_author;
 //var_dump($certificate);
 $student = llms_get_student( $user_id ); 
 $student_name = '';
-if ( $student ) {
-    $student_name = $student->get_name();
-}
-if ( empty( $student_name ) ) {
-    $student_name = 'Student Name';
-}
+$current_user_info=wp_get_current_user();
+$student_name=$current_user_info->display_name;
 //course
 $course_id=$certificate->get('related');
 if($course_id)
@@ -542,12 +538,12 @@ get_header();
                 <div class="certificate-title">Certificate of Completion</div>
             </div>
 
-            <div class="certificate-number">
+            <div class="certificate-number text-center">
                 Certificate #<?php echo $certificate->get('id'); ?> - Date of completion: <?php echo $certificate->get_earned_date(); ?>
             </div>
 
             <div class="recipient-info">
-                <div class="recipient-name"> <?php echo $student_name; ?> - ID License: <?php echo $license_number; ?></div>
+                <div class="recipient-name"> <?php echo $student_name; ?></div>
                 <div class="license-info">ID License: <?php echo $license_number; ?></div>
             </div>
 

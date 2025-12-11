@@ -47,7 +47,10 @@ function generate_certificate_pdf($certificate_id) {
     $certificate = new LLMS_User_Certificate($certificate_id);
     $user_id = $certificate->post->post_author;
     $student = llms_get_student($user_id);
-    $student_name = $student ? $student->get_name() : 'Student Name';
+    $student_name = 'Student Name';
+
+    $current_user_info=wp_get_current_user();
+    $student_name=$current_user_info->display_name;
     
     $course_id = $certificate->get('related');
     if ($course_id) {
