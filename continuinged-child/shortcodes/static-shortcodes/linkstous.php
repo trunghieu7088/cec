@@ -94,25 +94,25 @@ function custom_static_linktous_shortcode() {
                         <div class="content-text">
                             <div class="accreditation-item">
                                 <p>
-                                    <a href="courses/course036.php">"You Can't Make Me!" - Effective Techniques for Managing Highly Resistant Clients by Clifton Mitchell, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
+                                    <a href="/course/you-cant-make-me-effective-techniques-for-managing-highly-resistant-clients/">"You Can't Make Me!" - Effective Techniques for Managing Highly Resistant Clients by Clifton Mitchell, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
                                 </p>
                             </div>
 
                             <div class="accreditation-item">
                                 <p>
-                                    <a href="courses/course047.php">"Making Up Is Hard To Do" - Couples Therapy After Infidelity by Steven D. Solomon, Ph.D. and Lorie J. Teagno, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
+                                    <a href="/course/making-up-is-hard-to-do-couples-therapy-after-infidelity/">"Making Up Is Hard To Do" - Couples Therapy After Infidelity by Steven D. Solomon, Ph.D. and Lorie J. Teagno, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
                                 </p>
                             </div>
 
                             <div class="accreditation-item">
                                 <p>
-                                    <a href="courses/course049.php">"What Should I Do?" - 38 Ethical Dilemmas Involving Confidentiality by Gerald P. Koocher, Ph.D. and Patricia Keith-Spiegel, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
+                                    <a href="/course/what-should-i-do-ethical-risks-making-decisions-and-taking-action/">"What Should I Do?" - 38 Ethical Dilemmas Involving Confidentiality by Gerald P. Koocher, Ph.D. and Patricia Keith-Spiegel, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
                                 </p>
                             </div>
 
                             <div class="accreditation-item">
                                 <p>
-                                    <a href="courses/course050.php">"What Should I Do?" - Making Ethical Decisions and Taking Action by Gerald P. Koocher, Ph.D. and Patricia Keith-Spiegel, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
+                                    <a href="/course/what-should-i-do-ethical-risks-making-decisions-and-taking-action/">"What Should I Do?" - Making Ethical Decisions and Taking Action by Gerald P. Koocher, Ph.D. and Patricia Keith-Spiegel, Ph.D.</a>, at <a href="/">ContinuingEdCourses.Net</a>
                                 </p>
                             </div>
                         </div>

@@ -15,7 +15,7 @@ function llms_custom_course_list_shortcode($atts) {
 
         <!-- Intro Box -->
         <div class="intro-box">
-            <p>ContinuingEdCourses.Net, Inc. is approved by the <a href="<?php echo site_url('accreditation.php'); ?>">APA, ASWB, NBCC, and NYSED</a> as a provider of continuing education. Feel free to contact us if you have any questions at 858-484-4304 or <a href="mailto:Contact@ContinuingEdCourses.Net">Contact@ContinuingEdCourses.Net</a>. Although we may provide guidance, it is your responsibility to verify your continuing education requirements with your licensing board.</p>
+            <p>ContinuingEdCourses.Net, Inc. is approved by the <a href="<?php echo site_url('approvals'); ?>">APA, ASWB, NBCC, and NYSED</a> as a provider of continuing education. Feel free to contact us if you have any questions at 858-484-4304 or <a href="mailto:Contact@ContinuingEdCourses.Net">Contact@ContinuingEdCourses.Net</a>. Although we may provide guidance, it is your responsibility to verify your continuing education requirements with your licensing board.</p>
         </div>
 
         <!-- Info Banner -->
