@@ -208,19 +208,30 @@ $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'accr
     // ========================================
     
     $wp_customize->add_section( 'footer_contact_section', array(
-        'title'    => __( 'Footer Section', 'astra-child' ),
+        'title'    => __( 'Contact Us & Help', 'astra-child' ),
         'priority' => 121,
     ) );
     
     // Contact Title
     $wp_customize->add_setting( 'contact_title', array(
-        'default'           => 'Contact Us',
+        'default'           => 'Contact Information',
         'sanitize_callback' => 'sanitize_text_field',
     ) );
     $wp_customize->add_control( 'contact_title', array(
         'label'   => __( 'Contact Section Title', 'astra-child' ),
         'section' => 'footer_contact_section',
         'type'    => 'text',
+    ) );
+
+     // Contact address
+    $wp_customize->add_setting( 'cec_contact_address', array(
+        'default'           => '12842 Francine Ct. Poway, CA 92064',
+        'sanitize_callback' => 'sanitize_text_field',
+    ) );
+    $wp_customize->add_control( 'cec_contact_address', array(
+        'label'   => __( 'Address', 'astra-child' ),
+        'section' => 'footer_contact_section',
+        'type'    => 'textarea',
     ) );
     
     // Contact Description
@@ -235,11 +246,11 @@ $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'accr
     ) );
     
     // Phone Number
-    $wp_customize->add_setting( 'contact_phone', array(
+    $wp_customize->add_setting( 'cec_contact_phone', array(
         'default'           => '858-842-4100',
         'sanitize_callback' => 'sanitize_text_field',
     ) );
-    $wp_customize->add_control( 'contact_phone', array(
+    $wp_customize->add_control( 'cec_contact_phone', array(
         'label'   => __( 'Phone Number', 'astra-child' ),
         'section' => 'footer_contact_section',
         'type'    => 'text',

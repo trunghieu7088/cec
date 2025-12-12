@@ -9,6 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 get_header();
+$contact_us_title=get_theme_mod('contact_title','Contact Information');
+$address=get_theme_mod('cec_contact_address',' 12842 Francine Ct. Poway CA 9206422');
+$phone=get_theme_mod('cec_contact_phone','858-484-4304');
+$email_address=get_theme_mod('contact_email','Contact@ContinuingEdCourses.Net');
 ?>
 <style>
     
@@ -31,15 +35,14 @@ get_header();
         <!-- Left Column: Contact Info & Content -->
             <div class="col-lg-6">
                 <div class="content-card">
-                    <h2 class="section-heading"><i class="bi bi-info-circle-fill"></i> Contact Information</h2>
+                    <h2 class="section-heading"><i class="bi bi-info-circle-fill"></i> <?php echo $contact_us_title; ?></h2>
                     
                     <!-- Address -->
                     <div class="contact-item">
                         <div class="contact-icon"><i class="bi bi-geo-alt-fill"></i></div>
                         <div>
                             <strong>ContinuingEdCourses.Net, Inc.</strong><br>
-                            12842 Francine Ct.<br>
-                            Poway, CA 92064
+                            <?php  echo $address;?>
                         </div>
                     </div>
 
@@ -48,7 +51,7 @@ get_header();
                         <div class="contact-icon"><i class="bi bi-telephone-fill"></i></div>
                         <div>
                             <strong>Phone:</strong><br>
-                            858-484-4304
+                            <?php echo $phone; ?>
                         </div>
                     </div>
 
@@ -57,7 +60,7 @@ get_header();
                         <div class="contact-icon"><i class="bi bi-envelope-fill"></i></div>
                         <div>
                             <strong>General Inquiries:</strong><br>
-                            <a href="mailto:Contact@ContinuingEdCourses.Net" class="contact-link">Contact@ContinuingEdCourses.Net</a>
+                            <a href="mailto:<?php echo $email_address; ?>" class="contact-link"><?php echo $email_address; ?></a>
                         </div>
                     </div>
 
@@ -65,7 +68,7 @@ get_header();
                         <div class="contact-icon"><i class="bi bi-pc-display"></i></div>
                         <div>
                             <strong>Website Problems:</strong><br>
-                            <span class="text-muted">Found a bug?</span> <a href="mailto:Contact@ContinuingEdCourses.Net" class="contact-link">Email our Webmaster</a>
+                            <span class="text-muted">Found a bug?</span> <a href="mailto:<?php echo $email_address; ?>" class="contact-link">Email our Webmaster</a>
                         </div>
                     </div>
 
