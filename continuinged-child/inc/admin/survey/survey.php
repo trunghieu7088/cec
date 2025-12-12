@@ -23,9 +23,10 @@ class WP_Survey_System
 
         // Admin
         add_action('admin_menu', array($this, 'add_admin_menu'));
+        add_action('admin_init', array($this, 'register_survey_settings')); // ← THÊM DÒNG NÀY
         add_action('admin_enqueue_scripts', array($this, 'survey_enqueue_admin_scripts'));
 
-         add_action('wp_ajax_get_survey_data', array($this, 'ajax_get_survey_data'));
+        add_action('wp_ajax_get_survey_data', array($this, 'ajax_get_survey_data'));
         add_action('wp_ajax_delete_survey', array($this, 'ajax_delete_survey'));
         add_action('wp_ajax_export_surveys', array($this, 'ajax_export_surveys'));
     }
@@ -88,30 +89,32 @@ class WP_Survey_System
             return;
         }
 
-            // THÊM VALIDATION CHO REQUIRED FIELDS
-    if (empty($_POST['r160']) || empty($_POST['r170']) || empty($_POST['r190'])) {
-        wp_send_json_error('Please fill in all required contact information (Name, Email, Phone)');
-        return;
-    }
+        // THÊM VALIDATION CHO REQUIRED FIELDS
+        if (empty($_POST['r160']) || empty($_POST['r170']) || empty($_POST['r190'])) {
+            wp_send_json_error('Please fill in all required contact information (Name, Email, Phone)');
+            return;
+        }
 
-    // VALIDATE EMAIL FORMAT
-    if (!is_email($_POST['r170'])) {
-        wp_send_json_error('Please enter a valid email address');
-        return;
-    }
+        // VALIDATE EMAIL FORMAT
+        if (!is_email($_POST['r170'])) {
+            wp_send_json_error('Please enter a valid email address');
+            return;
+        }
 
-    // VALIDATE CAPTCHA - THÊM ĐOẠN NÀY
-    if (empty($_POST['HumanVerify'])) {
-        wp_send_json_error('Please enter the verification code');
-        return;
-    }
+        // VALIDATE CAPTCHA - THÊM ĐOẠN NÀY
+        if (empty($_POST['HumanVerify'])) {
+            wp_send_json_error('Please enter the verification code');
+            return;
+        }
 
-    // CHECK CAPTCHA AGAINST SESSION
-    if (!isset($_SESSION['survey_captcha']) || 
-        strtoupper(trim($_POST['HumanVerify'])) !== $_SESSION['survey_captcha']) {
-        wp_send_json_error('Invalid verification code. Please try again.');
-        return;
-    }
+        // CHECK CAPTCHA AGAINST SESSION
+        if (
+            !isset($_SESSION['survey_captcha']) ||
+            strtoupper(trim($_POST['HumanVerify'])) !== $_SESSION['survey_captcha']
+        ) {
+            wp_send_json_error('Invalid verification code. Please try again.');
+            return;
+        }
 
         // CLEAR CAPTCHA FROM SESSION AFTER USE
         unset($_SESSION['survey_captcha']);
@@ -132,7 +135,7 @@ class WP_Survey_System
         }
         // END
 
-        
+
 
         // Sanitize và collect data
         $survey_data = $this->sanitize_survey_data($_POST);
@@ -171,7 +174,7 @@ class WP_Survey_System
 
             wp_send_json_success(array(
                 'message' => 'Thank you for your feedback!',
-                'discount_code' => 'T3226',
+                'discount_code' =>  get_option('survey_default_discount_code', 'T3226'),
                 'response_id' => $response_id
             ));
         } else {
@@ -382,19 +385,21 @@ class WP_Survey_System
     private function send_thank_you_email($email, $name)
     {
         $subject = 'Thank you for completing our survey';
+        $discount_code = get_option('survey_default_discount_code', 'T3226');
         $message = sprintf(
             "Dear %s,\n\n" .
                 "Thank you for taking the time to complete our survey.\n\n" .
-                "As a token of our appreciation, please use discount code: T3226 for 10%% off your next course.\n\n" .
+                "As a token of our appreciation, please use discount code: %s for 10%% off your next course.\n\n" .
                 "Best regards,\n" .
                 "The Team",
-            $name ?: 'Valued Customer'
+            $name ?: 'Valued Customer',
+            $discount_code
         );
 
         wp_mail($email, $subject, $message);
     }
 
-        /**
+    /**
      * Generate random discount code
      */
     private function generate_discount_code()
@@ -417,6 +422,16 @@ class WP_Survey_System
             'dashicons-feedback',
             30
         );
+
+        // Submenu - Settings
+        add_submenu_page(
+            'survey-responses',
+            'Survey Settings',
+            'Settings',
+            'manage_options',
+            'survey-settings',
+            array($this, 'survey_settings_page')
+        );
     }
 
     /**
@@ -429,14 +444,14 @@ class WP_Survey_System
 
     public function survey_enqueue_admin_scripts($hook)
     {
-        if ($hook !== 'toplevel_page_survey-responses') {
+        if ($hook !== 'toplevel_page_survey-responses' && $hook !== 'surveys_page_survey-settings') {
             return;
         }
 
-         wp_enqueue_style('fontawesome-admin', get_stylesheet_directory_uri().'/assets/fontawesome6/css/all.min.css');
+        wp_enqueue_style('fontawesome-admin', get_stylesheet_directory_uri() . '/assets/fontawesome6/css/all.min.css');
 
-        wp_enqueue_style('datatable-style', get_stylesheet_directory_uri().'/assets/datatables/datatables.min.css');
-        wp_enqueue_script('datatables-js-script', get_stylesheet_directory_uri().'/assets/datatables/datatables.min.js', array('jquery'), null, true);
+        wp_enqueue_style('datatable-style', get_stylesheet_directory_uri() . '/assets/datatables/datatables.min.css');
+        wp_enqueue_script('datatables-js-script', get_stylesheet_directory_uri() . '/assets/datatables/datatables.min.js', array('jquery'), null, true);
 
         // Pass ajaxurl to script
         wp_localize_script('datatables', 'survey_vars', array(
@@ -547,6 +562,88 @@ class WP_Survey_System
         } else {
             wp_send_json_error('Failed to delete survey');
         }
+    }
+
+    /**
+     * THÊM MỚI: Register settings
+     */
+    public function register_survey_settings()
+    {
+        register_setting('survey_settings_group', 'survey_default_discount_code', array(
+            'type' => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default' => 'T3226'
+        ));
+
+        add_settings_section(
+            'survey_discount_section',
+            '',
+            array($this, 'discount_section_callback'),
+            'survey-settings'
+        );
+
+        add_settings_field(
+            'survey_default_discount_code',
+            'Default Discount Code',
+            array($this, 'discount_code_field_callback'),
+            'survey-settings',
+            'survey_discount_section'
+        );
+    }
+
+    /**
+     * THÊM MỚI: Section callback
+     */
+    public function discount_section_callback()
+    {
+        echo '<p>Set the default discount code that users will receive after completing the survey.</p>';
+    }
+
+    /**
+     * THÊM MỚI: Field callback
+     */
+    public function discount_code_field_callback()
+    {    
+        $value = get_option('survey_default_discount_code', 'T3226');
+        echo '<input type="text" name="survey_default_discount_code" value="' . esc_attr($value) . '" class="regular-text" placeholder="e.g., T3226" />';
+        echo '<p class="description">Enter the discount code that will be shown to users after survey completion.</p>';
+    }
+
+    /**
+     * THÊM MỚI: Settings page
+     */
+    public function survey_settings_page()
+    {
+        if (!current_user_can('manage_options')) {
+            wp_die(__('You do not have sufficient permissions to access this page.'));
+        }
+?>
+        <div class="wrap">
+            <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+
+            <?php if (isset($_GET['settings-updated'])) : ?>
+                <div class="notice notice-success is-dismissible">
+                    <p><strong>Settings saved successfully!</strong></p>
+                </div>
+            <?php endif; ?>
+
+            <form method="post" action="options.php">
+                <?php
+                settings_fields('survey_settings_group');
+                do_settings_sections('survey-settings');
+                submit_button('Save Settings');
+                ?>
+            </form>
+
+            <div class="card" style="max-width: 600px; margin-top: 20px;">
+                <h2>Current Discount Code</h2>
+                <p style="font-size: 24px; font-weight: bold; color: #2271b1;">
+                    <?php echo esc_html(get_option('survey_default_discount_code', 'T3226')); ?>
+                </p>
+                <p class="description">This code will be displayed to users after they complete the survey.</p>
+            </div>
+        </div>
+<?php
     }
 }
 
