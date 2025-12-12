@@ -68,6 +68,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>		
     </div>
 
+	<?php get_template_part( 'templates/mobile-header', 'menu' ); ?>
 
 	<!-- Custom Navigation -->
 	<nav class="navbar navbar-expand-lg navbar-dark top-navbar">

@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<!-- Footer -->
 	<footer class="footer">
 		<div class="container">
-			<p><?php echo esc_html( get_theme_mod( 'footer_site_name', get_bloginfo( 'name' ) ) ); ?></p>			
+			<p><?php echo esc_html( get_theme_mod( 'footer_site_name', '© Copyright 2004-2025 by ContinuingEdCourses.Net, Inc. All rights reserved' ) ); ?></p>			
 		</div>
 	</footer>
 
