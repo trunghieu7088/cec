@@ -30,8 +30,13 @@ function accreditation_section_shortcode($atts) {
     // Conflict Notice
     $conflict_title = get_theme_mod('accreditation_conflict_title', 'Transparency:');
     $conflict_description = get_theme_mod('accreditation_conflict_description', 'No conflicts of interest have been reported by the authors.');
-    $prefix_path=get_stylesheet_directory_uri().'/assets/accreditaion-img/';
-    
+   // Get logo URLs from customizer or use defaults
+    $prefix_path = get_stylesheet_directory_uri().'/assets/accreditaion-img/';
+
+    $apa_logo = get_theme_mod('accreditation_apa_logo', $prefix_path.'apa-new.jpeg');
+    $aswb_logo = get_theme_mod('accreditation_aswb_logo', $prefix_path.'aswb-new.png');
+    $nbcc_logo = get_theme_mod('accreditation_nbcc_logo', $prefix_path.'NBCC.png');
+    $nysed_logo = get_theme_mod('accreditation_nysed_logo', $prefix_path.'nysed-logo.png');
 
     // Build the HTML output
     $output = '
@@ -48,17 +53,19 @@ function accreditation_section_shortcode($atts) {
     width:150px;
     height:150px;
     border-radius:50%;
+    object-fit:cover;
 }
     </style>
     <div class="container mt-4">
     <div class="content-card">
         <h2 class="section-title">' . esc_html($section_title) . '</h2>
         <div class="accreditation-logos-flex">
-             <img src="'. $prefix_path.'apa-new.jpeg'.'" alt="" class="accreditation-logo-img">
-             <img src="'. $prefix_path.'aswb-new.png'.'" alt="" class="accreditation-logo-img">
-             <img src="'. $prefix_path.'NBCC.png'.'" alt="" class="accreditation-logo-img">
-             <img src="'. $prefix_path.'nysed-logo.png'.'" alt="" class="accreditation-logo-img">
+            <img src="'. esc_url($apa_logo) .'" alt="APA Logo" class="accreditation-logo-img">
+            <img src="'. esc_url($aswb_logo) .'" alt="ASWB Logo" class="accreditation-logo-img">
+            <img src="'. esc_url($nbcc_logo) .'" alt="NBCC Logo" class="accreditation-logo-img">
+            <img src="'. esc_url($nysed_logo) .'" alt="NYSED Logo" class="accreditation-logo-img">
         </div>
+
         <div class="accreditation-item">
             <p><strong>' . esc_html($apa_title) . '</strong> ' . esc_html($apa_description) . '</p>
         </div>

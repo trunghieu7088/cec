@@ -1,5 +1,6 @@
 <?php
-function accreditation_section_customizer($wp_customize) {
+function accreditation_section_customizer($wp_customize)
+{
     // Add Accreditation Section
     $wp_customize->add_section('accreditation_section', array(
         'title'    => __('Accreditation Section Settings', 'your-theme'),
@@ -185,5 +186,54 @@ function accreditation_section_customizer($wp_customize) {
         'section'  => 'accreditation_section',
         'type'     => 'text',
     ));
+
+    // Logo Images
+    // APA Logo
+    $wp_customize->add_setting('accreditation_apa_logo', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'accreditation_apa_logo', array(
+        'label'    => __('APA Logo', 'your-theme'),
+        'section'  => 'accreditation_section',
+        'settings' => 'accreditation_apa_logo',
+    )));
+
+    // ASWB Logo
+    $wp_customize->add_setting('accreditation_aswb_logo', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'accreditation_aswb_logo', array(
+        'label'    => __('ASWB Logo', 'your-theme'),
+        'section'  => 'accreditation_section',
+        'settings' => 'accreditation_aswb_logo',
+    )));
+
+    // NBCC Logo
+    $wp_customize->add_setting('accreditation_nbcc_logo', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'accreditation_nbcc_logo', array(
+        'label'    => __('NBCC Logo', 'your-theme'),
+        'section'  => 'accreditation_section',
+        'settings' => 'accreditation_nbcc_logo',
+    )));
+
+    // NYSED Logo
+    $wp_customize->add_setting('accreditation_nysed_logo', array(
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ));
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'accreditation_nysed_logo', array(
+        'label'    => __('NYSED Logo', 'your-theme'),
+        'section'  => 'accreditation_section',
+        'settings' => 'accreditation_nysed_logo',
+    )));
 }
 add_action('customize_register', 'accreditation_section_customizer');
