@@ -207,7 +207,8 @@ body.mobile-menu-open {
 		<ul class="mobile-sidebar-nav">
 			<?php
 			// Get menu items
-			$menu_items = wp_get_nav_menu_items('main-header-menu');
+            $current_main_menu_name=get_primary_menu_name_cec('primary') ?: 'main-header-menu';
+			$menu_items = wp_get_nav_menu_items($current_main_menu_name);
 			if ($menu_items) {
 				foreach ($menu_items as $item) {
 					if ($item->menu_item_parent == 0) { // Only top-level items

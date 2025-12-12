@@ -85,3 +85,33 @@ function get_currency_of_llms() {
  
     return $currency_instance;
 }
+
+
+/**
+ * Lấy tên của menu được gán cho một vị trí theme location cụ thể.
+ *
+ * @param string $location_slug Slug của vị trí menu (ví dụ: 'primary', 'footer').
+ * @return string Tên menu hoặc chuỗi rỗng nếu không tìm thấy.
+ */
+function get_primary_menu_name_cec( $location_slug = 'primary' ) {
+    // 1. Lấy tất cả các vị trí menu đã đăng ký
+    $locations = get_nav_menu_locations();
+
+    // 2. Kiểm tra xem vị trí yêu cầu có được gán menu nào không
+    if ( isset( $locations[ $location_slug ] ) ) {
+        
+        // 3. Lấy ID của menu
+        $menu_id = $locations[ $location_slug ];
+        
+        // 4. Lấy đối tượng menu
+        $menu_object = wp_get_nav_menu_object( $menu_id );
+        
+        // 5. Kiểm tra và trả về tên menu
+        if ( $menu_object && ! is_wp_error( $menu_object ) ) {
+            return $menu_object->name;
+        }
+    }
+
+    // Trả về chuỗi rỗng nếu không có menu nào được gán hoặc tìm thấy
+    return '';
+}

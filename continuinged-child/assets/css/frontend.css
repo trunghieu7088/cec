@@ -1152,6 +1152,14 @@ body {
 
 }
 
+@media(max-width: 480px)
+{
+    .step-number
+    {
+        display:flex;
+    }
+}
+
 /* ========================================
    LOGIN PAGE SPECIFIC STYLES
    ======================================== */

@@ -393,7 +393,7 @@ jQuery(document).ready(function($) {
 
         $('#paymentForm').validate({
             rules: {
-                card_number: { required: true, creditcard: true },
+                card_number: { required: true },
                 card_month: { required: true, cardExpiry: true },
                 card_year: { required: true },
                 card_cvv: { required: true, cvvValid: true }
@@ -407,10 +407,11 @@ jQuery(document).ready(function($) {
             errorElement: 'div',
             errorClass: 'invalid-feedback d-block',
             highlight: function(element) {
-                $(element).addClass('is-invalid').removeClass('is-valid');
+                $(element).addClass('border-danger').removeClass('border-success');
             },
             unhighlight: function(element) {
-                $(element).removeClass('is-invalid').addClass('is-valid');
+                //$(element).removeClass('is-invalid').addClass('is-valid');
+                $(element).removeClass('border-danger').addClass('border-success');
             },
             errorPlacement: function(error, element) {
                 error.insertAfter(element);

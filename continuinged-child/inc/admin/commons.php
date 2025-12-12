@@ -268,57 +268,24 @@ $wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'accr
     ) );
 
         // Site Name for Copyright
+
+         $wp_customize->add_section( 'footer_copyright_section', array(
+        'title'    => __( 'Copyright Footer Text', 'astra-child' ),
+        'priority' => 121,
+    ) );
+    
+
     $wp_customize->add_setting( 'footer_site_name', array(
         'default'           => '© Copyright 2004-2025 by ContinuingEdCourses.Net, Inc. All rights reserved.',
         'sanitize_callback' => 'sanitize_text_field',
     ) );
     $wp_customize->add_control( 'footer_site_name', array(
         'label'   => __( 'Copyright Text', 'astra-child' ),
-        'section' => 'footer_contact_section',
-        'type'    => 'text',
-    ) );
-    
-    // ========================================
-    // FOOTER COPYRIGHT
-    // ========================================
-    
- /*   $wp_customize->add_section( 'footer_copyright_section', array(
-        'title'    => __( 'Footer Copyright', 'astra-child' ),
-        'priority' => 122,
-    ) );
-    
-    // Site Name for Copyright
-    $wp_customize->add_setting( 'footer_site_name', array(
-        'default'           => 'Continuing Ed Courses',
-        'sanitize_callback' => 'sanitize_text_field',
-    ) );
-    $wp_customize->add_control( 'footer_site_name', array(
-        'label'   => __( 'Copyright Text', 'astra-child' ),
-        'section' => 'footer_copyright_section',
-        'type'    => 'text',
-    ) ); */
-    
-    // Copyright Text
-  /*  $wp_customize->add_setting( 'footer_copyright_text', array(
-        'default'           => 'All rights reserved.',
-        'sanitize_callback' => 'sanitize_text_field',
-    ) );
-    $wp_customize->add_control( 'footer_copyright_text', array(
-        'label'   => __( 'Copyright Text', 'astra-child' ),
         'section' => 'footer_copyright_section',
         'type'    => 'text',
     ) );
     
-    // Regulatory Disclaimer
-    $wp_customize->add_setting( 'footer_regulatory_text', array(
-        'default'           => 'Regulatory boards are the final authority on courses accepted for continuing education credit.',
-        'sanitize_callback' => 'sanitize_textarea_field',
-    ) );
-   $wp_customize->add_control( 'footer_regulatory_text', array(
-        'label'   => __( 'Regulatory Disclaimer', 'astra-child' ),
-        'section' => 'footer_copyright_section',
-        'type'    => 'textarea',
-    ) ); */
+
 
 
 }
